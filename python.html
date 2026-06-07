@@ -7809,6 +7809,9 @@ a.anchor-link {
 <li><a href="#q4">Find Duplicates</a></li>
 <li><a href="#q5">Log Summary — ERROR Count by Date and User</a></li>
 <li><a href="#q6">API Response Analysis</a></li>
+<li><a href="#q7">Read big csv</a></li>
+<li><a href="#q8">Multi threading</a></li>
+<li><a href="#q9">decorater</a></li>
 </ol>
 </div>
 </div>
@@ -8311,17 +8314,434 @@ patricktomas 1
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=0ab73a4f-260a-4abd-875c-e1f2f3dadf35">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0ab73a4f-260a-4abd-875c-e1f2f3dadf35">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span> 
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="7-Reading-Large-CSV-Files-in-Python">7 Reading Large CSV Files in Python<a class="anchor-link" href="#7-Reading-Large-CSV-Files-in-Python">¶</a></h2><p><a id="q7"></a></p>
+<p><a href="#Index">↑ Back to Index</a></p>
+<h2 id="Rule-of-Thumb">Rule of Thumb<a class="anchor-link" href="#Rule-of-Thumb">¶</a></h2><table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt; 100 GB and one powerful machine</td>
+<td><strong>Polars</strong></td>
+</tr>
+<tr>
+<td>100 GB–TBs on a cluster</td>
+<td><strong>Dask</strong></td>
+</tr>
+<tr>
+<td>Need distributed computation / Kubernetes</td>
+<td><strong>Dask</strong></td>
+</tr>
+<tr>
+<td>Need maximum single-node performance</td>
+<td><strong>Polars</strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="1.-Using-Pandas-with-chunksize">1. Using Pandas with <code>chunksize</code><a class="anchor-link" href="#1.-Using-Pandas-with-chunksize">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"large_file.csv"</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">100000</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">total_sales</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"sales.csv"</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">50000</span><span class="p">):</span>
+    <span class="n">total_sales</span> <span class="o">+=</span> <span class="n">chunk</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">total_sales</span><span class="p">)</span>
+</pre></div>
+<hr/>
+<h2 id="2.-Use-Python's-csv-Module">2. Use Python's <code>csv</code> Module<a class="anchor-link" href="#2.-Use-Python's-csv-Module">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"large_file.csv"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+</pre></div>
+<hr/>
+<h2 id="3.-Read-Only-Required-Columns">3. Read Only Required Columns<a class="anchor-link" href="#3.-Read-Only-Required-Columns">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">"large_file.csv"</span><span class="p">,</span>
+    <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"salary"</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+<hr/>
+<h2 id="4.-Specify-Data-Types">4. Specify Data Types<a class="anchor-link" href="#4.-Specify-Data-Types">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">"large_file.csv"</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"int32"</span><span class="p">,</span>
+        <span class="s2">"salary"</span><span class="p">:</span> <span class="s2">"float32"</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+<hr/>
+<h2 id="5.-Use-Dask-for-Very-Large-Files">5. Use Dask for Very Large Files<a class="anchor-link" href="#5.-Use-Dask-for-Very-Large-Files">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"large_file.csv"</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"amount"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+<hr/>
+<h2 id="6.-Use-Polars">6. Use Polars<a class="anchor-link" href="#6.-Use-Polars">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span><span class="s2">"large_file.csv"</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"amount"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+<hr/>
+<h2 id="Dask-vs-Polars">Dask vs Polars<a class="anchor-link" href="#Dask-vs-Polars">¶</a></h2><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Polars</th>
+<th>Dask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Execution Model</td>
+<td>Multi-threaded</td>
+<td>Distributed</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>Rust</td>
+<td>Python</td>
+</tr>
+<tr>
+<td>Lazy Execution</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Cluster Support</td>
+<td>Limited</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td>Best Use Case</td>
+<td>Single-node analytics</td>
+<td>Distributed analytics</td>
+</tr>
+</tbody>
+</table>
 </div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1e95ba0a-2cf9-43d0-8473-80cd01564686">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="8-Python-Multithreading-%E2%80%93-Interview-Explanation">8 Python Multithreading – Interview Explanation<a class="anchor-link" href="#8-Python-Multithreading-%E2%80%93-Interview-Explanation">¶</a></h2><p><a id="q8"></a></p>
+<p><a href="#Index">↑ Back to Index</a></p>
+<h2 id="What-is-Multithreading?">What is Multithreading?<a class="anchor-link" href="#What-is-Multithreading?">¶</a></h2><p>Multithreading allows multiple threads to run within the same process.</p>
+<p>A thread is the smallest unit of execution. Threads share the same memory space, making communication between them fast.</p>
+<p>Python multithreading is mainly useful for:</p>
+<ul>
+<li>I/O-bound tasks<ul>
+<li>API calls</li>
+<li>Database queries</li>
+<li>File operations</li>
+<li>Network requests</li>
+</ul>
+</li>
+</ul>
+<p>Not ideal for CPU-bound tasks because of the GIL (Global Interpreter Lock).</p>
+<hr/>
+<h2 id="How-It-Works">How It Works<a class="anchor-link" href="#How-It-Works">¶</a></h2><h3 id="Single-Thread">Single Thread<a class="anchor-link" href="#Single-Thread">¶</a></h3><div class="highlight"><pre><span></span>Task 1 ---&gt; Task 2 ---&gt; Task 3
+</pre></div>
+<p>Each task waits for the previous one to finish.</p>
+<hr/>
+<h3 id="Multiple-Threads">Multiple Threads<a class="anchor-link" href="#Multiple-Threads">¶</a></h3><div class="highlight"><pre><span></span>Thread 1 ---&gt; API Call
+Thread 2 ---&gt; API Call
+Thread 3 ---&gt; API Call
+</pre></div>
+<p>While one thread waits for I/O, another thread can run.</p>
+<hr/>
+<h2 id="Basic-Example">Basic Example<a class="anchor-link" href="#Basic-Example">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Starting </span><span class="si">{</span><span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Finished </span><span class="si">{</span><span class="n">threading</span><span class="o">.</span><span class="n">current_thread</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">t1</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+
+<span class="n">t1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">t2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">t1</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+<span class="n">t2</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"All threads completed"</span><span class="p">)</span>
+</pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span>Starting Thread-1
+Starting Thread-2
+Finished Thread-1
+Finished Thread-2
+All threads completed
+</pre></div>
+<hr/>
+<h2 id="Interview-Example:-Download-Multiple-URLs">Interview Example: Download Multiple URLs<a class="anchor-link" href="#Interview-Example:-Download-Multiple-URLs">¶</a></h2><h3 id="Without-Threads">Without Threads<a class="anchor-link" href="#Without-Threads">¶</a></h3><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+    <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span>Download A (2 sec)
+Download B (2 sec)
+Download C (2 sec)
+
+Total = 6 sec
+</pre></div>
+<hr/>
+<h3 id="With-Threads">With Threads<a class="anchor-link" href="#With-Threads">¶</a></h3><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"https://api.example.com/1"</span><span class="p">,</span>
+    <span class="s2">"https://api.example.com/2"</span><span class="p">,</span>
+    <span class="s2">"https://api.example.com/3"</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+
+<span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">fetch</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">url</span><span class="p">,))</span>
+    <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+<div class="highlight"><pre><span></span>All requests start together
+
+Total ≈ 2 sec
+instead of 6 sec
+</pre></div>
+<hr/>
+<h2 id="Using-ThreadPoolExecutor-(Recommended)">Using ThreadPoolExecutor (Recommended)<a class="anchor-link" href="#Using-ThreadPoolExecutor-(Recommended)">¶</a></h2><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"https://api.example.com/1"</span><span class="p">,</span>
+    <span class="s2">"https://api.example.com/2"</span><span class="p">,</span>
+    <span class="s2">"https://api.example.com/3"</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">status_code</span>
+
+<span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fetch</span><span class="p">,</span> <span class="n">urls</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+<p>This is the preferred approach in production code.</p>
+<hr/>
+<h2 id="What-is-start()?">What is <code>start()</code>?<a class="anchor-link" href="#What-is-start()?">¶</a></h2><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+<p>Creates a new thread and executes the target function.</p>
+<hr/>
+<h2 id="What-is-join()?">What is <code>join()</code>?<a class="anchor-link" href="#What-is-join()?">¶</a></h2><div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+<p>Waits until the thread completes.</p>
+<p>Without join:</p>
+<div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span>
+</pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span>Done
+Thread finishes later
+</pre></div>
+<p>With join:</p>
+<div class="highlight"><pre><span></span><span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span>
+</pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span>Thread finishes
+Done
+</pre></div>
+<hr/>
+<hr/>
+<h2 id="GIL-(Global-Interpreter-Lock)">GIL (Global Interpreter Lock)<a class="anchor-link" href="#GIL-(Global-Interpreter-Lock)">¶</a></h2><p>Python allows only one thread to execute Python bytecode at a time.</p>
+<p>`</p>
+<h2 id="Multithreading-vs-Multiprocessing">Multithreading vs Multiprocessing<a class="anchor-link" href="#Multithreading-vs-Multiprocessing">¶</a></h2><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Multithreading</th>
+<th>Multiprocessing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Memory</td>
+<td>Shared</td>
+<td>Separate</td>
+</tr>
+<tr>
+<td>Communication</td>
+<td>Fast</td>
+<td>Slower</td>
+</tr>
+<tr>
+<td>Best For</td>
+<td>I/O-bound</td>
+<td>CPU-bound</td>
+</tr>
+<tr>
+<td>GIL Impact</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Startup Cost</td>
+<td>Low</td>
+<td>Higher</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h2><p><strong>When would you use multithreading?</strong></p>
+<blockquote>
+<p>I use multithreading for I/O-bound workloads such as API calls, file processing, database operations, and network requests. Threads can run concurrently while waiting for I/O, improving throughput. For CPU-intensive tasks, I prefer multiprocessing because Python's GIL prevents multiple threads from executing Python bytecode simultaneously.</p>
+</blockquote>
+<p><strong>What are <code>start()</code> and <code>join()</code>?</strong></p>
+<blockquote>
+<p><code>start()</code> creates and begins execution of a new thread. <code>join()</code> blocks the calling thread until the target thread completes.</p>
+</blockquote>
+<p><strong>What is a race condition?</strong></p>
+<blockquote>
+<p>A race condition occurs when multiple threads modify shared data simultaneously, leading to inconsistent results. It can be prevented using synchronization primitives such as <code>Lock</code>.</p>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eb84f3d7-7ebc-4908-b83f-3fbe215d6103">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="9-Python-Decorators">9 Python Decorators<a class="anchor-link" href="#9-Python-Decorators">¶</a></h2><p><a id="q9"></a></p>
+<p><a href="#Index">↑ Back to Index</a></p>
+<h2 id="What-is-a-Decorator?">What is a Decorator?<a class="anchor-link" href="#What-is-a-Decorator?">¶</a></h2><p>A decorator is a function that wraps another function to add extra behavior before or after its execution without modifying the original function.</p>
+<p>Decorators are commonly used for:</p>
+<ul>
+<li>Logging</li>
+<li>Authentication &amp; Authorization</li>
+<li>Caching</li>
+<li>Performance monitoring</li>
+<li>Retry mechanisms</li>
+<li>Input validation</li>
+</ul>
+<hr/>
+<h2 id="Basic-Decorator">Basic Decorator<a class="anchor-link" href="#Basic-Decorator">¶</a></h2><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Before function call"</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"After function call"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="nd">@my_decorator</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello"</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">()</span>
+</pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span>Before function call
+Hello
+After function call
+</pre></div>
+<hr/>
+<h2 id="Multiple-Decorators">Multiple Decorators<a class="anchor-link" href="#Multiple-Decorators">¶</a></h2><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">decorator1</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Decorator 1"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">decorator2</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Decorator 2"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="nd">@decorator1</span>
+<span class="nd">@decorator2</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello"</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">()</span>
+</pre></div>
+<p>Execution order:</p>
+<div class="highlight"><pre><span></span>Decorator 1
+Decorator 2
+Hello
+</pre></div>
+<hr/>
+<h3 id="Q:-How-does-@decorator-work-internally?">Q: How does <code>@decorator</code> work internally?<a class="anchor-link" href="#Q:-How-does-@decorator-work-internally?">¶</a></h3><div class="highlight"><pre><span></span><span class="nd">@decorator</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+<p>is equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="n">func</span> <span class="o">=</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+</pre></div>
+<hr/>
+<h3 id="Q:-What-are-some-real-world-uses?">Q: What are some real-world uses?<a class="anchor-link" href="#Q:-What-are-some-real-world-uses?">¶</a></h3><ul>
+<li>API authentication</li>
+<li>Request logging</li>
+<li>Retry logic</li>
+<li>Performance tracking</li>
+<li>Caching</li>
+<li>Database transaction management</li>
+</ul>
+<hr/>
+<h3 id="Q:-What-is-the-benefit-of-decorators?">Q: What is the benefit of decorators?<a class="anchor-link" href="#Q:-What-is-the-benefit-of-decorators?">¶</a></h3><ul>
+<li>Code reuse</li>
+<li>Separation of concerns</li>
+<li>Cleaner business logic</li>
+<li>Easy to apply cross-cutting concerns</li>
+</ul>
+<hr/>
+<h2 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h2><blockquote>
+<p>A decorator is a higher-order function that takes another function as input, adds additional behavior, and returns a modified function. It is commonly used for cross-cutting concerns such as logging, authentication, caching, retries, and performance monitoring. Internally, <code>@decorator</code> is just syntactic sugar for <code>function = decorator(function)</code>. Decorators help keep business logic clean while making reusable functionality easy to apply across multiple functions.</p>
+</blockquote>
 </div>
 </div>
 </div>
