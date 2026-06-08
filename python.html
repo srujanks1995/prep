@@ -7812,6 +7812,7 @@ a.anchor-link {
 <li><a href="#q7">Read big csv</a></li>
 <li><a href="#q8">Multi threading</a></li>
 <li><a href="#q9">decorater</a></li>
+<li><a href="#q10">Python Concurrency</a></li>
 </ol>
 </div>
 </div>
@@ -8460,7 +8461,7 @@ patricktomas 1
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="8-Python-Multithreading-%E2%80%93-Interview-Explanation">8 Python Multithreading – Interview Explanation<a class="anchor-link" href="#8-Python-Multithreading-%E2%80%93-Interview-Explanation">¶</a></h2><p><a id="q8"></a></p>
+<h2 id="8-Python-Multithreading">8 Python Multithreading<a class="anchor-link" href="#8-Python-Multithreading">¶</a></h2><p><a id="q8"></a></p>
 <p><a href="#Index">↑ Back to Index</a></p>
 <h2 id="What-is-Multithreading?">What is Multithreading?<a class="anchor-link" href="#What-is-Multithreading?">¶</a></h2><p>Multithreading allows multiple threads to run within the same process.</p>
 <p>A thread is the smallest unit of execution. Threads share the same memory space, making communication between them fast.</p>
@@ -8742,6 +8743,259 @@ Hello
 <h2 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h2><blockquote>
 <p>A decorator is a higher-order function that takes another function as input, adds additional behavior, and returns a modified function. It is commonly used for cross-cutting concerns such as logging, authentication, caching, retries, and performance monitoring. Internally, <code>@decorator</code> is just syntactic sugar for <code>function = decorator(function)</code>. Decorators help keep business logic clean while making reusable functionality easy to apply across multiple functions.</p>
 </blockquote>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5ee3af5c-5fd3-405c-93a3-c70c4a6225b5">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Python-Concurrency">Python Concurrency<a class="anchor-link" href="#Python-Concurrency">¶</a></h2><p><a id="q10"></a></p>
+<p><a href="#Index">↑ Back to Index</a></p>
+<h2 id="1.-Async/Await-(asyncio)">1. Async/Await (<code>asyncio</code>)<a class="anchor-link" href="#1.-Async/Await-(asyncio)">¶</a></h2><h3 id="What-is-it?">What is it?<a class="anchor-link" href="#What-is-it?">¶</a></h3><p>A way to run many <strong>I/O-bound tasks concurrently</strong> without creating multiple threads.</p>
+<h3 id="Examples">Examples<a class="anchor-link" href="#Examples">¶</a></h3><ul>
+<li>API calls</li>
+<li>Database queries</li>
+<li>File I/O</li>
+<li>Network requests</li>
+</ul>
+<h3 id="Key-Concepts">Key Concepts<a class="anchor-link" href="#Key-Concepts">¶</a></h3><table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event Loop</td>
+<td>Manages and schedules async tasks</td>
+</tr>
+<tr>
+<td>Coroutine</td>
+<td>Function defined using <code>async def</code></td>
+</tr>
+<tr>
+<td>await</td>
+<td>Pauses current task and lets others run</td>
+</tr>
+<tr>
+<td>Future/Task</td>
+<td>Placeholder for result of async operation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Example">Example<a class="anchor-link" href="#Example">¶</a></h3><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+        <span class="n">fetch</span><span class="p">(),</span>
+        <span class="n">fetch</span><span class="p">(),</span>
+        <span class="n">fetch</span><span class="p">()</span>
+    <span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+<h3 id="Pros">Pros<a class="anchor-link" href="#Pros">¶</a></h3><ul>
+<li>Very lightweight</li>
+<li>Handles thousands of connections</li>
+<li>No thread overhead</li>
+<li>Excellent for I/O-heavy applications</li>
+</ul>
+<h3 id="Cons">Cons<a class="anchor-link" href="#Cons">¶</a></h3><ul>
+<li>Not good for CPU-heavy work</li>
+<li>Requires async-compatible libraries</li>
+</ul>
+<h3 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h3><blockquote>
+<p>Asyncio uses a single thread with an event loop. When a task is waiting for I/O, it yields control so other tasks can run, improving efficiency without blocking.</p>
+</blockquote>
+<hr/>
+<h2 id="2.-Threads-(threading)">2. Threads (<code>threading</code>)<a class="anchor-link" href="#2.-Threads-(threading)">¶</a></h2><h3 id="What-is-it?">What is it?<a class="anchor-link" href="#What-is-it?">¶</a></h3><p>Allows multiple execution threads inside the same process.</p>
+<h3 id="Example">Example<a class="anchor-link" href="#Example">¶</a></h3><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Working"</span><span class="p">)</span>
+
+<span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+    <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+<h3 id="Pros">Pros<a class="anchor-link" href="#Pros">¶</a></h3><ul>
+<li>Easy to use</li>
+<li>Good for blocking I/O libraries</li>
+<li>Useful for background jobs</li>
+</ul>
+<h3 id="Cons">Cons<a class="anchor-link" href="#Cons">¶</a></h3><ul>
+<li>Thread management overhead</li>
+<li>Race conditions possible</li>
+<li>Limited by Python GIL</li>
+</ul>
+<h3 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h3><blockquote>
+<p>Threads share the same memory space and can run concurrently. They are commonly used when working with blocking APIs or background tasks.</p>
+</blockquote>
+<hr/>
+<h2 id="3.-GIL-(Global-Interpreter-Lock)">3. GIL (Global Interpreter Lock)<a class="anchor-link" href="#3.-GIL-(Global-Interpreter-Lock)">¶</a></h2><h3 id="What-is-GIL?">What is GIL?<a class="anchor-link" href="#What-is-GIL?">¶</a></h3><p>A lock that allows only <strong>one thread to execute Python bytecode at a time</strong>.</p>
+<h3 id="Impact">Impact<a class="anchor-link" href="#Impact">¶</a></h3><ul>
+<li>Multiple threads cannot achieve true CPU parallelism.</li>
+<li>Threads help with I/O-bound tasks.</li>
+<li>Threads are not ideal for CPU-intensive tasks.</li>
+</ul>
+<h3 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h3><blockquote>
+<p>The GIL prevents multiple Python threads from executing Python code simultaneously, which limits thread performance for CPU-bound workloads.</p>
+</blockquote>
+<hr/>
+<h2 id="4.-Multiprocessing">4. Multiprocessing<a class="anchor-link" href="#4.-Multiprocessing">¶</a></h2><h3 id="What-is-it?">What is it?<a class="anchor-link" href="#What-is-it?">¶</a></h3><p>Creates multiple processes instead of threads.</p>
+<p>Each process:</p>
+<ul>
+<li>Has its own memory</li>
+<li>Has its own Python interpreter</li>
+<li>Has its own GIL</li>
+</ul>
+<h3 id="Example">Example<a class="anchor-link" href="#Example">¶</a></h3><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Working"</span><span class="p">)</span>
+
+<span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+    <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+<h3 id="Pros">Pros<a class="anchor-link" href="#Pros">¶</a></h3><ul>
+<li>True parallelism</li>
+<li>Bypasses GIL</li>
+<li>Great for CPU-intensive tasks</li>
+</ul>
+<h3 id="Cons">Cons<a class="anchor-link" href="#Cons">¶</a></h3><ul>
+<li>Higher memory usage</li>
+<li>Process creation is expensive</li>
+</ul>
+<h3 id="Interview-Answer">Interview Answer<a class="anchor-link" href="#Interview-Answer">¶</a></h3><blockquote>
+<p>Multiprocessing uses separate processes, allowing multiple CPU cores to execute tasks simultaneously and bypassing the GIL.</p>
+</blockquote>
+<hr/>
+<h1 id="Async-vs-Threads-vs-Multiprocessing">Async vs Threads vs Multiprocessing<a class="anchor-link" href="#Async-vs-Threads-vs-Multiprocessing">¶</a></h1><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Asyncio</th>
+<th>Threads</th>
+<th>Multiprocessing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best For</td>
+<td>I/O Bound</td>
+<td>Blocking I/O</td>
+<td>CPU Bound</td>
+</tr>
+<tr>
+<td>Uses GIL</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>True Parallelism</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Memory Usage</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Scalability</td>
+<td>Very High</td>
+<td>Medium</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Context Switch Cost</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Shared Memory</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Multiple CPU Cores</td>
+<td>No</td>
+<td>Limited</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h1 id="Quick-Decision-Tree">Quick Decision Tree<a class="anchor-link" href="#Quick-Decision-Tree">¶</a></h1><h3 id="API-Calls-/-Database-Calls?">API Calls / Database Calls?<a class="anchor-link" href="#API-Calls-/-Database-Calls?">¶</a></h3><p>✅ Use <strong>Asyncio</strong></p>
+<h3 id="Existing-Blocking-Library?">Existing Blocking Library?<a class="anchor-link" href="#Existing-Blocking-Library?">¶</a></h3><p>✅ Use <strong>Threads</strong></p>
+<h3 id="Background-Monitoring-Task?">Background Monitoring Task?<a class="anchor-link" href="#Background-Monitoring-Task?">¶</a></h3><p>✅ Use <strong>Threads</strong></p>
+<h3 id="Data-Processing-/-ML-Training?">Data Processing / ML Training?<a class="anchor-link" href="#Data-Processing-/-ML-Training?">¶</a></h3><p>✅ Use <strong>Multiprocessing</strong></p>
+<h3 id="Need-True-Parallelism?">Need True Parallelism?<a class="anchor-link" href="#Need-True-Parallelism?">¶</a></h3><p>✅ Use <strong>Multiprocessing</strong></p>
+<h3 id="Need-10,000-Concurrent-Connections?">Need 10,000 Concurrent Connections?<a class="anchor-link" href="#Need-10,000-Concurrent-Connections?">¶</a></h3><p>✅ Use <strong>Asyncio</strong></p>
+<hr/>
+<h1 id="Common-Interview-Questions">Common Interview Questions<a class="anchor-link" href="#Common-Interview-Questions">¶</a></h1><h2 id="Q:-Difference-between-Concurrency-and-Parallelism?">Q: Difference between Concurrency and Parallelism?<a class="anchor-link" href="#Q:-Difference-between-Concurrency-and-Parallelism?">¶</a></h2><h3 id="Concurrency">Concurrency<a class="anchor-link" href="#Concurrency">¶</a></h3><ul>
+<li>Multiple tasks make progress together.</li>
+<li>May run on a single CPU core.</li>
+<li>Focuses on efficient task management.</li>
+</ul>
+<h3 id="Parallelism">Parallelism<a class="anchor-link" href="#Parallelism">¶</a></h3><ul>
+<li>Multiple tasks execute at the same time.</li>
+<li>Requires multiple CPU cores.</li>
+<li>Focuses on speed and performance.</li>
+</ul>
+<hr/>
+<h2 id="Q:-Why-is-Asyncio-faster-for-I/O-tasks?">Q: Why is Asyncio faster for I/O tasks?<a class="anchor-link" href="#Q:-Why-is-Asyncio-faster-for-I/O-tasks?">¶</a></h2><p>Because while one task waits for I/O, the event loop schedules another task instead of blocking.</p>
+<hr/>
+<h2 id="Q:-Why-aren't-threads-good-for-CPU-bound-tasks-in-Python?">Q: Why aren't threads good for CPU-bound tasks in Python?<a class="anchor-link" href="#Q:-Why-aren't-threads-good-for-CPU-bound-tasks-in-Python?">¶</a></h2><p>Because of the <strong>GIL</strong>, only one thread executes Python bytecode at a time.</p>
+<hr/>
+<h2 id="Q:-When-would-you-choose-threading-over-asyncio?">Q: When would you choose threading over asyncio?<a class="anchor-link" href="#Q:-When-would-you-choose-threading-over-asyncio?">¶</a></h2><p>When working with:</p>
+<ul>
+<li>Legacy code</li>
+<li>Blocking libraries</li>
+<li>Background workers</li>
+<li>Libraries that don't support async</li>
+</ul>
+<hr/>
+<h2 id="Q:-How-do-you-achieve-true-parallelism-in-Python?">Q: How do you achieve true parallelism in Python?<a class="anchor-link" href="#Q:-How-do-you-achieve-true-parallelism-in-Python?">¶</a></h2><p>Using:</p>
+<div class="highlight"><pre><span></span><span class="n">multiprocessing</span>
+</pre></div>
+<p>because each process has its own Python interpreter and its own GIL.</p>
+<hr/>
+<h1 id="One-Line-Interview-Summary">One-Line Interview Summary<a class="anchor-link" href="#One-Line-Interview-Summary">¶</a></h1><ul>
+<li><strong>Asyncio</strong> → Best for large-scale I/O-bound workloads.</li>
+<li><strong>Threads</strong> → Best for blocking I/O and background tasks.</li>
+<li><strong>Multiprocessing</strong> → Best for CPU-intensive work and true parallelism.</li>
+<li><strong>GIL</strong> → Prevents Python threads from running Python bytecode in parallel.</li>
+<li><strong>Concurrency</strong> → Multiple tasks make progress together.</li>
+<li><strong>Parallelism</strong> → Multiple tasks execute simultaneously.</li>
+</ul>
 </div>
 </div>
 </div>
