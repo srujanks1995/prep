@@ -455,6 +455,107 @@ footer {
     }
 }
 </style>
+
+<style id="mobile-sticky-fix">
+/* The search and category index must never cover content while scrolling. */
+.sticky-tools {
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Compact navigation for phones and tablets, including larger mobile viewports. */
+@media (max-width: 1200px) {
+    .sticky-tools {
+        position: static !important;
+        padding: 10px 12px !important;
+    }
+
+    .tools-inner {
+        display: block !important;
+    }
+
+    .search-row {
+        display: flex !important;
+        gap: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    #searchInput {
+        min-width: 0 !important;
+        width: 100% !important;
+        padding: 10px 11px !important;
+        font-size: 15px !important;
+    }
+
+    #clearSearch {
+        flex: 0 0 auto !important;
+        padding: 10px 12px !important;
+    }
+
+    .toc {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        gap: 6px !important;
+        padding: 2px 0 6px !important;
+        margin: 0 !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: thin !important;
+    }
+
+    .toc-link {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+        padding: 6px 9px !important;
+        font-size: 12px !important;
+    }
+
+    .category-section {
+        scroll-margin-top: 12px !important;
+    }
+}
+
+@media (max-width: 700px) {
+    header {
+        padding: 16px 12px 12px !important;
+    }
+
+    h1 {
+        font-size: 24px !important;
+        line-height: 1.15 !important;
+    }
+
+    .subtitle {
+        font-size: 13px !important;
+    }
+
+    .legend {
+        display: none !important;
+    }
+
+    main {
+        padding: 10px !important;
+    }
+
+    .keyword-card {
+        padding: 12px !important;
+    }
+
+    .three-column-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    pre {
+        min-height: auto !important;
+    }
+}
+</style>
+
 </head>
 <body>
 <header id="top">
