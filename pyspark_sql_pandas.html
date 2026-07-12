@@ -719,6 +719,216 @@ footer {
 }
 </style>
 
+
+<style id="colorful-header-tabs">
+/* Color-coded header/index tabs */
+.toc-link {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border-width: 1px !important;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+    transition:
+        transform .15s ease,
+        filter .15s ease,
+        box-shadow .15s ease !important;
+}
+
+.toc-link:nth-child(12n + 1) {
+    background: #2563eb !important;
+    border-color: #60a5fa !important;
+}
+
+.toc-link:nth-child(12n + 2) {
+    background: #7c3aed !important;
+    border-color: #a78bfa !important;
+}
+
+.toc-link:nth-child(12n + 3) {
+    background: #059669 !important;
+    border-color: #34d399 !important;
+}
+
+.toc-link:nth-child(12n + 4) {
+    background: #db2777 !important;
+    border-color: #f472b6 !important;
+}
+
+.toc-link:nth-child(12n + 5) {
+    background: #ea580c !important;
+    border-color: #fb923c !important;
+}
+
+.toc-link:nth-child(12n + 6) {
+    background: #0891b2 !important;
+    border-color: #22d3ee !important;
+}
+
+.toc-link:nth-child(12n + 7) {
+    background: #4f46e5 !important;
+    border-color: #818cf8 !important;
+}
+
+.toc-link:nth-child(12n + 8) {
+    background: #16a34a !important;
+    border-color: #4ade80 !important;
+}
+
+.toc-link:nth-child(12n + 9) {
+    background: #c026d3 !important;
+    border-color: #e879f9 !important;
+}
+
+.toc-link:nth-child(12n + 10) {
+    background: #ca8a04 !important;
+    border-color: #facc15 !important;
+}
+
+.toc-link:nth-child(12n + 11) {
+    background: #0f766e !important;
+    border-color: #2dd4bf !important;
+}
+
+.toc-link:nth-child(12n + 12) {
+    background: #dc2626 !important;
+    border-color: #f87171 !important;
+}
+
+.toc-link:hover,
+.toc-link:focus {
+    color: #ffffff !important;
+    filter: brightness(1.14) saturate(1.08) !important;
+    transform: translateY(-2px) !important;
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .18) !important;
+}
+
+.toc-link:active {
+    transform: translateY(0) scale(.98) !important;
+}
+
+/* Keep the search area visually separate from the colorful tabs */
+.sticky-tools {
+    background:
+        linear-gradient(
+            135deg,
+            #081225,
+            #172554
+        ) !important;
+}
+
+@media (max-width: 560px) {
+    .toc-link {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, .35) !important;
+    }
+}
+</style>
+
+
+<style id="mobile-language-filter-style">
+.mobile-language-filter {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .mobile-language-filter {
+        display: grid;
+        grid-template-columns:
+            auto repeat(4, minmax(0, 1fr));
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        border: 1px solid #475569;
+        border-radius: 10px;
+        background: #071225;
+    }
+
+    .filter-label {
+        color: #e2e8f0;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .language-filter-btn {
+        min-width: 0;
+        border: 1px solid #64748b;
+        border-radius: 8px;
+        padding: 8px 5px;
+        color: #ffffff;
+        background: #1e293b;
+        font-size: 11px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, .18);
+    }
+
+    .language-filter-btn.active {
+        outline: 2px solid #ffffff;
+        outline-offset: 1px;
+        transform: translateY(-1px);
+    }
+
+    .language-filter-btn[data-language="all"] {
+        background: #475569;
+        border-color: #94a3b8;
+    }
+
+    .sql-filter-btn {
+        background: #0369a1;
+        border-color: #38bdf8;
+    }
+
+    .spark-filter-btn {
+        background: #15803d;
+        border-color: #4ade80;
+    }
+
+    .pandas-filter-btn {
+        background: #a16207;
+        border-color: #facc15;
+    }
+
+    body.mobile-filter-sql .spark-panel,
+    body.mobile-filter-sql .pandas-panel {
+        display: none !important;
+    }
+
+    body.mobile-filter-spark .sql-panel,
+    body.mobile-filter-spark .pandas-panel {
+        display: none !important;
+    }
+
+    body.mobile-filter-pandas .sql-panel,
+    body.mobile-filter-pandas .spark-panel {
+        display: none !important;
+    }
+
+    body.mobile-filter-sql .three-column-grid,
+    body.mobile-filter-spark .three-column-grid,
+    body.mobile-filter-pandas .three-column-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .mobile-language-filter {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .filter-label {
+        grid-column: 1 / -1;
+    }
+
+    .language-filter-btn {
+        font-size: 10px;
+        padding: 8px 3px;
+    }
+}
+</style>
+
 </head>
 <body>
 <header id="top">
@@ -732,7 +942,7 @@ footer {
             <span class="sql-key">SQL / PostgreSQL</span>
             <span class="spark-key">PySpark DataFrame API</span>
             <span class="pandas-key">Pandas</span>
-            <span>112 keyword patterns</span>
+            <span>113 keyword patterns</span>
         </div>
     </div>
 </header>
@@ -745,6 +955,35 @@ footer {
                    oninput="filterCards()">
             <button id="clearSearch" type="button" onclick="clearSearch()">Clear</button>
         </div>
+
+<div class="mobile-language-filter" aria-label="Language filter">
+    <span class="filter-label">Show:</span>
+    <button type="button"
+            class="language-filter-btn active"
+            data-language="all"
+            onclick="setLanguageFilter('all', this)">
+        All
+    </button>
+    <button type="button"
+            class="language-filter-btn sql-filter-btn"
+            data-language="sql"
+            onclick="setLanguageFilter('sql', this)">
+        SQL
+    </button>
+    <button type="button"
+            class="language-filter-btn spark-filter-btn"
+            data-language="spark"
+            onclick="setLanguageFilter('spark', this)">
+        PySpark
+    </button>
+    <button type="button"
+            class="language-filter-btn pandas-filter-btn"
+            data-language="pandas"
+            onclick="setLanguageFilter('pandas', this)">
+        Pandas
+    </button>
+</div>
+
         <nav class="toc" aria-label="Cheat sheet index">
             <a class="toc-link" href="#setup--creation">Setup &amp; Creation</a>
 <a class="toc-link" href="#missing-value-recipes">Missing Value Recipes</a>
@@ -1896,6 +2135,204 @@ print(word_counts)</code></pre>
                 </div>
             </div>
         </article>
+
+        <article class="keyword-card" data-search="rdd operations word count using dataframe + print + write output word count dataframe pyspark pandas print show write output csv file explode split groupby count read text as a dataframe, split each line into words, count each word, print the result, and write the output to csv.">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">RDD Operations</span>
+                    <h3>WORD COUNT USING DATAFRAME + PRINT + WRITE OUTPUT</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">Read text as a DataFrame, split each line into words, count each word, print the result, and write the output to CSV.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>WITH words AS (
+    SELECT
+        LOWER(word) AS word
+    FROM text_lines
+    CROSS JOIN LATERAL
+        REGEXP_SPLIT_TO_TABLE(
+            line,
+            &#x27;\s+&#x27;
+        ) AS word
+),
+word_counts AS (
+    SELECT
+        word,
+        COUNT(*) AS word_count
+    FROM words
+    WHERE word &lt;&gt; &#x27;&#x27;
+    GROUP BY word
+)
+SELECT *
+FROM word_counts
+ORDER BY word_count DESC, word;
+
+-- PostgreSQL output file
+COPY (
+    SELECT
+        word,
+        COUNT(*) AS word_count
+    FROM (
+        SELECT
+            LOWER(word) AS word
+        FROM text_lines
+        CROSS JOIN LATERAL
+            REGEXP_SPLIT_TO_TABLE(
+                line,
+                &#x27;\s+&#x27;
+            ) AS word
+    ) words
+    WHERE word &lt;&gt; &#x27;&#x27;
+    GROUP BY word
+    ORDER BY word_count DESC, word
+)
+TO &#x27;/path/output/word_count.csv&#x27;
+WITH (
+    FORMAT CSV,
+    HEADER TRUE
+);</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>from pyspark.sql import functions as F
+
+# 1. Read text file as a DataFrame
+text_df = spark.read.text(
+    &quot;/path/input.txt&quot;
+)
+
+# text_df contains one column named: value
+
+# 2. Split each line and create one row per word
+words_df = (
+    text_df
+    .select(
+        F.explode(
+            F.split(
+                F.lower(F.col(&quot;value&quot;)),
+                r&quot;\s+&quot;
+            )
+        ).alias(&quot;word&quot;)
+    )
+    .filter(
+        F.col(&quot;word&quot;) != &quot;&quot;
+    )
+)
+
+# 3. Count each word
+word_count_df = (
+    words_df
+    .groupBy(&quot;word&quot;)
+    .agg(
+        F.count(&quot;*&quot;).alias(&quot;word_count&quot;)
+    )
+    .orderBy(
+        F.col(&quot;word_count&quot;).desc(),
+        F.col(&quot;word&quot;).asc()
+    )
+)
+
+# 4. Print the result
+word_count_df.show(
+    truncate=False
+)
+
+# 5. Write the result to an output file
+(
+    word_count_df
+    .coalesce(1)  # Optional: one part file
+    .write
+    .mode(&quot;overwrite&quot;)
+    .option(&quot;header&quot;, True)
+    .csv(&quot;/path/output/word_count_csv&quot;)
+)
+
+# Optional JSON output
+(
+    word_count_df
+    .write
+    .mode(&quot;overwrite&quot;)
+    .json(&quot;/path/output/word_count_json&quot;)
+)</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>from pathlib import Path
+import pandas as pd
+
+# 1. Read the text file
+lines_df = pd.DataFrame({
+    &quot;value&quot;: Path(
+        &quot;/path/input.txt&quot;
+    ).read_text(
+        encoding=&quot;utf-8&quot;
+    ).splitlines()
+})
+
+# 2. Split each line into words
+words_df = (
+    lines_df
+    .assign(
+        word=lines_df[&quot;value&quot;]
+        .str.lower()
+        .str.split()
+    )
+    .explode(&quot;word&quot;)
+    .dropna(subset=[&quot;word&quot;])
+)
+
+words_df = words_df[
+    words_df[&quot;word&quot;] != &quot;&quot;
+]
+
+# 3. Count each word
+word_count_df = (
+    words_df
+    .groupby(
+        &quot;word&quot;,
+        as_index=False
+    )
+    .size()
+    .rename(
+        columns={&quot;size&quot;: &quot;word_count&quot;}
+    )
+    .sort_values(
+        [&quot;word_count&quot;, &quot;word&quot;],
+        ascending=[False, True]
+    )
+)
+
+# 4. Print the result
+print(word_count_df)
+
+# 5. Write the result to an output file
+word_count_df.to_csv(
+    &quot;/path/output/word_count.csv&quot;,
+    index=False
+)
+
+# Optional JSON output
+word_count_df.to_json(
+    &quot;/path/output/word_count.json&quot;,
+    orient=&quot;records&quot;,
+    indent=2
+)</code></pre>
+                </div>
+            </div>
+        </article>
+
 
         <article class="keyword-card" data-search="rdd operations rdd actions and saveastextfile rdd actions collect take first count reduce saveastextfile foreach transformations are lazy. actions trigger execution. saveastextfile writes a directory of part files.">
             <div class="card-header">
@@ -6968,5 +7405,80 @@ async function copyCard(button) {
     setTimeout(() => button.innerText = oldText, 1200);
 }
 </script>
+
+<script id="mobile-language-filter-script">
+function setLanguageFilter(language, clickedButton) {
+    const body = document.body;
+    const classes = [
+        "mobile-filter-sql",
+        "mobile-filter-spark",
+        "mobile-filter-pandas"
+    ];
+
+    classes.forEach(className => {
+        body.classList.remove(className);
+    });
+
+    if (language === "sql") {
+        body.classList.add("mobile-filter-sql");
+    } else if (language === "spark") {
+        body.classList.add("mobile-filter-spark");
+    } else if (language === "pandas") {
+        body.classList.add("mobile-filter-pandas");
+    }
+
+    document
+        .querySelectorAll(".language-filter-btn")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.language === language
+            );
+        });
+
+    try {
+        localStorage.setItem(
+            "cheatsheet-language-filter",
+            language
+        );
+    } catch (error) {
+        // Ignore storage restrictions.
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    let savedLanguage = "all";
+
+    try {
+        savedLanguage =
+            localStorage.getItem(
+                "cheatsheet-language-filter"
+            ) || "all";
+    } catch (error) {
+        savedLanguage = "all";
+    }
+
+    const validLanguages = [
+        "all",
+        "sql",
+        "spark",
+        "pandas"
+    ];
+
+    if (!validLanguages.includes(savedLanguage)) {
+        savedLanguage = "all";
+    }
+
+    const savedButton = document.querySelector(
+        `.language-filter-btn[data-language="${savedLanguage}"]`
+    );
+
+    setLanguageFilter(
+        savedLanguage,
+        savedButton
+    );
+});
+</script>
+
 </body>
 </html>
