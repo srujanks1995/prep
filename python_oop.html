@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Python OOP interview guide explained using a restaurant analogy." />
+  <title>Python OOP Deep Dive — Restaurant Analogy</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #182033;
+      --muted: #5f6b7a;
+      --border: #dfe5ee;
+      --shadow: 0 10px 30px rgba(26, 39, 64, 0.09);
+      --code-bg: #101827;
+      --code-text: #eef4ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 16px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(91,91,214,.10), transparent 32%),
+        radial-gradient(circle at top right, rgba(16,185,129,.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .hero {
+      padding: 38px 18px 28px;
+      color: white;
+      background: linear-gradient(135deg, #1f2a44 0%, #5b5bd6 52%, #7c3aed 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -70px;
+      top: -90px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.10);
+    }
+
+    .hero-inner,
+    main {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 820px;
+      color: rgba(255,255,255,.88);
+      font-size: 1.05rem;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    main {
+      padding: 24px 0 70px;
+    }
+
+    .toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .search-row input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      font: inherit;
+      color: var(--text);
+      background: #fbfcfe;
+      outline: none;
+    }
+
+    .search-row input:focus {
+      border-color: #7777e8;
+      box-shadow: 0 0 0 4px rgba(91,91,214,.12);
+    }
+
+    .search-row button {
+      border: 0;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-weight: 800;
+      color: white;
+      background: #2d3b5f;
+      cursor: pointer;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .filter {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: white;
+      color: #344054;
+      padding: 8px 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .filter.active {
+      background: #2d3b5f;
+      color: white;
+      border-color: #2d3b5f;
+    }
+
+    .index-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .index-card h2 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+    }
+
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .index-grid a {
+      text-decoration: none;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fbfcfe;
+      font-weight: 760;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .index-grid a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 18px rgba(26,39,64,.10);
+    }
+
+    .section {
+      --section-color: #5b5bd6;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin: 20px 0;
+    }
+
+    .section.hidden { display: none; }
+
+    .section-header {
+      padding: 16px 18px;
+      background: var(--section-color);
+      color: white;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 1.85rem);
+      line-height: 1.25;
+    }
+
+    .section-header p {
+      margin: 6px 0 0;
+      color: rgba(255,255,255,.88);
+    }
+
+    .section-body { padding: 18px; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 15px;
+      background: #fbfcfe;
+    }
+
+    .card h3, .card h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .memory {
+      border-left: 5px solid var(--section-color);
+      background: #f3f4ff;
+      padding: 13px 14px;
+      border-radius: 12px;
+      margin: 14px 0;
+      font-weight: 760;
+    }
+
+    .note, .warning, .correct {
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .note {
+      background: #eef4ff;
+      border-left: 5px solid #4e73df;
+    }
+
+    .warning {
+      background: #fff7e6;
+      border-left: 5px solid #d68a00;
+    }
+
+    .correct {
+      background: #ecfdf3;
+      border-left: 5px solid #159455;
+    }
+
+    pre {
+      margin: 12px 0;
+      padding: 15px;
+      overflow-x: auto;
+      border-radius: 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: .91rem;
+      line-height: 1.55;
+      tab-size: 4;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    :not(pre) > code {
+      background: #edf0f7;
+      color: #263247;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: .92em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef1f8;
+      color: #25314c;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+      margin-top: 8px;
+    }
+
+    li + li { margin-top: 6px; }
+
+    .relationship {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px;
+      background: #f7f8fc;
+      border: 1px dashed #b8c1d1;
+      border-radius: 14px;
+      font-weight: 800;
+    }
+
+    .arrow {
+      font-size: 1.35rem;
+      color: var(--section-color);
+    }
+
+    .qa {
+      border-bottom: 1px solid var(--border);
+      padding: 13px 0;
+    }
+
+    .qa:last-child { border-bottom: 0; }
+
+    .qa strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #25314c;
+    }
+
+    .top-link {
+      display: inline-flex;
+      margin-top: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--section-color);
+    }
+
+    #backToTop {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: 46px;
+      height: 46px;
+      border: 0;
+      border-radius: 50%;
+      background: #1f2a44;
+      color: white;
+      font-size: 1.25rem;
+      box-shadow: 0 10px 24px rgba(31,42,68,.30);
+      cursor: pointer;
+      display: none;
+      z-index: 20;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 12px 4px;
+    }
+
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 26px;
+      color: var(--muted);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .index-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .three-col { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .hero { padding-top: 30px; }
+      main, .hero-inner { width: min(100% - 20px, 1180px); }
+      .two-col { grid-template-columns: 1fr; }
+      .section-body { padding: 14px; }
+      .section-header { padding: 14px; }
+      .search-row { grid-template-columns: 1fr; }
+      .search-row button { min-height: 44px; }
+      th, td { min-width: 150px; }
+    }
+
+    @media (max-width: 480px) {
+      .index-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+      .filter { flex: 1 1 auto; }
+      pre { font-size: .82rem; }
+    }
+
+    @media print {
+      .toolbar, #backToTop, .top-link { display: none !important; }
+      body { background: white; }
+      .section, .index-card { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>Python OOP Deep Dive</h1>
+      <p>Object-oriented programming explained through a restaurant: easy to remember, technically correct, and focused on interview answers.</p>
+      <div class="badges">
+        <span class="badge">Class & Object</span>
+        <span class="badge">Encapsulation</span>
+        <span class="badge">Inheritance</span>
+        <span class="badge">Polymorphism</span>
+        <span class="badge">Abstraction</span>
+        <span class="badge">Composition</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Search and filters">
+      <div class="search-row">
+        <input id="searchInput" type="search" placeholder="Search: self, inheritance, abstract class, composition..." aria-label="Search guide" />
+        <button id="clearSearch" type="button">Clear</button>
+      </div>
+      <div class="filter-row">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="foundation">Foundations</button>
+        <button class="filter" data-filter="pillar">OOP Pillars</button>
+        <button class="filter" data-filter="design">Design</button>
+        <button class="filter" data-filter="interview">Interview</button>
+      </div>
+    </section>
+
+    <section class="index-card">
+      <h2>Quick Index</h2>
+      <div class="index-grid">
+        <a href="#why-oop">1. Why OOP?</a>
+        <a href="#class-object">2. Class & Object</a>
+        <a href="#attributes">3. Attributes</a>
+        <a href="#init-self">4. __init__ & self</a>
+        <a href="#methods">5. Methods & State</a>
+        <a href="#encapsulation">6. Encapsulation</a>
+        <a href="#inheritance">7. Inheritance</a>
+        <a href="#polymorphism">8. Polymorphism</a>
+        <a href="#abstraction">9. Abstraction</a>
+        <a href="#composition">10. Composition</a>
+        <a href="#complete-example">11. Complete Example</a>
+        <a href="#interview">12. Interview Revision</a>
+        <a href="#overloading-overriding">13. Overloading & Overriding</a>
+        <a href="#product-case-study">14. Product OOP Case Study</a>
+      </div>
+    </section>
+
+    <div id="noResults" class="no-results">No matching section found.</div>
+
+    <section id="why-oop" class="section searchable" data-category="foundation" style="--section-color:#5b5bd6">
+      <div class="section-header">
+        <h2>1. Why Object-Oriented Programming?</h2>
+        <p>Structure grows more important as a system becomes larger.</p>
+      </div>
+      <div class="section-body">
+        <div class="two-col">
+          <div class="card">
+            <h3>Without structure</h3>
+            <p>One giant function takes orders, cooks food, serves customers, receives payment, and cleans the restaurant.</p>
+            <ul>
+              <li>Too many responsibilities</li>
+              <li>Hard to test</li>
+              <li>Small changes create unexpected bugs</li>
+              <li>Logic becomes tightly coupled</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>With OOP</h3>
+            <p>Separate objects represent a waiter, chef, cleaner, order, and payment.</p>
+            <ul>
+              <li>Each object owns a clear responsibility</li>
+              <li>Data and related behavior stay together</li>
+              <li>Components can be extended and tested separately</li>
+              <li>Real-world entities are easier to model</li>
+            </ul>
+          </div>
+        </div>
+        <div class="memory">Memory line: OOP organizes a system as collaborating objects, where each object owns data and behavior.</div>
+        <div class="note"><strong>Interview perspective:</strong> Do not say OOP is always better. Small scripts and simple data transformations may be clearer with functions. OOP is most useful when the domain has identifiable entities, changing state, reusable behavior, and many interacting components.</div>
+      </div>
+    </section>
+
+    <section id="class-object" class="section searchable" data-category="foundation" style="--section-color:#0f766e">
+      <div class="section-header">
+        <h2>2. Class and Object</h2>
+        <p>A class is a blueprint; an object is a concrete instance.</p>
+      </div>
+      <div class="section-body">
+        <div class="two-col">
+          <div class="card">
+            <h3>Class</h3>
+            <p>Defines what data and behavior objects of that type should have.</p>
+            <pre><code>class Waiter:
+    pass</code></pre>
+          </div>
+          <div class="card">
+            <h3>Objects</h3>
+            <p>Individual instances created from the class.</p>
+            <pre><code>raj = Waiter()
+simran = Waiter()
+
+print(type(raj))
+# &lt;class '__main__.Waiter'&gt;</code></pre>
+          </div>
+        </div>
+        <div class="relationship">
+          <span>Waiter class</span><span class="arrow">→</span>
+          <span>raj object</span><span class="arrow">+</span>
+          <span>simran object</span>
+        </div>
+        <div class="memory">Class = blueprint. Object = a real instance created from that blueprint.</div>
+      </div>
+    </section>
+
+    <section id="attributes" class="section searchable" data-category="foundation" style="--section-color:#c2410c">
+      <div class="section-header">
+        <h2>3. Class Attributes vs Instance Attributes</h2>
+        <p>One of the most common Python OOP interview topics.</p>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Defined where?</th>
+                <th>Belongs to</th>
+                <th>Typical use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Class attribute</td>
+                <td>Directly inside the class</td>
+                <td>The class and shared lookup by instances</td>
+                <td>Constants or shared configuration</td>
+              </tr>
+              <tr>
+                <td>Instance attribute</td>
+                <td>Usually inside <code>__init__</code> using <code>self</code></td>
+                <td>One object</td>
+                <td>Object-specific state</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <pre><code>class Waiter:
+    restaurant_name = "Spice House"   # class attribute
+
+    def __init__(self, name):
+        self.name = name              # instance attribute
+        self.tables = []              # separate list per object
+
+raj = Waiter("Raj")
+simran = Waiter("Simran")
+
+raj.tables.append(4)
+
+print(raj.tables)       # [4]
+print(simran.tables)    # []
+print(raj.restaurant_name)  # Spice House</code></pre>
+
+        <div class="warning">
+          <strong>Mutable class attribute trap:</strong> A list declared directly in the class is shared unless an instance replaces it.
+        </div>
+
+        <pre><code>class BadWaiter:
+    tables = []   # shared mutable object
+
+raj = BadWaiter()
+simran = BadWaiter()
+
+raj.tables.append(4)
+
+print(simran.tables)    # [4] — unexpected shared state</code></pre>
+
+        <div class="correct">
+          <strong>Correction:</strong> Instance attributes are not “private by default.” They are simply stored on each instance. Python privacy is mostly convention-based, such as <code>_name</code>, with name mangling for <code>__name</code>.
+        </div>
+
+        <div class="memory">Use class attributes for shared values. Use <code>self.attribute</code> for object-specific data.</div>
+      </div>
+    </section>
+
+    <section id="init-self" class="section searchable" data-category="foundation" style="--section-color:#7c3aed">
+      <div class="section-header">
+        <h2>4. <code>__init__</code> and <code>self</code></h2>
+        <p>How Python initializes and separates object state.</p>
+      </div>
+      <div class="section-body">
+        <div class="two-col">
+          <div class="card">
+            <h3><code>__init__</code></h3>
+            <p>Runs automatically after a new instance is created. It initializes that instance.</p>
+          </div>
+          <div class="card">
+            <h3><code>self</code></h3>
+            <p>Refers to the current instance on which the method is operating.</p>
+          </div>
+        </div>
+
+        <pre><code>class Waiter:
+    def __init__(self, name, shift):
+        self.name = name
+        self.shift = shift
+        self.tables = []
+
+raj = Waiter("Raj", "Morning")
+simran = Waiter("Simran", "Evening")</code></pre>
+
+        <div class="note">
+          When Python evaluates <code>raj.take_order(4)</code>, it behaves conceptually like <code>Waiter.take_order(raj, 4)</code>. The object is passed as the first argument.
+        </div>
+
+        <pre><code>class Waiter:
+    def take_order(self, table_number):
+        print(f"{self.name} took order from table {table_number}")</code></pre>
+
+        <div class="memory"><code>self</code> means “this particular object,” not the class as a whole.</div>
+      </div>
+    </section>
+
+    <section id="methods" class="section searchable" data-category="foundation" style="--section-color:#2563eb">
+      <div class="section-header">
+        <h2>5. Methods and Object State</h2>
+        <p>Methods define what an object can do; state is its current data.</p>
+      </div>
+      <div class="section-body">
+        <pre><code>class Waiter:
+    def __init__(self, name):
+        self.name = name
+        self.tables = []
+
+    def take_order(self, table_number):
+        self.tables.append(table_number)
+        return f"{self.name} took table {table_number}'s order."
+
+    def current_tables(self):
+        return list(self.tables)
+
+raj = Waiter("Raj")
+raj.take_order(4)
+raj.take_order(5)
+
+print(raj.current_tables())  # [4, 5]</code></pre>
+
+        <div class="three-col">
+          <div class="card">
+            <h3>Instance method</h3>
+            <p>Receives <code>self</code> and works with instance or class data.</p>
+          </div>
+          <div class="card">
+            <h3>Class method</h3>
+            <p>Receives <code>cls</code>. Often used as an alternative constructor.</p>
+          </div>
+          <div class="card">
+            <h3>Static method</h3>
+            <p>Receives neither <code>self</code> nor <code>cls</code>. It is a related utility function.</p>
+          </div>
+        </div>
+
+        <pre><code>class Waiter:
+    restaurant = "Spice House"
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def from_badge(cls, badge):
+        name = badge.split("-")[0]
+        return cls(name)
+
+    @staticmethod
+    def is_valid_table(table_number):
+        return isinstance(table_number, int) and table_number &gt; 0</code></pre>
+
+        <div class="memory">State = current object data. Method = behavior that reads or changes that state.</div>
+      </div>
+    </section>
+
+    <section id="encapsulation" class="section searchable" data-category="pillar" style="--section-color:#15803d">
+      <div class="section-header">
+        <h2>6. Encapsulation</h2>
+        <p>Keep data and the operations that protect it inside one object.</p>
+      </div>
+      <div class="section-body">
+        <p>Encapsulation is not just “hiding variables.” It means exposing a controlled public interface and keeping internal rules inside the object.</p>
+
+        <pre><code>class Order:
+    def __init__(self, table_number):
+        self.table_number = table_number
+        self._items = []          # internal-use convention
+        self.__status = "OPEN"    # name-mangled attribute
+
+    def add_item(self, item):
+        if self.__status != "OPEN":
+            raise ValueError("Cannot modify a closed order.")
+        self._items.append(item)
+
+    def close(self):
+        if not self._items:
+            raise ValueError("Cannot close an empty order.")
+        self.__status = "CLOSED"
+
+    @property
+    def total_items(self):
+        return len(self._items)</code></pre>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Syntax</th><th>Meaning in Python</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>name</code></td><td>Public by convention</td></tr>
+              <tr><td><code>_name</code></td><td>Internal-use convention; still accessible</td></tr>
+              <tr><td><code>__name</code></td><td>Name mangling helps avoid accidental access/overrides; not true security</td></tr>
+              <tr><td><code>@property</code></td><td>Controlled attribute-like access through a method</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="memory">Encapsulation = protect invariants by making the object responsible for valid state changes.</div>
+      </div>
+    </section>
+
+    <section id="inheritance" class="section searchable" data-category="pillar" style="--section-color:#be123c">
+      <div class="section-header">
+        <h2>7. Inheritance</h2>
+        <p>A child class reuses or specializes a parent class.</p>
+      </div>
+      <div class="section-body">
+        <div class="relationship">
+          <span>Waiter</span><span class="arrow">is a</span><span>Staff member</span>
+        </div>
+
+        <pre><code>class Staff:
+    def __init__(self, name, shift):
+        self.name = name
+        self.shift = shift
+
+    def start_work(self):
+        return f"{self.name} started the {self.shift} shift."
+
+
+class Waiter(Staff):
+    def __init__(self, name, shift, tables):
+        super().__init__(name, shift)
+        self.tables = tables
+
+    def take_order(self, table_number):
+        return f"{self.name} took an order from table {table_number}."
+
+
+class Chef(Staff):
+    def cook(self, dish):
+        return f"{self.name} cooked {dish}."</code></pre>
+
+        <div class="note">
+          <strong><code>super()</code>:</strong> Delegates to the next class in the method resolution order. In simple single inheritance, it commonly calls the parent implementation.
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Good use</h3>
+            <p>There is a genuine “is-a” relationship and the child respects the parent contract.</p>
+          </div>
+          <div class="card">
+            <h3>Bad use</h3>
+            <p>Inheritance is used only to reuse code, creating a rigid and confusing hierarchy.</p>
+          </div>
+        </div>
+
+        <div class="memory">Inheritance models an <strong>is-a</strong> relationship.</div>
+      </div>
+    </section>
+
+    <section id="polymorphism" class="section searchable" data-category="pillar" style="--section-color:#0369a1">
+      <div class="section-header">
+        <h2>8. Polymorphism</h2>
+        <p>The same interface can produce different behavior.</p>
+      </div>
+      <div class="section-body">
+        <pre><code>class Waiter:
+    def __init__(self, name):
+        self.name = name
+
+    def work(self):
+        return f"{self.name} is taking orders."
+
+
+class Chef:
+    def __init__(self, name):
+        self.name = name
+
+    def work(self):
+        return f"{self.name} is cooking food."
+
+
+staff_members = [Waiter("Raj"), Chef("Amit")]
+
+for member in staff_members:
+    print(member.work())</code></pre>
+
+        <div class="correct">
+          Python often uses <strong>duck typing</strong>: the caller cares that an object supports the required operation, not necessarily that it inherits from a particular class.
+        </div>
+
+        <pre><code>def start_shift(worker):
+    print(worker.work())
+
+start_shift(Waiter("Raj"))
+start_shift(Chef("Amit"))</code></pre>
+
+        <div class="memory">Same method call, different behavior based on the object.</div>
+      </div>
+    </section>
+
+    <section id="abstraction" class="section searchable" data-category="pillar" style="--section-color:#92400e">
+      <div class="section-header">
+        <h2>9. Abstraction</h2>
+        <p>Expose what an object must do while allowing subclasses to decide how.</p>
+      </div>
+      <div class="section-body">
+        <p>An abstract base class can define a contract that concrete subclasses must satisfy.</p>
+
+        <pre><code>from abc import ABC, abstractmethod
+
+
+class Staff(ABC):
+    def __init__(self, name):
+        self.name = name
+
+    def start_work(self):
+        return f"{self.name} started work."
+
+    @abstractmethod
+    def work(self):
+        # Every concrete staff role must implement this method.
+        raise NotImplementedError
+
+
+class Waiter(Staff):
+    def work(self):
+        return f"{self.name} is serving customers."
+
+
+class Chef(Staff):
+    def work(self):
+        return f"{self.name} is cooking."</code></pre>
+
+        <pre><code># Staff("Generic")  # TypeError: abstract class cannot be instantiated
+
+raj = Waiter("Raj")
+print(raj.work())</code></pre>
+
+        <div class="warning">
+          <strong>Important correction:</strong> Abstraction is broader than “checking experience.” It reduces unnecessary detail and establishes a stable interface or contract.
+        </div>
+
+        <div class="memory">Abstraction defines <strong>what must exist</strong>; concrete classes provide <strong>how it works</strong>.</div>
+      </div>
+    </section>
+
+    <section id="composition" class="section searchable" data-category="design" style="--section-color:#6d28d9">
+      <div class="section-header">
+        <h2>10. Composition</h2>
+        <p>Build complex behavior by combining smaller objects.</p>
+      </div>
+      <div class="section-body">
+        <div class="relationship">
+          <span>Waiter</span><span class="arrow">has a</span><span>Chef dependency</span>
+        </div>
+
+        <pre><code>class Chef:
+    def __init__(self, name):
+        self.name = name
+
+    def cook(self, dish):
+        return f"{self.name} cooked {dish}."
+
+
+class Waiter:
+    def __init__(self, name, chef):
+        self.name = name
+        self.chef = chef
+
+    def take_order(self, dish):
+        message = f"{self.name} took the order for {dish}."
+        cooking_result = self.chef.cook(dish)
+        return f"{message}\n{cooking_result}"
+
+
+chef = Chef("Amit")
+waiter = Waiter("Raj", chef)
+
+print(waiter.take_order("Pasta"))</code></pre>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Inheritance</th><th>Composition</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Models “is-a”</td><td>Models “has-a” or “uses-a”</td></tr>
+              <tr><td>Behavior tied to hierarchy</td><td>Behavior assembled from collaborating objects</td></tr>
+              <tr><td>Can create tight coupling</td><td>Usually easier to replace and test dependencies</td></tr>
+              <tr><td>Useful for true specialization</td><td>Often preferred for flexible system design</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="memory">Prefer composition when an object needs another object's capability but is not a subtype of it.</div>
+      </div>
+    </section>
+
+    <section id="complete-example" class="section searchable" data-category="design" style="--section-color:#0f766e">
+      <div class="section-header">
+        <h2>11. Complete Restaurant Example</h2>
+        <p>All major concepts connected in one clean design.</p>
+      </div>
+      <div class="section-body">
+        <pre><code>from abc import ABC, abstractmethod
+
+
+class Staff(ABC):
+    restaurant = "Spice House"
+
+    def __init__(self, name, shift):
+        self.name = name
+        self.shift = shift
+
+    def start_work(self):
+        return f"{self.name} started the {self.shift} shift."
+
+    @abstractmethod
+    def work(self):
+        raise NotImplementedError
+
+
+class Chef(Staff):
+    def work(self):
+        return f"{self.name} is preparing food."
+
+    def cook(self, dish):
+        return f"{self.name} cooked {dish}."
+
+
+class Waiter(Staff):
+    def __init__(self, name, shift, chef):
+        super().__init__(name, shift)
+        self.chef = chef
+        self._tables = []
+
+    def work(self):
+        return f"{self.name} is serving customers."
+
+    def take_order(self, table_number, dish):
+        if table_number &lt;= 0:
+            raise ValueError("Table number must be positive.")
+
+        self._tables.append(table_number)
+        return (
+            f"{self.name} took an order from table {table_number}.\n"
+            f"{self.chef.cook(dish)}"
+        )
+
+    @property
+    def assigned_tables(self):
+        return tuple(self._tables)
+
+
+chef = Chef("Amit", "Morning")
+waiter = Waiter("Raj", "Morning", chef)
+
+print(waiter.start_work())
+print(waiter.work())
+print(waiter.take_order(4, "Pasta"))
+print(waiter.assigned_tables)</code></pre>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Concept mapping</h3>
+            <ul>
+              <li><strong>Class/Object:</strong> <code>Waiter</code> and <code>waiter</code></li>
+              <li><strong>Encapsulation:</strong> <code>_tables</code> and controlled updates</li>
+              <li><strong>Inheritance:</strong> <code>Waiter(Staff)</code></li>
+              <li><strong>Polymorphism:</strong> role-specific <code>work()</code></li>
+              <li><strong>Abstraction:</strong> abstract <code>Staff.work()</code></li>
+              <li><strong>Composition:</strong> waiter uses a chef</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Design benefit</h3>
+            <p>Each class has a focused responsibility. New roles can be added without rewriting the manager's workflow, and the chef dependency can be replaced in tests.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="interview" class="section searchable" data-category="interview" style="--section-color:#1d4ed8">
+      <div class="section-header">
+        <h2>12. Interview Revision</h2>
+        <p>Compact answers for common Python OOP questions.</p>
+      </div>
+      <div class="section-body">
+        <div class="qa">
+          <strong>What are the four pillars of OOP?</strong>
+          Encapsulation, inheritance, polymorphism, and abstraction. Composition is not traditionally one of the four pillars, but it is a major OOP design technique.
+        </div>
+        <div class="qa">
+          <strong>What is the difference between a class and an object?</strong>
+          A class defines structure and behavior. An object is a runtime instance with its own state.
+        </div>
+        <div class="qa">
+          <strong>What does <code>self</code> mean?</strong>
+          It is the current instance passed to an instance method. The name <code>self</code> is a convention, but strongly recommended.
+        </div>
+        <div class="qa">
+          <strong>What is the difference between class and instance attributes?</strong>
+          Class attributes are defined on the class and used as shared/default values. Instance attributes are stored separately on each object.
+        </div>
+        <div class="qa">
+          <strong>Why is a mutable class attribute dangerous?</strong>
+          Every instance may reference the same list, dictionary, or set, causing accidental shared state.
+        </div>
+        <div class="qa">
+          <strong>What is method overriding?</strong>
+          A child class defines a method with the same name as its parent to provide specialized behavior.
+        </div>
+        <div class="qa">
+          <strong>What is method overloading in Python?</strong>
+          Python does not support traditional signature-based overloading directly. Use default arguments, <code>*args</code>/<code>**kwargs</code>, singledispatch, or alternative constructors.
+        </div>
+        <div class="qa">
+          <strong>What is MRO?</strong>
+          Method Resolution Order is the sequence Python follows when searching for methods in an inheritance hierarchy. Inspect it using <code>ClassName.mro()</code>.
+        </div>
+        <div class="qa">
+          <strong>Inheritance or composition—which is better?</strong>
+          Neither universally. Use inheritance for a true substitutable “is-a” relationship; prefer composition for flexible “has-a/uses-a” collaboration.
+        </div>
+        <div class="qa">
+          <strong>Is <code>__private</code> truly private in Python?</strong>
+          No. Double underscores trigger name mangling, which reduces accidental access but does not provide security.
+        </div>
+
+        <h3>30-second answer</h3>
+        <div class="memory">
+          OOP organizes code into objects that combine state and behavior. A class is a blueprint, and an object is an instance. Encapsulation protects valid state changes, inheritance reuses common behavior, polymorphism lets one interface support different implementations, abstraction defines contracts, and composition connects independent objects for flexible design.
+        </div>
+
+        <h3>Common mistakes</h3>
+        <ul>
+          <li>Putting mutable lists or dictionaries directly on the class.</li>
+          <li>Using inheritance only to avoid duplicate code.</li>
+          <li>Creating classes with too many unrelated responsibilities.</li>
+          <li>Using getters and setters without enforcing any real rule.</li>
+          <li>Assuming underscore naming provides real security.</li>
+          <li>Forgetting to call <code>super().__init__()</code> when parent initialization is required.</li>
+        </ul>
+
+        <a class="top-link" href="#top">↑ Back to top</a>
+      </div>
+    </section>
+
+
+
+    <section id="overloading-overriding" class="section searchable" data-category="interview" style="--section-color:#b45309">
+      <div class="section-header">
+        <h2>13. Method Overloading, Overriding & Operator Overloading</h2>
+        <p>Three closely related interview concepts shown side by side.</p>
+      </div>
+
+      <div class="section-body">
+        <div class="three-col">
+
+          <div class="card">
+            <h3>1. Method Overloading — Python Way</h3>
+            <p>
+              Python does not support traditional signature-based method overloading.
+              If two methods with the same name are defined in one class, the later
+              definition replaces the earlier one.
+            </p>
+
+            <pre><code>class Demo:
+    def show(self, value):
+        return f"One value: {value}"
+
+    def show(self, first, second):
+        return f"Two values: {first}, {second}"
+
+
+demo = Demo()
+
+# The first show() no longer exists.
+print(demo.show(1, 2))</code></pre>
+
+            <div class="warning">
+              The second method replaces the first method in the class namespace.
+            </div>
+
+            <h4>Approach A: Default Arguments</h4>
+            <pre><code>class Calculator:
+    def add(self, a, b, c=None):
+        if c is not None:
+            return a + b + c
+
+        return a + b
+
+
+calc = Calculator()
+
+print(calc.add(2, 3))     # 5
+print(calc.add(2, 3, 4))  # 9</code></pre>
+
+            <h4>Approach B: Variable Arguments</h4>
+            <pre><code>class Multiplier:
+    def multiply(self, *args):
+        result = 1
+
+        for number in args:
+            result *= number
+
+        return result
+
+
+mult = Multiplier()
+
+print(mult.multiply(2, 3))     # 6
+print(mult.multiply(2, 3, 4))  # 24</code></pre>
+
+            <div class="memory">
+              Python-style overloading uses one method with default arguments,
+              <code>*args</code>, <code>**kwargs</code>, type checks, or
+              <code>singledispatch</code>.
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2. Method Overriding</h3>
+            <p>
+              Method overriding occurs when a child class provides its own
+              implementation of a method inherited from a parent class.
+            </p>
+
+            <h4>Complete Replacement</h4>
+            <pre><code>class Animal:
+    def make_sound(self):
+        return "Generic animal sound"
+
+
+class Dog(Animal):
+    def make_sound(self):
+        return "Bark!"
+
+
+pet = Dog()
+
+print(pet.make_sound())
+# Bark!</code></pre>
+
+            <p>
+              Python finds <code>make_sound()</code> in <code>Dog</code> first,
+              so the parent implementation is not used.
+            </p>
+
+            <h4>Extending with <code>super()</code></h4>
+            <pre><code>class Employee:
+    def get_role(self):
+        return "Employee"
+
+
+class Manager(Employee):
+    def get_role(self):
+        base_role = super().get_role()
+        return f"{base_role} -> Manager"
+
+
+manager = Manager()
+
+print(manager.get_role())
+# Employee -> Manager</code></pre>
+
+            <div class="note">
+              <code>super()</code> delegates to the next implementation in the
+              method resolution order rather than hard-coding the parent class name.
+            </div>
+
+            <div class="memory">
+              Overriding = same method name in parent and child, but the child
+              provides specialized behavior.
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>3. Operator Overloading</h3>
+            <p>
+              Operator overloading changes how built-in operators behave for
+              custom objects by implementing special dunder methods.
+            </p>
+
+            <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        if not isinstance(other, Point):
+            return NotImplemented
+
+        return Point(
+            self.x + other.x,
+            self.y + other.y,
+        )
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+
+p1 = Point(1, 2)
+p2 = Point(3, 4)
+
+p3 = p1 + p2
+
+print(p3)  # Point(4, 6)</code></pre>
+
+            <p>
+              The expression <code>p1 + p2</code> internally calls
+              <code>p1.__add__(p2)</code>.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Operator</th>
+                    <th>Dunder method</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>+</code></td><td><code>__add__</code></td></tr>
+                  <tr><td><code>-</code></td><td><code>__sub__</code></td></tr>
+                  <tr><td><code>*</code></td><td><code>__mul__</code></td></tr>
+                  <tr><td><code>==</code></td><td><code>__eq__</code></td></tr>
+                  <tr><td><code>&lt;</code></td><td><code>__lt__</code></td></tr>
+                  <tr><td><code>len()</code></td><td><code>__len__</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="memory">
+              Operator overloading gives custom objects natural behavior with
+              Python operators.
+            </div>
+          </div>
+
+        </div>
+
+        <h3>Overloading vs Overriding vs Operator Overloading</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Concept</th>
+                <th>Meaning</th>
+                <th>Python implementation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Method overloading</td>
+                <td>Same conceptual operation accepts different inputs.</td>
+                <td>Default arguments, <code>*args</code>, <code>**kwargs</code>, type checks, or dispatch.</td>
+              </tr>
+              <tr>
+                <td>Method overriding</td>
+                <td>A child replaces or extends inherited behavior.</td>
+                <td>Define the same method in the child; optionally call <code>super()</code>.</td>
+              </tr>
+              <tr>
+                <td>Operator overloading</td>
+                <td>Customizes operators for user-defined objects.</td>
+                <td>Implement dunder methods such as <code>__add__</code> or <code>__eq__</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Common interview questions</h3>
+
+        <div class="qa">
+          <strong>Does Python support method overloading?</strong>
+          Not in the traditional compile-time, signature-based sense. Python keeps
+          only the latest method definition with a given name inside the class.
+        </div>
+
+        <div class="qa">
+          <strong>How can overloading-like behavior be implemented?</strong>
+          Use default parameters, variable-length arguments, keyword arguments,
+          explicit type checks, <code>functools.singledispatch</code>, or separate
+          clearly named methods.
+        </div>
+
+        <div class="qa">
+          <strong>What is the difference between overriding and overloading?</strong>
+          Overriding changes inherited behavior in a subclass. Overloading provides
+          multiple ways to call the same conceptual operation with different inputs.
+        </div>
+
+        <div class="qa">
+          <strong>Why return <code>NotImplemented</code> from <code>__add__</code>?</strong>
+          It tells Python that the operation is unsupported for that operand type and
+          allows Python to try the reflected operation on the other object.
+        </div>
+
+        <div class="memory">
+          Interview memory line: Python has method overriding and operator overloading
+          directly. Traditional method overloading is simulated with flexible function
+          parameters or dispatch techniques.
+        </div>
+
+        <a class="top-link" href="#top">↑ Back to top</a>
+      </div>
+    </section>
+
+    <section id="product-case-study" class="section searchable" data-category="interview" style="--section-color:#a21caf">
+      <div class="section-header">
+        <h2>14. OOP Interview Questions — Product Case Study</h2>
+        <p>Abstract base classes, inheritance, <code>super()</code>, overriding, and expiry-based discount logic.</p>
+      </div>
+
+      <div class="section-body">
+        <div class="memory">
+          Likely question: Create an abstract <code>Product</code> class. Create a
+          <code>PerishableProduct</code> subclass that gives a 20% discount when it is close to expiry.
+        </div>
+
+        <h3>Concepts tested</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Concept</th><th>How it appears</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Abstract base class</td><td><code>Product</code> inherits from <code>ABC</code>.</td></tr>
+              <tr><td>Abstract method</td><td><code>calculate_price()</code> defines the required contract.</td></tr>
+              <tr><td>Inheritance</td><td><code>RegularProduct</code> and <code>PerishableProduct</code> inherit from <code>Product</code>.</td></tr>
+              <tr><td><code>super()</code></td><td>The child reuses parent initialization and validation.</td></tr>
+              <tr><td>Method overriding</td><td>Each child provides its own <code>calculate_price()</code>.</td></tr>
+              <tr><td>Polymorphism</td><td>The same method call works differently for each product type.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Complete interview solution</h3>
+        <pre><code>from abc import ABC, abstractmethod
+from datetime import date, timedelta
+
+
+class Product(ABC):
+    def __init__(self, name: str, price: float) -&gt; None:
+        if not name.strip():
+            raise ValueError("Product name cannot be empty")
+
+        if price &lt; 0:
+            raise ValueError("Price cannot be negative")
+
+        self.name = name
+        self.price = price
+
+    @abstractmethod
+    def calculate_price(self) -&gt; float:
+        """Return the final selling price."""
+        raise NotImplementedError
+
+
+class RegularProduct(Product):
+    def calculate_price(self) -&gt; float:
+        return self.price
+
+
+class PerishableProduct(Product):
+    DISCOUNT_RATE = 0.20
+    DISCOUNT_WINDOW_DAYS = 3
+
+    def __init__(
+        self,
+        name: str,
+        price: float,
+        expiry_date: date,
+    ) -&gt; None:
+        super().__init__(name, price)
+        self.expiry_date = expiry_date
+
+    def calculate_price(self) -&gt; float:
+        days_remaining = (self.expiry_date - date.today()).days
+
+        if days_remaining &lt; 0:
+            return 0.0
+
+        if days_remaining &lt;= self.DISCOUNT_WINDOW_DAYS:
+            return round(
+                self.price * (1 - self.DISCOUNT_RATE),
+                2,
+            )
+
+        return self.price
+
+
+regular = RegularProduct("Notebook", 100.0)
+
+fresh_milk = PerishableProduct(
+    "Milk",
+    50.0,
+    date.today() + timedelta(days=7),
+)
+
+near_expiry_milk = PerishableProduct(
+    "Milk",
+    50.0,
+    date.today() + timedelta(days=2),
+)
+
+expired_milk = PerishableProduct(
+    "Milk",
+    50.0,
+    date.today() - timedelta(days=1),
+)
+
+print(regular.calculate_price())          # 100.0
+print(fresh_milk.calculate_price())       # 50.0
+print(near_expiry_milk.calculate_price()) # 40.0
+print(expired_milk.calculate_price())     # 0.0</code></pre>
+
+        <div class="note">
+          The discount rule is: expired product → <code>0.0</code>; expiry within three days
+          → 20% discount; otherwise → original price.
+        </div>
+
+        <h3>Polymorphism example</h3>
+        <pre><code>products: list[Product] = [
+    RegularProduct("Notebook", 100.0),
+    PerishableProduct(
+        "Milk",
+        50.0,
+        date.today() + timedelta(days=2),
+    ),
+]
+
+for product in products:
+    print(product.name, product.calculate_price())</code></pre>
+
+        <p>The loop depends only on the <code>Product</code> contract. It does not need separate conditions for each child class.</p>
+
+        <h3>Expected follow-up questions</h3>
+
+        <div class="qa">
+          <strong>1. Why use <code>ABC</code>?</strong>
+          It defines a formal contract. <code>Product</code> represents a general, incomplete concept,
+          while every concrete product must define how its final price is calculated.
+        </div>
+
+        <div class="qa">
+          <strong>2. What happens if the subclass does not implement the abstract method?</strong>
+          The subclass also remains abstract, and Python raises <code>TypeError</code> when code tries to instantiate it.
+          <pre><code>class BrokenProduct(Product):
+    pass
+
+
+# TypeError: abstract method calculate_price is not implemented
+item = BrokenProduct("Invalid", 10.0)</code></pre>
+        </div>
+
+        <div class="qa">
+          <strong>3. Why call <code>super().__init__()</code>?</strong>
+          It delegates to the next implementation in the method resolution order. Here it initializes
+          <code>name</code> and <code>price</code> and reuses the validation defined in <code>Product</code>.
+        </div>
+
+        <div class="qa">
+          <strong>4. Abstract method versus concrete method?</strong>
+          An abstract method specifies behavior that subclasses must implement. A concrete method already
+          contains usable behavior and is inherited unless the child overrides it.
+          <pre><code>class Product(ABC):
+    def display_name(self) -&gt; str:       # concrete
+        return self.name
+
+    @abstractmethod
+    def calculate_price(self) -&gt; float:  # abstract
+        raise NotImplementedError</code></pre>
+        </div>
+
+        <div class="qa">
+          <strong>5. Overriding versus overloading?</strong>
+          <strong>Overriding</strong> means a child replaces an inherited method with its own implementation.
+          Python does not provide traditional signature-based <strong>overloading</strong> like Java.
+          Similar behavior is implemented with default arguments, <code>*args</code>, <code>**kwargs</code>,
+          or <code>functools.singledispatch</code>.
+        </div>
+
+        <div class="qa">
+          <strong>6. Instance, class, and static methods?</strong>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Method</th><th>First argument</th><th>Use</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Instance method</td><td><code>self</code></td><td>Reads or modifies one object's state.</td></tr>
+                <tr><td>Class method</td><td><code>cls</code></td><td>Works with the class or acts as an alternative constructor.</td></tr>
+                <tr><td>Static method</td><td>None automatically</td><td>Related utility logic that needs no instance or class state.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>class Product(ABC):
+    tax_rate = 0.05
+
+    @classmethod
+    def update_tax_rate(cls, rate: float) -&gt; None:
+        cls.tax_rate = rate
+
+    @staticmethod
+    def is_valid_price(price: float) -&gt; bool:
+        return price &gt;= 0</code></pre>
+        </div>
+
+        <div class="qa">
+          <strong>7. Composition versus inheritance?</strong>
+          Inheritance models an <strong>is-a</strong> relationship:
+          <code>PerishableProduct is a Product</code>. Composition models a
+          <strong>has-a</strong> or <strong>uses-a</strong> relationship:
+          <code>Product uses a DiscountStrategy</code>. Composition is generally more flexible
+          when discount behavior can change independently.
+        </div>
+
+        <div class="qa">
+          <strong>8. Public, protected, and private variables in Python?</strong>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Syntax</th><th>Meaning</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>self.price</code></td><td>Public by convention.</td></tr>
+                <tr><td><code>self._price</code></td><td>Internal/protected by convention; not enforced.</td></tr>
+                <tr><td><code>self.__price</code></td><td>Name-mangled to reduce accidental access; not true security.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="qa">
+          <strong>9. How would you add another discount without changing the class?</strong>
+          Use composition with the Strategy pattern. Move discount calculation into separate
+          strategy objects and inject the required strategy into the product.
+        </div>
+
+        <h3>Extensible version using the Strategy pattern</h3>
+        <pre><code>from abc import ABC, abstractmethod
+from datetime import date
+
+
+class DiscountStrategy(ABC):
+    @abstractmethod
+    def apply(
+        self,
+        price: float,
+        expiry_date: date | None = None,
+    ) -&gt; float:
+        raise NotImplementedError
+
+
+class NoDiscount(DiscountStrategy):
+    def apply(
+        self,
+        price: float,
+        expiry_date: date | None = None,
+    ) -&gt; float:
+        return price
+
+
+class NearExpiryDiscount(DiscountStrategy):
+    def __init__(
+        self,
+        days: int = 3,
+        rate: float = 0.20,
+    ) -&gt; None:
+        self.days = days
+        self.rate = rate
+
+    def apply(
+        self,
+        price: float,
+        expiry_date: date | None = None,
+    ) -&gt; float:
+        if expiry_date is None:
+            return price
+
+        days_remaining = (expiry_date - date.today()).days
+
+        if days_remaining &lt; 0:
+            return 0.0
+
+        if days_remaining &lt;= self.days:
+            return round(price * (1 - self.rate), 2)
+
+        return price
+
+
+class Product:
+    def __init__(
+        self,
+        name: str,
+        price: float,
+        discount_strategy: DiscountStrategy,
+        expiry_date: date | None = None,
+    ) -&gt; None:
+        if price &lt; 0:
+            raise ValueError("Price cannot be negative")
+
+        self.name = name
+        self.price = price
+        self.expiry_date = expiry_date
+        self.discount_strategy = discount_strategy
+
+    def calculate_price(self) -&gt; float:
+        return self.discount_strategy.apply(
+            self.price,
+            self.expiry_date,
+        )
+
+
+milk = Product(
+    name="Milk",
+    price=50.0,
+    expiry_date=date.today(),
+    discount_strategy=NearExpiryDiscount(),
+)
+
+notebook = Product(
+    name="Notebook",
+    price=100.0,
+    discount_strategy=NoDiscount(),
+)</code></pre>
+
+        <div class="correct">
+          New festive, loyalty, or clearance discounts can be added as new strategy classes
+          without modifying <code>Product</code>. This supports the Open/Closed Principle.
+        </div>
+
+        <h3>More OOP interview questions</h3>
+
+        <div class="qa">
+          <strong>10. Can an abstract class have a constructor and concrete methods?</strong>
+          Yes. An abstract class may contain <code>__init__</code>, attributes, properties,
+          concrete methods, class methods, static methods, and abstract methods.
+        </div>
+
+        <div class="qa">
+          <strong>11. Can an abstract method contain code?</strong>
+          Yes. It may contain reusable default behavior, but the subclass must still override it
+          before becoming concrete. The child can call the parent's implementation with <code>super()</code>.
+        </div>
+
+        <div class="qa">
+          <strong>12. Can an abstract class be instantiated?</strong>
+          Not while it has unimplemented abstract methods.
+        </div>
+
+        <div class="qa">
+          <strong>13. What is MRO?</strong>
+          Method Resolution Order is the sequence Python follows to find methods in an inheritance
+          hierarchy. Inspect it with <code>ClassName.mro()</code>.
+        </div>
+
+        <div class="qa">
+          <strong>14. What is the Open/Closed Principle?</strong>
+          A class should be open for extension but closed for modification. The strategy design
+          follows it because new discounts are added through new classes rather than by editing
+          existing product code.
+        </div>
+
+        <div class="qa">
+          <strong>15. Should an expired product really return <code>0.0</code>?</strong>
+          It is a simplified business rule for this interview problem. In production, expired stock
+          would normally be marked unsellable or produce a domain-specific validation error.
+        </div>
+
+        <h3>30-second interview answer</h3>
+        <div class="memory">
+          <code>Product</code> is an abstract base class that stores common state and forces every
+          concrete product to implement <code>calculate_price()</code>. The child class calls
+          <code>super().__init__()</code> to reuse parent initialization and validation, then overrides
+          the abstract method with expiry-aware pricing. For many changing discount rules, I would use
+          composition and inject a discount strategy so new discounts can be introduced without
+          modifying the product class.
+        </div>
+
+        <a class="top-link" href="#top">↑ Back to top</a>
+      </div>
+    </section>
+
+    <p class="footer-note">Designed for mobile revision and Python interview preparation.</p>
+  </main>
+
+  <button id="backToTop" type="button" aria-label="Back to top">↑</button>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const clearSearch = document.getElementById("clearSearch");
+    const sections = [...document.querySelectorAll(".searchable")];
+    const filters = [...document.querySelectorAll(".filter")];
+    const noResults = document.getElementById("noResults");
+    const backToTop = document.getElementById("backToTop");
+    let activeFilter = "all";
+
+    function applyFilters() {
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      sections.forEach(section => {
+        const categoryMatch =
+          activeFilter === "all" || section.dataset.category === activeFilter;
+        const textMatch =
+          !query || section.textContent.toLowerCase().includes(query);
+
+        const visible = categoryMatch && textMatch;
+        section.classList.toggle("hidden", !visible);
+        if (visible) visibleCount++;
+      });
+
+      noResults.style.display = visibleCount ? "none" : "block";
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+
+    clearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      activeFilter = "all";
+      filters.forEach(button =>
+        button.classList.toggle("active", button.dataset.filter === "all")
+      );
+      applyFilters();
+      searchInput.focus();
+    });
+
+    filters.forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filters.forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+        applyFilters();
+      });
+    });
+
+    window.addEventListener("scroll", () => {
+      backToTop.style.display = window.scrollY > 500 ? "block" : "none";
+    });
+
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>

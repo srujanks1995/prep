@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
+<meta content="Comprehensive Delta Lake deep dive covering ACID, transaction logs, schema evolution, optimization, cloning, Z-Order, liquid clustering, and maintenance." name="description"/>
+<title>Delta Lake Deep Dive — Deletion Vectors, Commands &amp; Trade-offs</title>
+<style>
+    :root{--bg:#f4f7fb;--surface:#fff;--surface2:#eef4ff;--text:#172033;--muted:#5b6780;--line:#d9e2f1;--primary:#5b4bdb;--blue:#1667c5;--green:#138a5b;--orange:#c86712;--red:#c43d4b;--cyan:#087c8f;--code:#111827;--codeText:#e5eefc;--shadow:0 10px 32px rgba(31,42,68,.08);--radius:16px}
+    [data-theme="dark"]{--bg:#0c1220;--surface:#141d2f;--surface2:#18243a;--text:#edf3ff;--muted:#aab7d0;--line:#2b3953;--primary:#9a8cff;--blue:#65a9ff;--green:#55d59b;--orange:#ffb05c;--red:#ff7e8b;--cyan:#56d7e7;--code:#080d17;--codeText:#e7efff;--shadow:0 10px 32px rgba(0,0,0,.28)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.62}a{color:var(--primary)}code,pre{font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace}
+    .hero{background:radial-gradient(circle at 10% 5%,rgba(255,255,255,.24),transparent 25%),radial-gradient(circle at 88% 105%,rgba(250,204,21,.27),transparent 31%),linear-gradient(125deg,#0f766e 0%,#2563eb 42%,#6d28d9 72%,#be185d 100%);color:#fff;padding:46px 22px 38px}.hero-inner,.page{max-width:1320px;margin:auto}.eyebrow{display:inline-block;padding:5px 10px;border:1px solid rgba(255,255,255,.35);border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.12)}h1{margin:14px 0 8px;font-size:clamp(2rem,5vw,4.25rem);line-height:1.05;letter-spacing:-.04em}.subtitle{max-width:880px;font-size:clamp(1rem,2vw,1.2rem);opacity:.94;margin:0}.hero-meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}.hero-meta span{padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);font-size:13px;font-weight:800}
+    .toolbar{max-width:1320px;margin:-18px auto 20px;padding:0 18px;position:relative;z-index:5}.toolbar-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center}.search{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);color:var(--text);font-size:15px;outline:none}.search:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,75,219,.14)}.btn{border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:11px;padding:10px 13px;font-weight:800;cursor:pointer}.btn:hover{border-color:var(--primary)}
+    .page{padding:0 18px 70px;display:block}.toc{position:static;max-height:none;overflow:visible;background:linear-gradient(135deg,rgba(37,99,235,.10),rgba(109,40,217,.10),rgba(190,24,93,.08));border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 24px}.toc h2{grid-column:1/-1;margin:0 0 4px;font-size:15px;color:var(--text);text-transform:uppercase;letter-spacing:.1em}.toc a{display:flex;align-items:center;min-height:48px;text-decoration:none;color:var(--text);padding:9px 11px;border-radius:11px;font-size:13px;font-weight:800;line-height:1.25;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 12px rgba(31,42,68,.05);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.toc a:hover{transform:translateY(-2px);color:var(--text);box-shadow:0 8px 20px rgba(31,42,68,.12)}.toc a:nth-of-type(6n+1){border-left:5px solid #2563eb;background:linear-gradient(135deg,rgba(37,99,235,.12),var(--surface))}.toc a:nth-of-type(6n+2){border-left:5px solid #0d9488;background:linear-gradient(135deg,rgba(13,148,136,.12),var(--surface))}.toc a:nth-of-type(6n+3){border-left:5px solid #d97706;background:linear-gradient(135deg,rgba(217,119,6,.12),var(--surface))}.toc a:nth-of-type(6n+4){border-left:5px solid #7c3aed;background:linear-gradient(135deg,rgba(124,58,237,.12),var(--surface))}.toc a:nth-of-type(6n+5){border-left:5px solid #db2777;background:linear-gradient(135deg,rgba(219,39,119,.12),var(--surface))}.toc a:nth-of-type(6n){border-left:5px solid #16a34a;background:linear-gradient(135deg,rgba(22,163,74,.12),var(--surface))}main{min-width:0}
+    .section{background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--primary);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow);scroll-margin-top:16px}.section:nth-of-type(6n+1){border-top-color:#2563eb}.section:nth-of-type(6n+2){border-top-color:#0d9488}.section:nth-of-type(6n+3){border-top-color:#d97706}.section:nth-of-type(6n+4){border-top-color:#7c3aed}.section:nth-of-type(6n+5){border-top-color:#db2777}.section:nth-of-type(6n){border-top-color:#16a34a}.section.hidden{display:none}.section-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}.num{min-width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:#fff;font-weight:900;background:linear-gradient(135deg,#2563eb,#7c3aed)}.section:nth-of-type(6n+2) .num{background:linear-gradient(135deg,#0f766e,#0ea5e9)}.section:nth-of-type(6n+3) .num{background:linear-gradient(135deg,#d97706,#f59e0b)}.section:nth-of-type(6n+4) .num{background:linear-gradient(135deg,#7c3aed,#a855f7)}.section:nth-of-type(6n+5) .num{background:linear-gradient(135deg,#be185d,#ec4899)}.section:nth-of-type(6n) .num{background:linear-gradient(135deg,#15803d,#22c55e)}h2{margin:0;font-size:clamp(1.35rem,2.5vw,1.8rem);line-height:1.2}h3{margin:22px 0 8px;color:var(--primary);font-size:1.1rem}p{margin:8px 0 12px}.muted{color:var(--muted)}
+    .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 14px}.chip{padding:5px 9px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:800;text-decoration:none}.grid-2,.grid-3{display:grid;gap:14px;margin:14px 0}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.card{border:1px solid var(--line);border-radius:14px;padding:15px;background:var(--bg)}.card h3{margin-top:0}.good{border-left:5px solid var(--green)}.warn{border-left:5px solid var(--orange)}.danger{border-left:5px solid var(--red)}.info{border-left:5px solid var(--blue)}
+    .memory{margin:14px 0;padding:13px 15px;border:1px solid rgba(91,75,219,.32);border-radius:13px;background:linear-gradient(135deg,rgba(91,75,219,.10),rgba(8,124,143,.08));font-weight:800}.flow{margin:14px 0;border:1px dashed var(--line);border-radius:14px;padding:16px;background:var(--bg);overflow-x:auto;white-space:pre;font-family:"Cascadia Code",Consolas,monospace;font-size:13px;color:var(--cyan)}
+    .table-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:13px;margin:13px 0 18px}table{width:100%;border-collapse:collapse;min-width:690px}th{text-align:left;padding:12px 13px;background:linear-gradient(135deg,rgba(91,75,219,.16),rgba(22,103,197,.13));color:var(--text);border-bottom:1px solid var(--line);font-size:13px}td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}tr:last-child td{border-bottom:none}tbody tr:hover{background:var(--surface2)}
+    .codebox{position:relative;margin:12px 0 16px;border-radius:13px;overflow:hidden;background:var(--code);border:1px solid #27344d}.code-label{padding:8px 12px;color:#9fb0cc;font-size:11px;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid #27344d}pre{margin:0;padding:16px;overflow-x:auto;color:var(--codeText);font-size:13px;line-height:1.55}.copy{position:absolute;right:8px;top:7px;border:1px solid #3c4a64;background:#1b2639;color:#dce8ff;border-radius:8px;padding:5px 8px;font-size:11px;cursor:pointer}.callout{padding:13px 15px;margin:12px 0;border-radius:13px;background:var(--surface2);border:1px solid var(--line)}.callout strong{color:var(--primary)}details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:var(--bg)}summary{font-weight:850;color:var(--primary);cursor:pointer}
+    .footer{max-width:1220px;margin:0 auto 50px;padding:0 18px;color:var(--muted);font-size:13px}.top{position:fixed;right:18px;bottom:18px;width:44px;height:44px;border-radius:50%;border:0;background:var(--primary);color:#fff;font-size:20px;cursor:pointer;box-shadow:var(--shadow)}
+    @media(max-width:1050px){.toc{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-3{grid-template-columns:1fr}}
+    @media(max-width:760px){body{overflow-x:hidden}.hero{padding:30px 14px 26px}.hero h1{font-size:clamp(2rem,10vw,3rem)}.hero-meta{gap:6px;margin-top:14px}.hero-meta span{font-size:11px;padding:5px 8px}.toolbar{margin:10px auto 16px;padding:0 10px}.toolbar-card{grid-template-columns:minmax(0,1fr) auto;padding:9px;gap:7px}.toolbar-card .btn:last-child{display:none}.search{min-width:0;padding:10px 11px;font-size:14px}.btn{padding:9px 10px;font-size:12px}.page{padding:0 10px 62px}.toc{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:11px;margin-bottom:16px}.toc h2{font-size:13px}.toc a{min-height:44px;font-size:11.5px;padding:7px 8px;border-left-width:4px}.section{padding:15px;margin-bottom:14px;border-radius:13px}.section-head{gap:9px}.num{min-width:34px;height:34px;border-radius:10px}.grid-2,.grid-3{grid-template-columns:1fr}.table-wrap{border-radius:10px;-webkit-overflow-scrolling:touch}table{min-width:560px}th,td{padding:9px 10px;font-size:12.5px}.flow{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11.5px;padding:12px}.codebox pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:11.5px;padding:13px}.copy{font-size:10px}.top{right:12px;bottom:12px;width:42px;height:42px}}
+    @media(max-width:430px){.toc{grid-template-columns:1fr}.toc a{font-size:12px}.hero .subtitle{font-size:14px}.section h2{font-size:1.25rem}table{min-width:520px}}
+    @media print{.toolbar,.toc,.top,.copy{display:none!important}.page{display:block;padding:0}.section{box-shadow:none;break-inside:avoid}body{background:#fff}}
+  </style>
+</head>
+<body>
+<header class="hero" id="top"><div class="hero-inner"><span class="eyebrow">Interview + Practical Guide</span><h1>Delta Lake Deep Dive</h1><p class="subtitle">Architecture, ACID, deletion vectors, transaction logs, schema evolution, cloning, file optimization, Z-Order, liquid clustering, maintenance commands, and trade-offs.</p><div class="hero-meta"><span>22 color-coded sections</span><span>Searchable</span><span>Mobile-friendly</span><span>Copyable commands</span><span>Interview recap</span></div></div></header>
+<div class="toolbar"><div class="toolbar-card"><input aria-label="Search guide" class="search" id="search" placeholder="Search concepts or commands: VACUUM, ZORDER, clone, schema..." type="search"/><button class="btn" id="themeBtn">🌙 Theme</button><button class="btn" onclick="window.print()">🖨 Print</button></div></div>
+<div class="page">
+<nav aria-label="Delta Lake sections" class="toc"><h2>Sections — tap any topic to jump</h2>
+<a href="#overview">1. Delta Overview</a><a href="#update">2. Parquet vs Delta Update</a><a href="#deletion-vectors">3. Deletion Vectors</a><a href="#acid">4. ACID Transactions</a><a href="#concurrency">5. PCC vs OCC</a><a href="#log">6. Transaction Log</a><a href="#checkpoints">7. Massive Log Metadata</a><a href="#time-travel">8. Versioning &amp; Time Travel</a><a href="#schema">9. Schema Enforcement</a><a href="#evolution">10. Schema Evolution</a><a href="#convert">11. Parquet → Delta</a><a href="#tables">12. Managed vs External</a><a href="#cow-mor">13. COW vs MOR</a><a href="#clone">14. Shallow vs Deep Clone</a><a href="#ctas">15. CTAS vs Deep Clone</a><a href="#small-files">16. Small-File Problem</a><a href="#optimize">17. OPTIMIZE &amp; Bin Packing</a><a href="#auto">18. Optimized Write vs Auto Compact</a><a href="#vacuum">19. VACUUM</a><a href="#zorder">20. Z-Order</a><a href="#liquid">21. Liquid Clustering</a><a href="#commands">22. Command Cheat Sheet</a><a href="#interview">23. Interview Recap</a>
+</nav>
+<main>
+<section class="section searchable" id="overview"><div class="section-head"><div class="num">1</div><div><h2>Delta Lake Overview</h2><p class="muted">Parquet data files plus a transactional metadata layer.</p></div></div><div class="grid-3"><div class="card info"><h3>Data</h3><p>Stored primarily in columnar Parquet files.</p></div><div class="card good"><h3>Transaction log</h3><p>The <code>_delta_log</code> records every committed table change.</p></div><div class="card warn"><h3>Capabilities</h3><p>ACID, schema enforcement, UPDATE, DELETE, MERGE, time travel, and file-layout optimization.</p></div></div><div class="memory">Memory rule: <strong>Delta Lake = Parquet + transaction log + table-management features.</strong></div><div class="flow">Delta table directory
+├── part-00001-....parquet
+├── part-00002-....parquet
+└── _delta_log/
+    ├── 00000000000000000000.json
+    ├── 00000000000000000001.json
+    └── checkpoint files</div></section>
+<section class="section searchable" id="update"><div class="section-head"><div class="num">2</div><div><h2>Plain Parquet vs Delta Update</h2><p class="muted">How an update differs when deletion vectors are enabled.</p></div></div><div class="table-wrap"><table><thead><tr><th>Plain Parquet</th><th>Delta Lake with a deletion vector</th></tr></thead><tbody><tr><td>Updating one row usually requires rewriting the affected Parquet file through application logic.</td><td>The original file can remain physically unchanged; the old row is marked as logically removed.</td></tr><tr><td>The updated value is stored in the rewritten data file.</td><td>The updated row is written to a new file; Delta combines the base file, deletion vector, and new row during reads.</td></tr><tr><td><strong>Advantage:</strong> Simple file format with little table metadata.</td><td><strong>Advantage:</strong> Faster row-level updates/deletes and ACID commit semantics.</td></tr><tr><td><strong>Disadvantage:</strong> No built-in transaction log; partial or concurrent overwrite workflows can create inconsistent table state.</td><td><strong>Disadvantage:</strong> More metadata and read-path complexity; removed rows remain physically present until files are rewritten and later vacuumed.</td></tr></tbody></table></div><div class="flow">Initial: 1.parquet contains customer_id 1–100
+Update: customer_id = 1, quantity 5 → 10
+
+Current Delta view =
+  1.parquet
+  + deletion vector: skip old row for customer_id 1
+  + 2.parquet: customer_id 1, quantity 10</div><div class="callout"><strong>Important:</strong> Delta does not always use deletion vectors. When disabled or unsupported for an operation, Delta can rewrite affected files using copy-on-write behavior.</div><div class="codebox"><div class="code-label">Enable deletion vectors</div><button class="copy">Copy</button><pre><code>ALTER TABLE sales
+SET TBLPROPERTIES ('delta.enableDeletionVectors' = 'true');</code></pre></div></section><section class="section searchable" id="deletion-vectors">
+<div class="section-head">
+<div class="num">3</div>
+<div>
+<h2>Deletion Vectors</h2>
+<p class="muted">Row-level deletion metadata that avoids immediately rewriting an entire Parquet file.</p>
+</div>
+</div>
+<div class="memory">
+    Memory rule: <strong>Deletion vector = keep the Parquet file, mark selected row positions as logically removed.</strong>
+</div>
+<h3>How it works</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What Delta Lake does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Find affected rows</strong></td>
+<td>Delta identifies the row positions affected by an <code>UPDATE</code>, <code>DELETE</code>, or <code>MERGE</code>.</td>
+</tr>
+<tr>
+<td><strong>2. Mark old rows</strong></td>
+<td>A deletion vector records which rows in the existing Parquet file must be ignored.</td>
+</tr>
+<tr>
+<td><strong>3. Write replacement rows</strong></td>
+<td>For an update, the new row values are written to a new Parquet file. For a delete, no replacement row is required.</td>
+</tr>
+<tr>
+<td><strong>4. Commit metadata</strong></td>
+<td>The transaction log records the file's new logical state and references the deletion-vector information.</td>
+</tr>
+<tr>
+<td><strong>5. Read current snapshot</strong></td>
+<td>Readers scan the base files, skip rows marked by deletion vectors, and include replacement rows from newer files.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flow">Before UPDATE
+2.parquet:
+customer_id 1  quantity 5
+customer_id 2  quantity 7
+customer_id 99 quantity 4
+
+UPDATE customer_id = 1 SET quantity = 10
+        ↓
+2.parquet remains physically present
++ deletion vector: ignore old row for customer_id 1
++ 3.parquet: customer_id 1, quantity 10
+
+DELETE customer_id = 99
+        ↓
+same deletion vector is extended:
+ignore row positions for customer_id 1 and 99</div>
+<h3>Transaction-log view</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Log actions</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UPDATE</strong></td>
+<td>
+            Logical <code>remove</code> of the file's previous state, followed by
+            <code>add</code> of the same file with a deletion vector, plus
+            <code>add</code> of the file containing the updated row.
+          </td>
+<td>The old row is skipped and the new row becomes visible atomically.</td>
+</tr>
+<tr>
+<td><strong>DELETE</strong></td>
+<td>
+            Logical <code>remove</code> of the previous file state and
+            <code>add</code> of the file with an updated deletion vector.
+          </td>
+<td>The deleted row becomes invisible without immediately rewriting the data file.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Enable deletion vectors</h3>
+<div class="codebox">
+<div class="code-label">Enable on an existing Delta table</div>
+<button class="copy">Copy</button>
+<pre><code>ALTER TABLE sales
+SET TBLPROPERTIES (
+  'delta.enableDeletionVectors' = 'true'
+);</code></pre>
+</div>
+<div class="codebox">
+<div class="code-label">Check table properties</div>
+<button class="copy">Copy</button>
+<pre><code>SHOW TBLPROPERTIES sales;</code></pre>
+</div>
+<h3>Advantages and drawbacks</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Advantages</th>
+<th>Drawbacks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Faster sparse updates and deletes because affected files need not be rewritten immediately.</td>
+<td>Reads must apply deletion-vector metadata, which adds some processing complexity.</td>
+</tr>
+<tr>
+<td>Reduces write amplification and can improve concurrency for row-level changes.</td>
+<td>Old rows still occupy physical storage until files are rewritten and obsolete files are vacuumed.</td>
+</tr>
+<tr>
+<td>Works with Delta ACID transactions, snapshot isolation, history, and time travel.</td>
+<td>Requires compatible Delta readers and writers that support the deletion-vector table feature.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Deletion vectors, OPTIMIZE, and VACUUM</h3>
+<div class="flow">Deletion vector
+= logically hides rows
+
+OPTIMIZE
+= can rewrite files so deleted rows are physically removed from new active files
+
+VACUUM
+= later deletes obsolete physical files after the retention period</div>
+<div class="callout">
+<strong>Do not confuse the steps:</strong>
+    a deletion vector performs the immediate logical row removal;
+    <code>OPTIMIZE</code> reorganizes or rewrites files;
+    <code>VACUUM</code> permanently deletes eligible obsolete files.
+  </div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Copy-on-Write</th>
+<th>Deletion-vector approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rewrite the affected Parquet file during the row change.</td>
+<td>Keep the base file and record deleted row positions separately.</td>
+</tr>
+<tr>
+<td>Higher write cost, simpler current-state files.</td>
+<td>Lower immediate write cost, more work in the read path until files are rewritten.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="section searchable" id="acid"><div class="section-head"><div class="num">4</div><div><h2>ACID Transactions</h2><p class="muted">Delta commits table changes atomically through the transaction log.</p></div></div><div class="table-wrap"><table><thead><tr><th>Property</th><th>Meaning in Delta Lake</th></tr></thead><tbody><tr><td><strong>Atomicity</strong></td><td>A transaction is fully committed or not visible at all.</td></tr><tr><td><strong>Consistency</strong></td><td>Schema, protocol, constraints, and table invariants are validated during writes.</td></tr><tr><td><strong>Isolation</strong></td><td>Readers see a consistent snapshot; concurrent writers are checked for conflicts.</td></tr><tr><td><strong>Durability</strong></td><td>Committed actions are persisted in <code>_delta_log</code> and referenced data files.</td></tr></tbody></table></div><div class="memory">A transaction becomes visible only after its commit file is successfully added to the log.</div></section>
+<section class="section searchable" id="concurrency"><div class="section-head"><div class="num">5</div><div><h2>PCC vs OCC for Isolation</h2><p class="muted">Delta Lake primarily uses optimistic concurrency control.</p></div></div><div class="table-wrap"><table><thead><tr><th>PCC — Pessimistic Concurrency Control</th><th>OCC — Optimistic Concurrency Control</th></tr></thead><tbody><tr><td>Assumes conflicts are likely.</td><td>Assumes conflicts are uncommon.</td></tr><tr><td>Locks data before changes; another transaction may wait.</td><td>Transactions work independently on snapshots without broad locks.</td></tr><tr><td>Prevents conflicts before they occur.</td><td>Validates conflicts when a writer attempts to commit.</td></tr><tr><td>May introduce blocking and deadlocks.</td><td>No blocking, but a conflicting writer can fail and must retry.</td></tr></tbody></table></div><div class="flow">OCC:
+T1 reads V10 ── changes files ── commit check ── success → V11
+T2 reads V10 ── changes files ── commit check ── conflict → retry</div><div class="memory">OCC: <strong>work independently, validate at commit.</strong></div></section>
+<section class="section searchable" id="log">
+<div class="section-head">
+<div class="num">6</div>
+<div>
+<h2>Delta Transaction Log and Table Versions</h2>
+<p class="muted">JSON commits describe how Parquet files and deletion vectors form every table version.</p>
+</div>
+</div>
+<h3>Core transaction-log actions</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Action</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>add</code></td><td>Adds a data file to the active table snapshot, optionally with a deletion vector.</td></tr>
+<tr><td><code>remove</code></td><td>Logically removes a file or its previous state from the active snapshot. Physical deletion happens later.</td></tr>
+<tr><td><code>metaData</code></td><td>Stores the schema, partition columns, table properties, and table identifier.</td></tr>
+<tr><td><code>protocol</code></td><td>Defines the minimum reader and writer features required by the table.</td></tr>
+<tr><td><code>commitInfo</code></td><td>Captures operation details such as CTAS, INSERT, UPDATE, DELETE, MERGE, OPTIMIZE, and metrics.</td></tr>
+</tbody>
+</table>
+</div>
+<h3>How Delta Lake builds table versions</h3>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Transaction log</th>
+<th>Physical / logical change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CTAS</strong></td>
+<td><code>0.json</code></td>
+<td>Creates <code>1.parquet</code> with the initial records and records the first table version.</td>
+</tr>
+<tr>
+<td><strong>INSERT</strong></td>
+<td><code>1.json</code></td>
+<td>Adds <code>2.parquet</code> containing newly inserted records.</td>
+</tr>
+<tr>
+<td><strong>UPDATE customer_id = 1</strong></td>
+<td><code>2.json</code></td>
+<td>Adds a deletion vector to <code>2.parquet</code> to ignore the old row and creates <code>3.parquet</code> with the updated row.</td>
+</tr>
+<tr>
+<td><strong>DELETE customer_id = 99</strong></td>
+<td><code>3.json</code></td>
+<td>Updates the deletion vector on <code>2.parquet</code> so IDs <code>1</code> and <code>99</code> are ignored; no full file rewrite is required.</td>
+</tr>
+<tr>
+<td><strong>INSERT</strong></td>
+<td><code>4.json</code></td>
+<td>Creates <code>4.parquet</code> for the next inserted records.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flow">Current table snapshot
+= active Parquet files
++ deletion-vector rules
++ ordered actions from the Delta transaction log</div>
+<div class="codebox">
+<div class="code-label">Inspect table history</div>
+<button class="copy">Copy</button>
+<pre><code>DESCRIBE HISTORY sales;</code></pre>
+</div>
+<div class="memory">A <code>remove</code> action is normally logical. The old physical file can remain for time travel until it becomes eligible for <code>VACUUM</code>.</div>
+</section>
+<section class="section searchable" id="checkpoints">
+<div class="section-head">
+<div class="num">7</div>
+<div>
+<h2>Handling Massive Delta Log Metadata</h2>
+<p class="muted">Delta reduces transaction-log replay and metadata overhead through compaction, checkpoints, and caching.</p>
+</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>What happens</th>
+<th>Benefit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JSON log compaction</strong></td>
+<td>Multiple commit files such as <code>00000.json</code>–<code>00006.json</code> can be represented by a compacted log file such as <code>00001.00006.compacted.json</code> where supported.</td>
+<td>Reduces the number of small JSON files Delta must open and process.</td>
+</tr>
+<tr>
+<td><strong>Checkpointing</strong></td>
+<td>At version <code>36</code>, Delta writes a checkpoint such as <code>00036.checkpoint.parquet</code> containing the complete active table state up to that version.</td>
+<td>To build version <code>38</code>, Delta reads the checkpoint plus <code>00037.json</code> and <code>00038.json</code>, rather than replaying every commit from version <code>0</code>.</td>
+</tr>
+<tr>
+<td><strong>Caching</strong></td>
+<td>Frequently used table metadata, snapshots, and file lists can be retained in memory.</td>
+<td>Repeated queries avoid rebuilding the same table snapshot and reduce planning latency.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flow">Read table at version 38
+        ↓
+Load checkpoint at version 36
+        +
+Replay 00037.json
+        +
+Replay 00038.json
+        ↓
+Construct version 38 snapshot</div>
+<div class="grid-3">
+<div class="card info">
+<h3>Commit JSON</h3>
+<p>Incremental changes for one or more versions.</p>
+</div>
+<div class="card good">
+<h3>Checkpoint</h3>
+<p>A materialized table-state snapshot used as a faster starting point.</p>
+</div>
+<div class="card warn">
+<h3>Cache</h3>
+<p>Reuses recently computed metadata and snapshots for repeated access.</p>
+</div>
+</div>
+<div class="memory">Latest snapshot = newest usable checkpoint + only the JSON commits written after that checkpoint.</div>
+</section>
+<section class="section searchable" id="time-travel"><div class="section-head"><div class="num">8</div><div><h2>Versioning &amp; Time Travel</h2><p class="muted">Every successful table-changing transaction creates a new version.</p></div></div><div class="table-wrap"><table><thead><tr><th>Versioning</th><th>Time travel</th></tr></thead><tbody><tr><td>Records successive committed table states: V0, V1, V2…</td><td>Reads or restores a previous state by version or timestamp.</td></tr><tr><td>Useful for auditability and reproducibility.</td><td>Useful for rollback, debugging, comparisons, and recovery.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">SQL time travel and restore</div><button class="copy">Copy</button><pre><code>DESCRIBE HISTORY sales;
+SELECT * FROM sales VERSION AS OF 12;
+SELECT * FROM sales TIMESTAMP AS OF '2026-07-10 10:00:00';
+RESTORE TABLE sales TO VERSION AS OF 12;</code></pre></div><div class="callout"><strong>Retention warning:</strong> After eligible old files are physically removed by <code>VACUUM</code>, versions that depend on them can no longer be read.</div></section>
+<section class="section searchable" id="schema"><div class="section-head"><div class="num">9</div><div><h2>Schema-on-Read vs Schema-on-Write</h2><p class="muted">Delta emphasizes schema-on-write through enforcement.</p></div></div><div class="table-wrap"><table><thead><tr><th>Schema-on-Read</th><th>Schema-on-Write</th></tr></thead><tbody><tr><td>Store data first; interpret structure during reading.</td><td>Validate data against a known schema before commit.</td></tr><tr><td>Flexible for raw and semi-structured landing zones.</td><td>Produces consistent, trusted table structure.</td></tr><tr><td>Faster ingestion but more query-time complexity.</td><td>Additional write validation but simpler downstream use.</td></tr><tr><td>Invalid or inconsistent records can remain in storage.</td><td>Incompatible data is rejected unless evolution is enabled.</td></tr></tbody></table></div><h3>Common validations</h3><div class="chips"><span class="chip">Column names</span><span class="chip">Data types</span><span class="chip">Nullability</span><span class="chip">Required columns</span><span class="chip">Extra columns</span><span class="chip">Nested structures</span></div><div class="memory">Schema enforcement = reject incompatible writes. Schema evolution = allow controlled compatible change.</div></section>
+<section class="section searchable" id="evolution"><div class="section-head"><div class="num">10</div><div><h2>Schema Evolution</h2><p class="muted">Commands for adding columns, nested fields, widening types, and metadata-only changes.</p></div></div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Meaning</th><th>Enable / command</th></tr></thead><tbody><tr><td><strong>Add new columns</strong></td><td>Adds compatible source columns; historical rows return <code>NULL</code>.</td><td><code>SET spark.databricks.delta.schema.autoMerge.enabled = true;</code> or per write.</td></tr><tr><td><strong>Widen data types</strong></td><td>Allows compatible widening such as <code>INT → BIGINT</code>.</td><td><code>ALTER TABLE t SET TBLPROPERTIES ('delta.enableTypeWidening'='true');</code></td></tr><tr><td><strong>Nested evolution</strong></td><td>Adds compatible fields inside nested structures.</td><td>Use automatic or per-write schema evolution where supported.</td></tr><tr><td><strong>Column position</strong></td><td>Changes display/order metadata using <code>FIRST</code> or <code>AFTER</code>.</td><td>No session <code>SET</code>; use <code>ALTER TABLE ... ALTER COLUMN</code>.</td></tr><tr><td><strong>Rename / drop</strong></td><td>Metadata-only rename/drop with column mapping.</td><td><code>ALTER TABLE t SET TBLPROPERTIES ('delta.columnMapping.mode'='name');</code></td></tr></tbody></table></div><div class="codebox"><div class="code-label">Session-wide automatic evolution</div><button class="copy">Copy</button><pre><code>SET spark.databricks.delta.schema.autoMerge.enabled = true;</code></pre></div><div class="codebox"><div class="code-label">Per-operation SQL evolution</div><button class="copy">Copy</button><pre><code>INSERT WITH SCHEMA EVOLUTION INTO target_table
+SELECT * FROM source_table;</code></pre></div><div class="codebox"><div class="code-label">Manual schema changes</div><button class="copy">Copy</button><pre><code>ALTER TABLE target_table ADD COLUMNS (email STRING);
+ALTER TABLE target_table ALTER COLUMN email AFTER customer_name;
+ALTER TABLE target_table SET TBLPROPERTIES ('delta.enableTypeWidening' = 'true');
+ALTER TABLE target_table ALTER COLUMN customer_id TYPE BIGINT;
+ALTER TABLE target_table SET TBLPROPERTIES ('delta.columnMapping.mode' = 'name');
+ALTER TABLE target_table RENAME COLUMN email TO email_address;
+ALTER TABLE target_table DROP COLUMN email_address;</code></pre></div><div class="callout"><strong>Best practice:</strong> Prefer per-write evolution when possible. Session-wide <code>autoMerge</code> can unintentionally accept schema changes from unrelated jobs.</div></section>
+<section class="section searchable" id="convert"><div class="section-head"><div class="num">11</div><div><h2>Convert Parquet to Delta</h2><p class="muted">In-place conversion creates a transaction log around existing Parquet files.</p></div></div><div class="codebox"><div class="code-label">PySpark</div><button class="copy">Copy</button><pre><code>from delta.tables import DeltaTable
+
+DeltaTable.convertToDelta(
+    spark,
+    "parquet.`/mnt/data/customers`"
+)</code></pre></div><div class="codebox"><div class="code-label">PySpark — partitioned Parquet</div><button class="copy">Copy</button><pre><code>from delta.tables import DeltaTable
+
+DeltaTable.convertToDelta(
+    spark,
+    "parquet.`/mnt/data/customers`",
+    "event_date DATE"
+)</code></pre></div><details><summary>SQL equivalent</summary><div class="codebox"><div class="code-label">SQL</div><button class="copy">Copy</button><pre><code>CONVERT TO DELTA parquet.`/mnt/data/customers`;
+CREATE TABLE customers USING DELTA LOCATION '/mnt/data/customers';</code></pre></div></details><div class="callout"><strong>Operational rule:</strong> Stop writes during conversion. Afterwards, use Delta readers and writers.</div></section>
+<section class="section searchable" id="tables"><div class="section-head"><div class="num">12</div><div><h2>Managed vs External Delta Tables</h2><p class="muted">The distinction is who controls the data location and lifecycle.</p></div></div><div class="table-wrap"><table><thead><tr><th>Managed Delta Table</th><th>External Delta Table</th></tr></thead><tbody><tr><td>Created without a user-supplied <code>LOCATION</code>.</td><td>Created with a user-supplied <code>LOCATION</code>.</td></tr><tr><td>The platform/catalog manages metadata and storage lifecycle.</td><td>The catalog manages registration; storage remains independently controlled.</td></tr><tr><td>Dropping allows managed data cleanup according to platform lifecycle behavior.</td><td>Dropping removes registration, while external files remain.</td></tr><tr><td>Best for centrally governed platform-managed data.</td><td>Best for shared, portable, or independently retained storage.</td></tr></tbody></table></div><div class="grid-2"><div class="codebox"><div class="code-label">Managed table</div><button class="copy">Copy</button><pre><code>CREATE TABLE employees (
+  employee_id INT,
+  employee_name STRING,
+  salary DOUBLE
+)
+USING DELTA;</code></pre></div><div class="codebox"><div class="code-label">External table</div><button class="copy">Copy</button><pre><code>CREATE TABLE employees_external (
+  employee_id INT,
+  employee_name STRING,
+  salary DOUBLE
+)
+USING DELTA
+LOCATION '/mnt/delta/employees';</code></pre></div></div><div class="memory">No <code>LOCATION</code> → managed. With <code>LOCATION</code> → external.</div></section>
+<section class="section searchable" id="cow-mor"><div class="section-head"><div class="num">13</div><div><h2>Copy-on-Write vs Merge-on-Read</h2><p class="muted">A file-layout trade-off between write cost and read complexity.</p></div></div><div class="table-wrap"><table><thead><tr><th>Copy-on-Write (COW)</th><th>Merge-on-Read-like behavior with deletion vectors</th></tr></thead><tbody><tr><td>Updates/deletes rewrite affected files.</td><td>Old rows can be marked by a deletion vector; changed rows are written separately.</td></tr><tr><td>Writes are more expensive.</td><td>Writes are usually faster for sparse row changes.</td></tr><tr><td>Reads are straightforward.</td><td>Reads combine base files with deletion-vector information and replacement rows.</td></tr><tr><td>Good for read-heavy workloads with fewer changes.</td><td>Good for frequent UPDATE, DELETE, MERGE, and row-level concurrency.</td></tr></tbody></table></div><div class="memory">Delta can use both patterns: file rewrite without deletion vectors; deferred row removal with deletion vectors.</div></section>
+<section class="section searchable" id="clone"><div class="section-head"><div class="num">14</div><div><h2>Shallow Clone vs Deep Clone</h2><p class="muted">Fast metadata reference versus fully independent copy.</p></div></div><div class="table-wrap"><table><thead><tr><th>Shallow Clone</th><th>Deep Clone</th></tr></thead><tbody><tr><td>Copies metadata and references source data files.</td><td>Copies metadata and physical data files.</td></tr><tr><td>Fast and storage efficient.</td><td>Slower and uses additional storage.</td></tr><tr><td>Depends on referenced source files.</td><td>Fully independent after cloning.</td></tr><tr><td>Can break if referenced source files are removed.</td><td>Unaffected by later source cleanup.</td></tr><tr><td>Best for test/dev and temporary environments.</td><td>Best for backup, migration, and independent copies.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">Clone commands</div><button class="copy">Copy</button><pre><code>CREATE TABLE customer_test SHALLOW CLONE customer_prod;
+CREATE TABLE customer_backup DEEP CLONE customer_prod;</code></pre></div><div class="memory">Shallow = copy metadata, reference data. Deep = copy metadata + physical data.</div></section>
+<section class="section searchable" id="ctas"><div class="section-head"><div class="num">15</div><div><h2>CTAS vs Deep Clone</h2><p class="muted">Derived query result versus near-exact independent table copy.</p></div></div><div class="table-wrap"><table><thead><tr><th>CTAS — CREATE TABLE AS SELECT</th><th>Deep Clone</th></tr></thead><tbody><tr><td>Creates a table from query output.</td><td>Creates an independent copy at a selected source version.</td></tr><tr><td>Supports filtering, joining, projection, aggregation, transformation.</td><td>Copies all source rows plus supported schema and table metadata.</td></tr><tr><td>Does not automatically preserve every property or constraint.</td><td>Preserves more source structure and properties.</td></tr><tr><td>Best for derived datasets.</td><td>Best for backup, migration, and exact-copy use cases.</td></tr></tbody></table></div><div class="grid-2"><div class="codebox"><div class="code-label">CTAS</div><button class="copy">Copy</button><pre><code>CREATE TABLE active_customers
+USING DELTA AS
+SELECT customer_id, name
+FROM customers
+WHERE status = 'ACTIVE';</code></pre></div><div class="codebox"><div class="code-label">Deep clone</div><button class="copy">Copy</button><pre><code>CREATE TABLE customers_backup
+DEEP CLONE customers;</code></pre></div></div><div class="memory">CTAS = copy query result. Deep clone = copy table data + supported metadata.</div></section>
+<section class="section searchable" id="small-files">
+<div class="section-head">
+<div class="num">16</div>
+<div>
+<h2>Root Causes of the Small-File Problem</h2>
+<p class="muted">Many tiny files increase file-listing, metadata, task-scheduling, and scan overhead even though the data remains correct.</p>
+</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Root cause</th>
+<th>Example</th>
+<th>Why it creates small files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Frequent small batch writes</strong></td>
+<td>Appending a few MB every minute.</td>
+<td>Each write creates one or more new files even when the incoming dataset is tiny.</td>
+</tr>
+<tr>
+<td><strong>Streaming micro-batches</strong></td>
+<td>A trigger runs every 30 seconds.</td>
+<td>Every micro-batch can create separate output files.</td>
+</tr>
+<tr>
+<td><strong>Too many Spark output partitions</strong></td>
+<td><code>df.repartition(10000)</code> before writing 10 GB.</td>
+<td>Each output partition can create a file, producing roughly 1 MB files in this example.</td>
+</tr>
+<tr>
+<td><strong>High-cardinality table partitioning</strong></td>
+<td><code>PARTITIONED BY (customer_id)</code>.</td>
+<td>Creates thousands or millions of directories with little data in each partition.</td>
+</tr>
+<tr>
+<td><strong>Low data volume per partition</strong></td>
+<td>Hourly partitions receive only a few records.</td>
+<td>Even a reasonable partition column produces tiny files when each partition receives too little data.</td>
+</tr>
+<tr>
+<td><strong>Frequent UPDATE, DELETE, or MERGE</strong></td>
+<td>Small CDC changes applied every few minutes.</td>
+<td>Changed rows or replacement data can be written into new small files that accumulate over time.</td>
+</tr>
+<tr>
+<td><strong>Multiple concurrent writers</strong></td>
+<td>Several jobs append to the same table.</td>
+<td>Each job and task independently produces output files.</td>
+</tr>
+<tr>
+<td><strong>Incorrect repartitioning or coalescing</strong></td>
+<td>Using an unnecessarily large partition count.</td>
+<td>The write has too little data per Spark partition to produce healthy file sizes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flow">Frequent writes
++ small input batches
++ too many output partitions
++ high-cardinality table partitioning
++ repeated row-level changes
+= many small Parquet files</div>
+<div class="grid-3">
+<div class="card danger">
+<h3>Query impact</h3>
+<p>More file opens, more scan tasks, and slower query startup.</p>
+</div>
+<div class="card warn">
+<h3>Metadata impact</h3>
+<p>Larger file lists and more transaction-log metadata.</p>
+</div>
+<div class="card good">
+<h3>Main fixes</h3>
+<p>Optimized writes, auto compaction, sensible partition counts, and periodic <code>OPTIMIZE</code>.</p>
+</div>
+</div>
+<div class="codebox">
+<div class="code-label">Compact accumulated small files</div>
+<button class="copy">Copy</button>
+<pre><code>OPTIMIZE customer_table;</code></pre>
+</div>
+</section>
+<section class="section searchable" id="optimize"><div class="section-head"><div class="num">17</div><div><h2>OPTIMIZE and Bin Packing</h2><p class="muted">Compacts small files into fewer appropriately sized files.</p></div></div><div class="table-wrap"><table><thead><tr><th>Before</th><th>After OPTIMIZE</th></tr></thead><tbody><tr><td>Thousands of small files.</td><td>Fewer, larger, balanced files.</td></tr><tr><td>High listing and task overhead.</td><td>Lower metadata and scheduling overhead.</td></tr><tr><td>Logical data is unchanged.</td><td>Logical data remains unchanged; physical layout changes.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">Compaction commands</div><button class="copy">Copy</button><pre><code>OPTIMIZE customer_table;
+
+OPTIMIZE customer_table
+WHERE order_date &gt;= '2026-07-01';</code></pre></div><div class="flow">10 MB + 20 MB + 15 MB + 25 MB + 30 MB
+                ↓ bin packing
+       fewer well-sized Parquet files</div><div class="callout"><strong>Not one giant file:</strong> OPTIMIZE creates multiple balanced files so Spark can keep parallel processing.</div></section>
+<section class="section searchable" id="auto"><div class="section-head"><div class="num">18</div><div><h2>Optimized Writes vs Auto Compaction</h2><p class="muted">Prevent small files during a write versus repair them after a write.</p></div></div><div class="table-wrap"><table><thead><tr><th>Optimized Writes</th><th>Auto Compaction</th></tr></thead><tbody><tr><td>Works during the write.</td><td>Runs after a successful write.</td></tr><tr><td>Shuffles and groups output before files are created.</td><td>Combines eligible small files that already exist.</td></tr><tr><td>Prevents many small files.</td><td>Repairs remaining small files.</td></tr><tr><td>May increase write latency.</td><td>Adds post-write processing.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">Session settings</div><button class="copy">Copy</button><pre><code>SET spark.databricks.delta.optimizeWrite.enabled = true;
+SET spark.databricks.delta.autoCompact.enabled = auto;</code></pre></div><div class="codebox"><div class="code-label">Table properties</div><button class="copy">Copy</button><pre><code>ALTER TABLE customer_table
+SET TBLPROPERTIES (
+  'delta.autoOptimize.optimizeWrite' = 'true',
+  'delta.autoOptimize.autoCompact' = 'auto'
+);</code></pre></div><div class="memory">Optimized write = during file creation. Auto compaction = after file creation. OPTIMIZE = larger maintenance compaction.</div></section>
+<section class="section searchable" id="vacuum"><div class="section-head"><div class="num">19</div><div><h2>VACUUM</h2><p class="muted">Permanently removes old data files no longer referenced by the current table state.</p></div></div><div class="table-wrap"><table><thead><tr><th>Command</th><th>Purpose</th></tr></thead><tbody><tr><td><code>VACUUM sales;</code></td><td>Deletes eligible obsolete files using retention policy.</td></tr><tr><td><code>VACUUM sales DRY RUN;</code></td><td>Lists eligible files without deleting them.</td></tr><tr><td><code>VACUUM sales RETAIN 168 HOURS;</code></td><td>Retains seven days of obsolete files.</td></tr><tr><td><code>VACUUM sales FULL;</code></td><td>Full eligible-file discovery where supported.</td></tr><tr><td><code>VACUUM sales LITE;</code></td><td>Uses transaction-log information where supported.</td></tr></tbody></table></div><div class="flow">UPDATE / DELETE / MERGE / OPTIMIZE
+                  ↓
+Old files remain for time travel
+                  ↓
+VACUUM after retention
+                  ↓
+Old physical files permanently removed</div><div class="table-wrap"><table><thead><tr><th>OPTIMIZE</th><th>VACUUM</th></tr></thead><tbody><tr><td>Rewrites files to improve layout.</td><td>Deletes obsolete files.</td></tr><tr><td>Improves query performance.</td><td>Reduces storage use.</td></tr><tr><td>Creates new files; old files remain temporarily.</td><td>Removes eligible old files permanently.</td></tr></tbody></table></div><div class="callout"><strong>Safety:</strong> Short retention periods can break long-running readers/writers and remove time-travel capability. Use <code>DRY RUN</code>.</div></section>
+<section class="section searchable" id="zorder"><div class="section-head"><div class="num">20</div><div><h2>Z-Order</h2><p class="muted">Maps multiple clustering dimensions into an approximate one-dimensional ordering.</p></div></div><div class="table-wrap"><table><thead><tr><th>Step</th><th>What happens</th></tr></thead><tbody><tr><td><strong>Choose columns</strong></td><td>Use frequently filtered columns such as <code>product_id</code> and <code>order_date</code>.</td></tr><tr><td><strong>Map dimensions</strong></td><td>Rows are treated as multidimensional points; bit interleaving creates a 1D Z-value.</td></tr><tr><td><strong>Preserve locality</strong></td><td>Points close in multiple dimensions are often placed near each other.</td></tr><tr><td><strong>Shuffle, sort, rewrite</strong></td><td><code>OPTIMIZE</code> rewrites files so similar values are colocated.</td></tr><tr><td><strong>Data skipping</strong></td><td>Per-file min/max statistics allow unrelated files to be skipped.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">Z-Order command</div><button class="copy">Copy</button><pre><code>OPTIMIZE sales
+ZORDER BY (product_id, quantity);</code></pre></div><div class="flow">(product_id, quantity)
+          ↓ Z-order mapping
+1-dimensional locality-preserving order
+          ↓ shuffle + sort + file rewrite
+similar values stored in fewer files
+          ↓
+better data skipping</div><div class="callout"><strong>Clarification:</strong> Z-Order does not create table partitions. It reorganizes files inside existing table partitions.</div></section>
+<section class="section searchable" id="liquid"><div class="section-head"><div class="num">21</div><div><h2>Liquid Clustering</h2><p class="muted">Flexible, incremental clustering without rigid partition directories.</p></div></div><div class="table-wrap"><table><thead><tr><th>Feature</th><th>Explanation</th></tr></thead><tbody><tr><td><strong>No fixed folders</strong></td><td>Data is organized by keys without hard-coded partition directories.</td></tr><tr><td><strong>Flexible keys</strong></td><td>Clustering columns can change as query patterns evolve.</td></tr><tr><td><strong>Incremental reclustering</strong></td><td><code>OPTIMIZE</code> reclusters data that needs reorganizing.</td></tr><tr><td><strong>Compaction + clustering</strong></td><td>Creates fewer well-sized files and colocates similar key values.</td></tr><tr><td><strong>Parallel processing remains</strong></td><td>It does not send all data to one core or create one file.</td></tr><tr><td><strong>Not compatible with Z-Order</strong></td><td>Use liquid clustering or Z-Order, not both.</td></tr></tbody></table></div><div class="codebox"><div class="code-label">Create clustered table</div><button class="copy">Copy</button><pre><code>CREATE TABLE sales (
+  product_id BIGINT,
+  quantity INT,
+  order_date DATE
+)
+USING DELTA
+CLUSTER BY (product_id, order_date);
+
+OPTIMIZE sales;</code></pre></div><div class="codebox"><div class="code-label">Change keys</div><button class="copy">Copy</button><pre><code>ALTER TABLE sales
+CLUSTER BY (customer_id, order_date);
+
+OPTIMIZE sales;</code></pre></div><div class="codebox"><div class="code-label">Automatic keys where supported</div><button class="copy">Copy</button><pre><code>ALTER TABLE sales
+CLUSTER BY AUTO;</code></pre></div><h3>How to choose clustering keys</h3><div class="table-wrap"><table><thead><tr><th>Choose columns that…</th><th>Avoid columns that…</th></tr></thead><tbody><tr><td>Frequently appear in selective <code>WHERE</code> filters.</td><td>Are rarely filtered.</td></tr><tr><td>Have medium-to-high cardinality such as IDs and timestamps.</td><td>Have only a few values such as booleans.</td></tr><tr><td>Match important repeated query patterns.</td><td>Duplicate a highly correlated selected key.</td></tr><tr><td>Have data-skipping statistics.</td><td>Add unnecessary dimensions; too many keys dilute effectiveness.</td></tr></tbody></table></div><div class="memory">Liquid clustering = well-sized files + similar key values together + keys that can evolve.</div></section>
+<section class="section searchable" id="commands"><div class="section-head"><div class="num">22</div><div><h2>Delta Command Cheat Sheet</h2><p class="muted">Compact revision block.</p></div></div><div class="codebox"><div class="code-label">Core operations</div><button class="copy">Copy</button><pre><code>-- History and time travel
+DESCRIBE HISTORY sales;
+SELECT * FROM sales VERSION AS OF 5;
+RESTORE TABLE sales TO VERSION AS OF 5;
+
+-- Schema evolution
+SET spark.databricks.delta.schema.autoMerge.enabled = true;
+ALTER TABLE sales ADD COLUMNS (email STRING);
+
+-- Convert Parquet to Delta
+CONVERT TO DELTA parquet.`/path/to/parquet`;
+
+-- Clone
+CREATE TABLE sales_test SHALLOW CLONE sales;
+CREATE TABLE sales_backup DEEP CLONE sales;
+
+-- File optimization
+OPTIMIZE sales;
+OPTIMIZE sales ZORDER BY (customer_id, order_date);
+
+-- Automatic small-file controls
+SET spark.databricks.delta.optimizeWrite.enabled = true;
+SET spark.databricks.delta.autoCompact.enabled = auto;
+
+-- Cleanup
+VACUUM sales DRY RUN;
+VACUUM sales RETAIN 168 HOURS;
+
+-- Liquid clustering
+ALTER TABLE sales CLUSTER BY (customer_id, order_date);
+OPTIMIZE sales;</code></pre></div><div class="grid-3"><div class="card good"><h3>OPTIMIZE</h3><p>Rewrites and compacts files.</p></div><div class="card warn"><h3>VACUUM</h3><p>Permanently deletes obsolete files.</p></div><div class="card info"><h3>ZORDER / CLUSTER BY</h3><p>Improves locality and data skipping.</p></div></div></section>
+<section class="section searchable" id="interview"><div class="section-head"><div class="num">23</div><div><h2>Interview Recap</h2><p class="muted">High-value one-line answers.</p></div></div><div class="table-wrap"><table><thead><tr><th>Question</th><th>Easy answer</th></tr></thead><tbody><tr><td>What is Delta Lake?</td><td>Parquet plus a transaction log that adds ACID, schema controls, versioning, DML, and optimization.</td></tr><tr><td>Why safer than plain Parquet?</td><td>Atomic commits and snapshot isolation prevent readers from seeing partial table updates.</td></tr><tr><td>How does OCC work?</td><td>Writers work independently and validate conflicts at commit time.</td></tr><tr><td>What is a deletion vector?</td><td>Metadata marking selected rows as logically removed without immediate file rewrite.</td></tr><tr><td>Versioning vs time travel?</td><td>Versioning records each state; time travel reads or restores one.</td></tr><tr><td>Schema enforcement vs evolution?</td><td>Enforcement rejects incompatible writes; evolution allows controlled change.</td></tr><tr><td>Shallow vs deep clone?</td><td>Shallow references source files; deep copies physical data.</td></tr><tr><td>CTAS vs deep clone?</td><td>CTAS copies query output; deep clone copies table data and supported metadata.</td></tr><tr><td>Why small files?</td><td>Small frequent writes, too many Spark partitions, micro-batches, and over-partitioning.</td></tr><tr><td>Optimized write vs auto compact?</td><td>Optimized write prevents small files during writes; auto compaction combines them afterward.</td></tr><tr><td>OPTIMIZE vs VACUUM?</td><td>OPTIMIZE rewrites files for layout; VACUUM permanently removes obsolete files.</td></tr><tr><td>Z-Order idea?</td><td>Map multi-column locality to one ordering, sort/rewrite files, and improve skipping.</td></tr><tr><td>Liquid clustering idea?</td><td>Incrementally organize well-sized files by flexible keys without rigid folders.</td></tr><tr><td>How does Delta handle a massive log?</td><td>Start from the latest checkpoint, replay only newer JSON commits, and reuse cached metadata where possible.</td></tr><tr><td>How is a Delta version constructed?</td><td>Combine active Parquet files, deletion-vector rules, and ordered actions recorded in the transaction log.</td></tr></tbody></table></div></section>
+<section class="section searchable" id="sources"><div class="section-head"><div class="num">✓</div><div><h2>Official References</h2><p class="muted">Primary documentation used to verify current commands and behavior.</p></div></div><div class="chips"><a class="chip" href="https://docs.databricks.com/aws/en/delta/" rel="noopener" target="_blank">Delta overview</a><a class="chip" href="https://docs.databricks.com/aws/en/tables/features/deletion-vectors" rel="noopener" target="_blank">Deletion vectors</a><a class="chip" href="https://docs.databricks.com/aws/en/optimizations/isolation/" rel="noopener" target="_blank">Isolation</a><a class="chip" href="https://docs.delta.io/delta-utility/" rel="noopener" target="_blank">Utility commands</a><a class="chip" href="https://docs.databricks.com/aws/en/tables/tune-file-size" rel="noopener" target="_blank">File size tuning</a><a class="chip" href="https://docs.databricks.com/aws/en/tables/operations/optimize" rel="noopener" target="_blank">OPTIMIZE</a><a class="chip" href="https://docs.databricks.com/aws/en/tables/operations/clone" rel="noopener" target="_blank">Clone</a><a class="chip" href="https://docs.databricks.com/aws/en/tables/data-skipping" rel="noopener" target="_blank">Data skipping</a><a class="chip" href="https://docs.databricks.com/aws/en/delta/clustering" rel="noopener" target="_blank">Liquid clustering</a></div></section>
+</main></div>
+<footer class="footer"><strong>Note:</strong> Exact feature availability and syntax depend on Delta Lake and Databricks Runtime versions. Verify production settings against your deployed runtime.</footer>
+<button aria-label="Back to top" class="top" onclick="location.href='#top'">↑</button>
+<script>
+const root=document.documentElement,themeBtn=document.getElementById('themeBtn'),saved=localStorage.getItem('delta-theme');if(saved)root.setAttribute('data-theme',saved);themeBtn.addEventListener('click',()=>{const next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);localStorage.setItem('delta-theme',next)});document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const t=b.parentElement.querySelector('code').innerText;try{await navigator.clipboard.writeText(t);const o=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=o,1200)}catch{b.textContent='Select text'}}));const search=document.getElementById('search'),sections=[...document.querySelectorAll('.searchable')];search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();sections.forEach(s=>s.classList.toggle('hidden',q&&!s.innerText.toLowerCase().includes(q)))})
+</script>
+</body>
+</html>
