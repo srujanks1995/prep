@@ -207,6 +207,9 @@ h3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
 }
+.pandas-only-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
 .language-panel {
     border-radius: 12px;
     overflow: hidden;
@@ -906,6 +909,11 @@ footer {
         display: none !important;
     }
 
+    body.mobile-filter-sql .pandas-only-card,
+    body.mobile-filter-spark .pandas-only-card {
+        display: none !important;
+    }
+
     body.mobile-filter-sql .three-column-grid,
     body.mobile-filter-spark .three-column-grid,
     body.mobile-filter-pandas .three-column-grid {
@@ -942,7 +950,7 @@ footer {
             <span class="sql-key">SQL / PostgreSQL</span>
             <span class="spark-key">PySpark DataFrame API</span>
             <span class="pandas-key">Pandas</span>
-            <span>118 keyword patterns</span>
+            <span>119 keyword patterns</span>
         </div>
     </div>
 </header>
@@ -6915,6 +6923,101 @@ result = rides_df[
         upper
     )
 ]</code></pre>
+                </div>
+            </div>
+        </article>
+
+
+        <article class="keyword-card pandas-only-card" data-search="data quality pandas reusable function automate automated data cleaning clean employee dataframe drop duplicates fill missing salary mean average clean text strip title replace unknown nan">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Data Quality</span>
+                    <h3>AUTOMATING DATA CLEANING WITH A REUSABLE FUNCTION</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy example</button>
+            </div>
+            <p class="note">Create one reusable Pandas function that copies the input, converts placeholder values to NaN, removes duplicates, fills missing salaries with the mean, and standardizes text columns.</p>
+            <div class="three-column-grid pandas-only-grid">
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>import pandas as pd
+import numpy as np
+
+# Reusable function for cleaning employee data
+def clean_employee_data(df):
+    # Work on a copy so the original DataFrame is unchanged
+    df = df.copy()
+
+    # Replace placeholder text with a real missing value
+    df = df.replace(&quot;UNKNOWN&quot;, np.nan)
+
+    # Remove complete duplicate rows
+    df = df.drop_duplicates()
+
+    # Calculate average salary from non-null values
+    average_salary = df[&quot;Salary&quot;].mean()
+
+    # Fill missing salary with the average salary
+    df[&quot;Salary&quot;] = df[&quot;Salary&quot;].fillna(
+        average_salary
+    )
+
+    # Remove extra spaces and standardize text case
+    df[&quot;Employee&quot;] = (
+        df[&quot;Employee&quot;]
+        .str.strip()
+        .str.title()
+    )
+
+    df[&quot;Department&quot;] = (
+        df[&quot;Department&quot;]
+        .str.strip()
+        .str.title()
+    )
+
+    return df
+
+# Sample data
+employee_data = {
+    &quot;Employee&quot;: [
+        &quot;John Doe &quot;,
+        &quot;Jane Smith&quot;,
+        &quot;john doe&quot;,
+        None,
+        &quot;Alice Johnson&quot;
+    ],
+    &quot;Department&quot;: [
+        &quot;HR&quot;,
+        &quot;Engineering&quot;,
+        &quot;HR&quot;,
+        &quot;Finance&quot;,
+        None
+    ],
+    &quot;Salary&quot;: [
+        70000,
+        80000,
+        70000,
+        None,
+        None
+    ]
+}
+
+df = pd.DataFrame(employee_data)
+
+# Apply the reusable cleaning function
+df_cleaned = clean_employee_data(df)
+
+print(df_cleaned)
+
+# Standalone example: replace a placeholder with NaN
+df_replaced = df.replace(
+    &quot;UNKNOWN&quot;,
+    np.nan
+)
+</code></pre>
                 </div>
             </div>
         </article>
