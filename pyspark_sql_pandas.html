@@ -942,7 +942,7 @@ footer {
             <span class="sql-key">SQL / PostgreSQL</span>
             <span class="spark-key">PySpark DataFrame API</span>
             <span class="pandas-key">Pandas</span>
-            <span>113 keyword patterns</span>
+            <span>118 keyword patterns</span>
         </div>
     </div>
 </header>
@@ -2842,7 +2842,102 @@ LIMIT 10;</code></pre>
                 </div>
             </div>
         </article>
-        </section><section class="category-section" id="filtering"><h2>Filtering</h2>
+        
+
+        <!-- Added: Pandas loc and iloc recipes -->
+        <article class="keyword-card" data-search="core selection loc iloc select rows columns pandas label based position based boolean condition slice row column selection">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Core Selection</span>
+                    <h3>SELECT ROWS &amp; COLUMNS USING LOC AND ILOC</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">loc uses row/column labels and includes the ending label in a slice. iloc uses integer positions and excludes the ending position.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>-- Select named columns
+SELECT
+    customer_id,
+    sales
+FROM orders;
+
+-- Select matching rows
+SELECT
+    customer_id,
+    sales
+FROM orders
+WHERE sales &gt; 1000;
+
+-- Positional page of rows
+SELECT *
+FROM orders
+ORDER BY customer_id
+LIMIT 5 OFFSET 0;</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Select named columns
+result = df.select(
+    "customer_id",
+    "sales"
+)
+
+# Select rows using a condition
+result = df.filter(
+    F.col("sales") &gt; 1000
+).select(
+    "customer_id",
+    "sales"
+)
+
+# First five rows
+result = df.limit(5)</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># loc: label-based selection
+result = df.loc[
+    0:4,
+    ["customer_id", "sales"]
+]
+
+# loc with a condition
+result = df.loc[
+    df["sales"] &gt; 1000,
+    ["customer_id", "sales"]
+]
+
+# Update selected rows using loc
+df.loc[
+    df["profit"] &lt; 0,
+    "profit_flag"
+] = 0
+
+# iloc: position-based selection
+# Rows 0-4 and columns at positions 0 and 3
+result = df.iloc[0:5, [0, 3]]
+
+# All rows and first three columns
+result = df.iloc[:, 0:3]
+
+# Single cell by position
+value = df.iloc[0, 2]</code></pre>
+                </div>
+            </div>
+        </article>
+
+</section><section class="category-section" id="filtering"><h2>Filtering</h2>
         <article class="keyword-card" data-search="filtering where / filter where filter condition filter rows before aggregation.">
             <div class="card-header">
                 <div>
@@ -3224,7 +3319,110 @@ WHERE name ~ &#x27;^[A-Z][a-z]+$&#x27;;</code></pre>
                 </div>
             </div>
         </article>
-        </section><section class="category-section" id="null-handling"><h2>Null Handling</h2>
+        
+
+        <!-- Added: Conditional filtering recipes -->
+        <article class="keyword-card" data-search="filtering conditional filtering pandas boolean mask loc query multiple conditions and or isin not filter rows">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Filtering</span>
+                    <h3>CONDITIONAL FILTERING</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">Use boolean expressions to keep matching rows. In Pandas, wrap each condition in parentheses when combining conditions with &amp; or |.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>-- One condition
+SELECT *
+FROM orders
+WHERE sales &gt; 1000;
+
+-- Multiple conditions
+SELECT *
+FROM orders
+WHERE sales &gt; 1000
+  AND region = 'East';
+
+-- Match a list of values
+SELECT *
+FROM orders
+WHERE category IN (
+    'Technology',
+    'Office Supplies'
+);</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># One condition
+result = df.filter(
+    F.col("sales") &gt; 1000
+)
+
+# Multiple conditions
+result = df.filter(
+    (F.col("sales") &gt; 1000)
+    &amp; (F.col("region") == "East")
+)
+
+# Match a list of values
+result = df.filter(
+    F.col("category").isin(
+        "Technology",
+        "Office Supplies"
+    )
+)</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># One condition
+result = df[df["sales"] &gt; 1000]
+
+# Multiple conditions: AND
+result = df[
+    (df["sales"] &gt; 1000)
+    &amp; (df["region"] == "East")
+]
+
+# Multiple conditions: OR
+result = df[
+    (df["profit"] &lt; 0)
+    | (df["quantity"] == 0)
+]
+
+# Match a list of values
+result = df[
+    df["category"].isin([
+        "Technology",
+        "Office Supplies"
+    ])
+]
+
+# Return selected columns only
+result = df.loc[
+    df["profit"] &lt; 0,
+    ["customer_id", "profit"]
+]
+
+# Optional query syntax
+result = df.query(
+    "sales &gt; 1000 and region == 'East'"
+)</code></pre>
+                </div>
+            </div>
+        </article>
+
+</section><section class="category-section" id="null-handling"><h2>Null Handling</h2>
         <article class="keyword-card" data-search="null handling is null / isnull / isna null missing nan isnull isna do not compare null using = null.">
             <div class="card-header">
                 <div>
@@ -3397,7 +3595,143 @@ WHERE name IS NOT NULL
                 </div>
             </div>
         </article>
-        </section><section class="category-section" id="sorting"><h2>Sorting</h2>
+        
+
+        <!-- Added: Comprehensive Pandas missing value recipes -->
+        <article class="keyword-card" data-search="null handling missing values isnull sum info dropna subset fillna unknown mean median forward fill backward fill replace missing nan pandas">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Null Handling</span>
+                    <h3>HANDLING MISSING VALUES</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">Inspect missing data, drop incomplete rows, fill values globally or by column, propagate nearby values, and convert placeholder strings to real NaN values.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>-- Count missing values
+SELECT
+    COUNT(*) FILTER (
+        WHERE sales IS NULL
+    ) AS missing_sales,
+    COUNT(*) FILTER (
+        WHERE category IS NULL
+    ) AS missing_category
+FROM orders;
+
+-- Fill missing values in output
+SELECT
+    COALESCE(category, 'Unknown') AS category,
+    COALESCE(
+        sales,
+        AVG(sales) OVER ()
+    ) AS sales
+FROM orders;
+
+-- Remove rows with missing sales
+SELECT *
+FROM orders
+WHERE sales IS NOT NULL;</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Count missing values by column
+missing_counts = df.select([
+    F.sum(
+        F.col(column).isNull().cast("int")
+    ).alias(column)
+    for column in df.columns
+])
+
+# Drop rows with any missing value
+result = df.dropna()
+
+# Drop rows where sales is missing
+result = df.dropna(
+    subset=["sales"]
+)
+
+# Fill selected columns
+result = df.fillna({
+    "category": "Unknown",
+    "sales": 0
+})
+
+# Fill sales using its mean
+mean_sales = df.select(
+    F.avg("sales")
+).first()[0]
+
+result = df.fillna({
+    "sales": mean_sales
+})</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Check missing values
+df.isnull()          # True/False per cell
+df.isnull().sum()    # Missing count per column
+df.info()            # Non-null counts and dtypes
+
+# Drop rows with missing values
+df.dropna(inplace=True)
+
+# Drop rows only when sales is missing
+df.dropna(
+    subset=["sales"],
+    inplace=True
+)
+
+# Fill missing values in the entire DataFrame
+df.fillna(
+    "Unknown",
+    inplace=True
+)
+
+# Fill one text column
+# Assignment form avoids chained-assignment warnings.
+df["category"] = (
+    df["category"].fillna("Unknown")
+)
+
+# Fill numeric values with mean or median
+df["sales"] = df["sales"].fillna(
+    df["sales"].mean()
+)
+
+df["sales"] = df["sales"].fillna(
+    df["sales"].median()
+)
+
+# Forward fill / backward fill
+df.ffill(inplace=True)
+df.bfill(inplace=True)
+
+# Older equivalent syntax:
+# df.fillna(method="ffill", inplace=True)
+# df.fillna(method="bfill", inplace=True)
+
+# Replace a string placeholder with NaN
+df.replace(
+    "missing",
+    np.nan,
+    inplace=True
+)</code></pre>
+                </div>
+            </div>
+        </article>
+
+</section><section class="category-section" id="sorting"><h2>Sorting</h2>
         <article class="keyword-card" data-search="sorting order by / sort order by sort ascending descending sort by one or more columns.">
             <div class="card-header">
                 <div>
@@ -5268,7 +5602,139 @@ FROM employees;</code></pre>
                 </div>
             </div>
         </article>
-        </section><section class="category-section" id="string-functions"><h2>String Functions</h2>
+        
+
+        <!-- Added: Pandas add and update column recipes -->
+        <article class="keyword-card" data-search="column operations add new columns update column conditional column profit flag unit price country region category pandas loc astype">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Column Operations</span>
+                    <h3>ADD, UPDATE AND CONDITIONALLY SET COLUMNS</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">Create literal or calculated columns, replace existing values, and assign values only to rows that match a condition.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>-- Add calculated columns in SELECT
+SELECT
+    orders.*,
+    'USA' AS country,
+    sales / NULLIF(quantity, 0) AS unit_price,
+    region || category AS region_category,
+    CASE
+        WHEN profit &gt; 0 THEN 1
+        ELSE 0
+    END AS profit_flag
+FROM orders;
+
+-- Update stored columns
+UPDATE orders
+SET
+    country = 'India',
+    sales = sales * 1.1;</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Add new columns
+result = (
+    df
+    .withColumn(
+        "country",
+        F.lit("USA")
+    )
+    .withColumn(
+        "unit_price",
+        F.col("sales") / F.col("quantity")
+    )
+    .withColumn(
+        "region_category",
+        F.concat(
+            F.col("region"),
+            F.col("category")
+        )
+    )
+)
+
+# Update columns
+result = (
+    result
+    .withColumn("country", F.lit("India"))
+    .withColumn(
+        "sales",
+        F.col("sales") * 1.1
+    )
+)
+
+# Conditional column
+result = result.withColumn(
+    "profit_flag",
+    F.when(F.col("profit") &gt; 0, 1)
+     .otherwise(0)
+)</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Add new columns
+df["country"] = "USA"
+df["unit_price"] = (
+    df["sales"] / df["quantity"]
+)
+df["region_category"] = (
+    df["region"] + df["category"]
+)
+
+# Optional separator between text columns
+df["region_category"] = (
+    df["region"] + "_" + df["category"]
+)
+
+# Update existing columns
+df["country"] = "India"
+df["sales"] = df["sales"] * 1.1
+
+# Update only matching rows
+df.loc[
+    df["profit"] &lt; 0,
+    "profit_flag"
+] = 0
+
+# Add a conditional column using loc
+df.loc[
+    df["profit"] &gt; 0,
+    "profit_flag"
+] = 1
+
+df.loc[
+    df["profit"] &lt;= 0,
+    "profit_flag"
+] = 0
+
+df["profit_flag"] = (
+    df["profit_flag"].astype("int")
+)
+
+# Compact one-line alternative
+df["profit_flag"] = np.where(
+    df["profit"] &gt; 0,
+    1,
+    0
+)</code></pre>
+                </div>
+            </div>
+        </article>
+
+</section><section class="category-section" id="string-functions"><h2>String Functions</h2>
         <article class="keyword-card" data-search="string functions upper / lower upper lower case string change text case.">
             <div class="card-header">
                 <div>
@@ -6079,7 +6545,130 @@ result = (
                 </div>
             </div>
         </article>
-        </section><section class="category-section" id="subqueries--cte"><h2>Subqueries &amp; CTE</h2>
+        
+
+        <!-- Added: Comprehensive Pandas duplicate recipes -->
+        <article class="keyword-card" data-search="duplicates drop duplicates keep first last subset customer id order date duplicated keep false pandas duplicate rows">
+            <div class="card-header">
+                <div>
+                    <span class="category-pill">Duplicates</span>
+                    <h3>DROP AND FIND DUPLICATES</h3>
+                </div>
+                <button class="copy-all" type="button" onclick="copyCard(this)">Copy examples</button>
+            </div>
+            <p class="note">Remove complete duplicate rows, deduplicate by one or more business keys, choose which occurrence to keep, or inspect every duplicated record.</p>
+            <div class="three-column-grid">
+                <div class="language-panel sql-panel">
+                    <div class="language-title">
+                        <span>SQL / PostgreSQL</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>-- Return unique complete rows
+SELECT DISTINCT *
+FROM orders;
+
+-- Keep one row per customer_id
+WITH ranked AS (
+    SELECT
+        orders.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY customer_id
+            ORDER BY order_date DESC
+        ) AS row_number
+    FROM orders
+)
+SELECT *
+FROM ranked
+WHERE row_number = 1;
+
+-- Find duplicated customer IDs
+SELECT customer_id
+FROM orders
+GROUP BY customer_id
+HAVING COUNT(*) &gt; 1;</code></pre>
+                </div>
+                <div class="language-panel spark-panel">
+                    <div class="language-title">
+                        <span>PySpark</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Remove complete duplicate rows
+result = df.dropDuplicates()
+
+# Deduplicate using one business key
+result = df.dropDuplicates([
+    "customer_id"
+])
+
+# Deduplicate using two keys
+result = df.dropDuplicates([
+    "customer_id",
+    "order_date"
+])
+
+# Find all duplicated customer IDs
+duplicate_keys = (
+    df.groupBy("customer_id")
+      .count()
+      .filter(F.col("count") &gt; 1)
+)
+
+duplicates = df.join(
+    duplicate_keys.select("customer_id"),
+    on="customer_id",
+    how="inner"
+)</code></pre>
+                </div>
+                <div class="language-panel pandas-panel">
+                    <div class="language-title">
+                        <span>Pandas</span>
+                        <button type="button" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code># Remove complete duplicate rows
+# Keeps the first occurrence by default.
+df.drop_duplicates(inplace=True)
+
+# Keep the last occurrence
+df.drop_duplicates(
+    inplace=True,
+    keep="last"
+)
+
+# Deduplicate by one column
+df.drop_duplicates(
+    subset=["customer_id"],
+    inplace=True
+)
+
+# Deduplicate by two columns
+df.drop_duplicates(
+    subset=[
+        "customer_id",
+        "order_date"
+    ],
+    inplace=True
+)
+
+# Find all duplicate rows without removing them
+duplicates = df[
+    df.duplicated(
+        subset=["customer_id"],
+        keep=False
+    )
+]
+
+# Keep only records that are not duplicates
+unique_rows = df[
+    ~df.duplicated(
+        subset=["customer_id"],
+        keep=False
+    )
+]</code></pre>
+                </div>
+            </div>
+        </article>
+
+</section><section class="category-section" id="subqueries--cte"><h2>Subqueries &amp; CTE</h2>
         <article class="keyword-card" data-search="subqueries &amp; cte cte / with cte with common table expression break complex logic into readable intermediate steps.">
             <div class="card-header">
                 <div>
