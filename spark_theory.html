@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Apache Spark concepts and interview guide: architecture, partitions, joins, optimization, memory, streaming, and troubleshooting.">
+<title>Apache Spark Concepts & Interview Guide</title>
+<style>
+:root{--bg:#f4f7fb;--surface:#fff;--text:#172033;--muted:#667085;--line:#dce3ee;--shadow:0 12px 32px rgba(31,45,74,.09);--nav:#0f172a;--soft:#eef2f7}
+[data-theme="dark"]{--bg:#0b1220;--surface:#121c2e;--text:#edf2ff;--muted:#aab7cb;--line:#293952;--shadow:0 12px 34px rgba(0,0,0,.3);--nav:#080d17;--soft:#1b2940}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:72px}body{margin:0;background:var(--bg);color:var(--text);font:15.5px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}
+.topbar{position:sticky;top:0;z-index:100;background:var(--nav);color:#fff;transition:transform .25s ease;box-shadow:0 5px 22px rgba(0,0,0,.16)}.topbar.hide{transform:translateY(-110%)}.topbar-inner{max-width:1480px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}.brand{font-weight:900;letter-spacing:.2px;white-space:nowrap}.brand small{display:block;font-size:10px;color:#cbd5e1;letter-spacing:1.2px;text-transform:uppercase}.top-search{flex:1;position:relative}.top-search input{width:100%;border:1px solid #334155;border-radius:12px;background:#111c2f;color:#fff;padding:10px 40px 10px 13px;outline:none}.top-search input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.18)}.theme{border:1px solid #334155;background:#17233a;color:#fff;border-radius:10px;padding:9px 12px;cursor:pointer}
+.hero{max-width:1480px;margin:0 auto;padding:34px 18px 20px}.hero-card{background:linear-gradient(135deg,#0f172a,#1d4ed8 55%,#7c3aed);color:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow)}.hero h1{font-size:clamp(28px,5vw,50px);line-height:1.08;margin:0 0 10px}.hero p{margin:0;max-width:900px;color:#dbeafe;font-size:17px}.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.stat{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 11px;font-weight:700;font-size:13px}
+.controls{max-width:1480px;margin:auto;padding:0 18px 14px}.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{flex:0 0 auto;border:0;border-radius:999px;padding:9px 13px;color:#fff;background:var(--chip);font-weight:800;cursor:pointer;opacity:.82}.filter.active,.filter:hover{opacity:1;box-shadow:0 5px 14px color-mix(in srgb,var(--chip) 35%,transparent)}.filter.all{background:#111827}
+.index-wrap{max-width:1480px;margin:auto;padding:0 18px 20px}.index{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px}.index h2{margin:0 0 12px;font-size:18px}.index-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.index a{display:flex;align-items:center;gap:8px;color:var(--text);text-decoration:none;background:var(--soft);border-left:4px solid var(--line);border-radius:10px;padding:9px 10px;font-weight:700;font-size:13px}.index a:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(0,0,0,.08)}.index a span{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:#fff;color:#111827;font-size:12px}
+main{max-width:1480px;margin:auto;padding:0 18px 80px}.topic{background:var(--surface);border:1px solid var(--line);border-radius:18px;margin:0 0 16px;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:78px}.section-head{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--section),color-mix(in srgb,var(--section) 72%,#111827));color:#fff;padding:15px 17px}.section-head .num{display:grid;place-items:center;min-width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.2);font-weight:900}.section-head>div{flex:1}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.25px;opacity:.82;font-weight:800}.section-head h2{margin:1px 0 0;font-size:clamp(18px,3vw,25px);line-height:1.2}.collapse{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.13);color:#fff;border-radius:9px;width:36px;height:36px;cursor:pointer;font-size:20px}.section-body{padding:18px}.topic.closed .section-body{display:none}.summary{font-size:16px;margin:0 0 14px;color:var(--text)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px;margin:12px 0}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}th{background:color-mix(in srgb,var(--section) 12%,var(--surface));color:var(--text);font-size:12px;text-transform:uppercase;letter-spacing:.45px}tbody tr:last-child td{border-bottom:0}td:first-child{width:20%}td:nth-child(2){width:42%}
+.verbatim{white-space:pre-wrap;background:color-mix(in srgb,var(--section) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--section) 28%,var(--line));border-left:5px solid var(--section);border-radius:13px;padding:15px 16px;margin:13px 0;font-family:inherit;line-height:1.55;overflow-wrap:anywhere}.note{white-space:pre-wrap;background:#fff8e6;color:#5c3b00;border:1px solid #f3d48a;border-left:5px solid #f59e0b;border-radius:12px;padding:12px 14px;margin:12px 0}[data-theme="dark"] .note{background:#302511;color:#fde8ae;border-color:#70551f}.interview-box{background:var(--soft);border-radius:13px;padding:13px 15px;margin-top:14px}.interview-box h3{margin:0 0 6px;font-size:14px}.interview-box ul{margin:0;padding-left:19px;columns:2;column-gap:34px}.back{display:inline-block;margin-top:14px;color:var(--section);font-weight:800;text-decoration:none}
+.topbtn{position:fixed;right:18px;bottom:18px;width:46px;height:46px;border:0;border-radius:50%;background:#111827;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.28);font-size:22px;cursor:pointer;display:none;z-index:90}.topbtn.show{display:block}.empty{display:none;text-align:center;padding:35px;color:var(--muted)}
+@media(max-width:1050px){.index-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){html{scroll-padding-top:62px}body{font-size:15px}.topbar-inner{padding:8px 10px;gap:8px}.brand{font-size:14px}.brand small{display:none}.theme{padding:8px 10px}.hero{padding:18px 10px 12px}.hero-card{border-radius:17px;padding:20px 16px}.hero p{font-size:15px}.controls,.index-wrap,main{padding-left:10px;padding-right:10px}.index-grid{grid-template-columns:1fr 1fr}.index a{font-size:12px;padding:8px}.section-head{padding:13px 12px}.section-head .num{min-width:34px;height:34px}.section-body{padding:13px 12px}.summary{font-size:15px}.table-wrap{border:0;overflow:visible}table,thead,tbody,tr,th,td{display:block;min-width:0}thead{display:none}tbody tr{border:1px solid var(--line);border-radius:12px;margin:0 0 10px;overflow:hidden;background:var(--surface)}td{width:auto!important;border-bottom:1px solid var(--line);padding:10px 11px}td:last-child{border-bottom:0}td:before{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:3px}td:nth-child(1):before{content:'Concept'}td:nth-child(2):before{content:'Meaning / Use'}td:nth-child(3):before{content:'Interview perspective'}.interview-box ul{columns:1}.verbatim{font-size:13px;padding:12px}}
+@media(max-width:430px){.brand{max-width:none;line-height:1.05}.brand span{display:none}.index-grid{grid-template-columns:1fr}.top-search input{padding-left:10px;font-size:14px}.stats{gap:6px}.stat{font-size:11px}}
+@media print{.topbar,.controls,.topbtn,.collapse,.back{display:none!important}body{background:#fff}.hero-card{background:#fff;color:#000;box-shadow:none;border:2px solid #222}.hero p{color:#333}.topic{box-shadow:none;break-inside:avoid}.section-body{display:block!important}}
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar"><div class="topbar-inner"><div class="brand">SPARK <span>GUIDE</span><small>Concepts + Interview</small></div><div class="top-search"><input id="search" type="search" placeholder="Search Spark concepts…" aria-label="Search Spark concepts"></div><button class="theme" id="theme">☾</button></div></header>
+<section class="hero"><div class="hero-card"><h1>Apache Spark Concepts & Interview Guide</h1><p>Comprehensive coverage without textbook-level overload. Every section focuses on the concept, why it matters, selection rules, trade-offs, production symptoms, and interview questions.</p><div class="stats"><span class="stat">34 structured topics</span><span class="stat">Theory only</span><span class="stat">Mobile friendly</span><span class="stat">Spark only</span></div></div></section>
+<div class="controls"><div class="filters"><button class="filter all active" data-filter="all">All Topics</button><button class="filter" data-filter="fundamentals" style="--chip:#7c3aed">Fundamentals</button><button class="filter" data-filter="architecture" style="--chip:#0f766e">Architecture</button><button class="filter" data-filter="data" style="--chip:#2563eb">Data &amp; APIs</button><button class="filter" data-filter="partitions" style="--chip:#c2410c">Partitions</button><button class="filter" data-filter="joins" style="--chip:#b91c1c">Joins</button><button class="filter" data-filter="optimizer" style="--chip:#6d28d9">Optimizer</button><button class="filter" data-filter="memory" style="--chip:#047857">Memory</button><button class="filter" data-filter="performance" style="--chip:#b45309">Performance</button><button class="filter" data-filter="operations" style="--chip:#0369a1">Operations</button><button class="filter" data-filter="streaming" style="--chip:#be185d">Streaming</button><button class="filter" data-filter="interview" style="--chip:#334155">Interview</button></div></div>
+<div class="index-wrap" id="index"><nav class="index"><h2>Top Index</h2><div class="index-grid" id="indexGrid"><a href="#mental-model" data-cat="fundamentals"><span>1</span>Why Spark and the Core Mental Model</a><a href="#core-execution" data-cat="architecture"><span>2</span>Jobs, Stages, Tasks, and Partitions</a><a href="#architecture" data-cat="architecture"><span>3</span>Spark Architecture</a><a href="#lifecycle-modes" data-cat="architecture"><span>4</span>Application Lifecycle and Deployment Modes</a><a href="#session-context" data-cat="fundamentals"><span>5</span>SparkSession vs SparkContext</a><a href="#lazy-lineage" data-cat="fundamentals"><span>6</span>Lazy Evaluation, DAG, and Lineage</a><a href="#apis" data-cat="data"><span>7</span>RDD vs DataFrame vs Dataset</a><a href="#transformations" data-cat="fundamentals"><span>8</span>Transformations, Actions, Narrow, and Wide</a><a href="#schemas-files" data-cat="data"><span>9</span>Schemas, File Formats, and Scan Behavior</a><a href="#partition-basics" data-cat="partitions"><span>10</span>Partition Fundamentals</a><a href="#partition-vs-bucket" data-cat="partitions"><span>11</span>Partitioning vs Bucketing</a><a href="#repartition-coalesce" data-cat="partitions"><span>12</span>Repartition vs Coalesce</a><a href="#shuffle" data-cat="performance"><span>13</span>Shuffle: What Happens and Why It Is Expensive</a><a href="#aggregations" data-cat="data"><span>14</span>Aggregations and Grouping</a><a href="#windows" data-cat="data"><span>15</span>Window Functions</a><a href="#joins" data-cat="joins"><span>16</span>Spark Join Strategies — Interview View</a><a href="#join-design" data-cat="joins"><span>17</span>Join Design, Hints, and Failure Patterns</a><a href="#catalyst" data-cat="optimizer"><span>18</span>Catalyst Optimizer and Physical Planning</a><a href="#tungsten-aqe" data-cat="optimizer"><span>19</span>Tungsten and Adaptive Query Execution</a><a href="#memory" data-cat="memory"><span>20</span>Spark Memory Model</a><a href="#cache" data-cat="memory"><span>21</span>Cache, Persist, and Storage Levels</a><a href="#spill-gc" data-cat="memory"><span>22</span>Serialization, Garbage Collection, and Spill</a><a href="#executor-sizing" data-cat="memory"><span>23</span>Executor Sizing and Memory Allocation</a><a href="#optimization" data-cat="performance"><span>24</span>Spark Optimization Checklist</a><a href="#optimization-compare" data-cat="performance"><span>25</span>High-Frequency Optimization Comparisons</a><a href="#skew-small-files" data-cat="performance"><span>26</span>Data Skew and Small Files</a><a href="#pyspark-boundary" data-cat="architecture"><span>27</span>PySpark JVM–Python Boundary and UDFs</a><a href="#spark-ui" data-cat="operations"><span>28</span>Spark UI and Troubleshooting</a><a href="#scheduling" data-cat="operations"><span>29</span>Dynamic Allocation, Speculation, and Scheduling</a><a href="#streaming" data-cat="streaming"><span>30</span>Structured Streaming Concepts</a><a href="#kafka" data-cat="streaming"><span>31</span>Spark and Kafka — Interview View</a><a href="#quality-security" data-cat="operations"><span>32</span>Testing, Data Quality, Security, and Observability</a><a href="#interview-bank" data-cat="interview"><span>33</span>Rapid Spark Interview Questions</a><a href="#revision" data-cat="interview"><span>34</span>One-Page Revision Sheet</a></div></nav></div>
+<main id="content"><section class="topic" id="mental-model" data-cat="fundamentals" style="--section:#7c3aed">
+      <header class="section-head"><span class="num">1</span><div><span class="eyebrow">Fundamentals</span><h2>Why Spark and the Core Mental Model</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Spark is a distributed processing engine designed to execute multi-step data pipelines as a DAG instead of forcing every pipeline into repeated map and reduce jobs.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>MapReduce limitation</strong></td><td>Intermediate results are repeatedly materialized to durable storage between jobs; complex pipelines become chains of separate MapReduce jobs.</td><td>Explain disk and orchestration overhead, not simply “MapReduce is slow.”</td></tr><tr><td><strong>Spark improvement</strong></td><td>Pipelines narrow operations together, keeps reusable data in memory when useful, and materializes mainly at shuffle or output boundaries.</td><td>Spark is not “always in memory”; shuffle spill and output still use disk.</td></tr><tr><td><strong>DAG model</strong></td><td>Transformations form a dependency graph. An action asks Spark to optimize and execute the required path.</td><td>Connect DAG → job → stages → tasks.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why can Spark outperform classic MapReduce?</li><li>Does Spark avoid disk completely?</li><li>What is the difference between a DAG and a stage?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="core-execution" data-cat="architecture" style="--section:#0f766e">
+      <header class="section-head"><span class="num">2</span><div><span class="eyebrow">Architecture</span><h2>Jobs, Stages, Tasks, and Partitions</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">This hierarchy is the most important Spark interview mental model. Actions create jobs, shuffle boundaries divide jobs into stages, and partitions determine task count.</p>
+        <div class="verbatim">Key Concepts:
+
+1 Action → 1 Job
+1 Job → 2 Stages: one for non-shuffle (map), one for shuffle (reduceByKey)
+Each stage → Tasks (1 task per partition)
+Default partition size = 128 MB → num_partitions = file_size / 128 MB
+Default shuffle partitions = 200 (shuffle data is written to disk first)
+Flow: Partitions → Tasks → sent to Executors</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Job</strong></td><td>Execution created by an action. A single user action can sometimes produce supporting jobs as well.</td><td>Look in the Jobs and SQL tabs.</td></tr><tr><td><strong>Stage</strong></td><td>A set of tasks that can run without another shuffle boundary.</td><td>Wide transformations commonly introduce boundaries.</td></tr><tr><td><strong>Task</strong></td><td>Smallest scheduled unit; processes one partition for one stage.</td><td>Too few tasks underuse cores; too many tiny tasks add overhead.</td></tr><tr><td><strong>Partition</strong></td><td>Logical chunk of distributed data and the basis of parallel work.</td><td>Partition count is not executor count.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>If a stage has 500 partitions, how many tasks are created?</li><li>Why can one action appear as multiple jobs?</li><li>Where are stage boundaries created?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="architecture" data-cat="architecture" style="--section:#0f766e">
+      <header class="section-head"><span class="num">3</span><div><span class="eyebrow">Architecture</span><h2>Spark Architecture</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">The driver owns the application plan and coordination. Executors perform distributed work. The cluster manager allocates resources but does not execute dataframe logic.</p>
+        <div class="verbatim">Spark Architecture
+Driver Program
+  └── SparkContext / SparkSession
+        └── Cluster Manager (YARN / Mesos / Kubernetes / Standalone)
+              ├── Executor 1  [cores: parallelism]  [memory: storage + execution]
+              │     ├── Task 1
+              │     ├── Task 2
+              │     └── Task N
+              └── Executor 2  [cores: parallelism]  [memory: storage + execution]
+                    ├── Task 1
+                    └── Task N
+Key Points:
+
+Driver: plans the DAG, schedules tasks, tracks job progress
+Executor: runs tasks, stores cached data
+Parallelism = number of cores across all executors
+Memory = --executor-memory split into:
+spark.memory.fraction (execution + storage)
+Reserved memory (300 MB)
+Each core runs one task at a time</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Driver</strong></td><td>Creates plans, coordinates stages, tracks metadata and task results.</td><td>Driver OOM often comes from collect, large metadata, or too many files/tasks.</td></tr><tr><td><strong>Executor</strong></td><td>Long-lived application process that runs tasks and can cache data.</td><td>Executor loss triggers recomputation from lineage when possible.</td></tr><tr><td><strong>Cluster manager</strong></td><td>Allocates CPU and memory resources.</td><td>YARN, Kubernetes, and Standalone are deployment choices.</td></tr><tr><td><strong>Worker node</strong></td><td>Machine hosting one or more executor processes.</td><td>A worker is not the same thing as an executor.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Driver vs executor responsibilities?</li><li>What happens when an executor fails?</li><li>Why is total cores the upper bound for simultaneous tasks?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="lifecycle-modes" data-cat="architecture" style="--section:#0f766e">
+      <header class="section-head"><span class="num">4</span><div><span class="eyebrow">Architecture</span><h2>Application Lifecycle and Deployment Modes</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">A submitted Spark application starts a driver, requests executors, schedules tasks, and ends when the application finishes. Driver placement differs between client and cluster modes.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Client mode</strong></td><td>Driver runs on the submission machine.</td><td>Useful for interactive work; network loss can terminate coordination.</td></tr><tr><td><strong>Cluster mode</strong></td><td>Driver runs inside the cluster.</td><td>Preferred for production because the client can disconnect.</td></tr><tr><td><strong>YARN ApplicationMaster</strong></td><td>Negotiates resources and manages the application lifecycle on YARN.</td><td>Do not confuse it with a Spark executor.</td></tr><tr><td><strong>Executor registration</strong></td><td>Executors register with the driver before receiving tasks.</td><td>Resource allocation and task scheduling are separate steps.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Client vs cluster mode?</li><li>What is the YARN ApplicationMaster?</li><li>Who requests executors and who schedules tasks?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="session-context" data-cat="fundamentals" style="--section:#7c3aed">
+      <header class="section-head"><span class="num">5</span><div><span class="eyebrow">Fundamentals</span><h2>SparkSession vs SparkContext</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">SparkSession is the modern entry point for DataFrame, SQL, catalog, and streaming APIs. SparkContext is the lower-level connection to Spark’s execution environment.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>SparkSession</strong></td><td>Unified entry point for structured APIs.</td><td>Usually the object application code interacts with.</td></tr><tr><td><strong>SparkContext</strong></td><td>Low-level core context and RDD entry point.</td><td>Normally accessed through SparkSession.</td></tr><tr><td><strong>SQLContext/HiveContext</strong></td><td>Older specialized entry points.</td><td>Mostly historical interview context.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why was SparkSession introduced?</li><li>Can multiple SparkContexts exist in one JVM?</li><li>When would you directly use SparkContext?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="lazy-lineage" data-cat="fundamentals" style="--section:#7c3aed">
+      <header class="section-head"><span class="num">6</span><div><span class="eyebrow">Fundamentals</span><h2>Lazy Evaluation, DAG, and Lineage</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Transformations record intent. Actions trigger planning and execution. Lineage records dependencies so Spark can recompute lost partitions instead of replicating every intermediate result.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Lazy evaluation</strong></td><td>Defers execution until an action.</td><td>Allows optimization across multiple operations.</td></tr><tr><td><strong>Lineage</strong></td><td>Dependency chain used for recomputation.</td><td>Long lineage can increase recovery and planning cost.</td></tr><tr><td><strong>Checkpoint</strong></td><td>Materializes data and cuts lineage.</td><td>Useful for iterative or stateful workloads, not a default optimization.</td></tr><tr><td><strong>Cache</strong></td><td>Keeps reusable partitions for faster reuse.</td><td>Does not cut lineage by itself.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Cache vs checkpoint?</li><li>How does lineage provide fault tolerance?</li><li>Why can lazy evaluation improve performance?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="apis" data-cat="data" style="--section:#2563eb">
+      <header class="section-head"><span class="num">7</span><div><span class="eyebrow">Data & APIs</span><h2>RDD vs DataFrame vs Dataset</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">The APIs differ mainly in structure, optimization visibility, type safety, and language support.</p>
+        <div class="verbatim">Memory layout:
+
+RDD: stores JVM objects → GC pressure, slow serialization
+DataFrame/Dataset: Tungsten stores data off-heap in binary format → no GC, fast
+Rule of thumb: Prefer DataFrame in Python (PySpark). Use RDD only when you need low-level partition control or work with unstructured data.</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>RDD</strong></td><td>Low-level distributed collection with explicit functions and partition control.</td><td>Limited Catalyst optimization; more serialization and object overhead.</td></tr><tr><td><strong>DataFrame</strong></td><td>Distributed table with named columns and schema.</td><td>Best default for PySpark and SQL workloads.</td></tr><tr><td><strong>Dataset</strong></td><td>Typed structured API available mainly in Scala/Java.</td><td>Combines type safety with structured optimization.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why are DataFrames usually faster than RDDs?</li><li>Does PySpark have typed Dataset API?</li><li>When is RDD still appropriate?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="transformations" data-cat="fundamentals" style="--section:#7c3aed">
+      <header class="section-head"><span class="num">8</span><div><span class="eyebrow">Fundamentals</span><h2>Transformations, Actions, Narrow, and Wide</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Transformations create new distributed datasets. Actions request a result. Narrow dependencies stay within parent partitions; wide dependencies redistribute data.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Narrow transformation</strong></td><td>Each output partition depends on a small number of parent partitions.</td><td>Usually pipelines within a stage.</td></tr><tr><td><strong>Wide transformation</strong></td><td>Output partitions depend on many parent partitions.</td><td>Requires shuffle and often creates a new stage.</td></tr><tr><td><strong>Action</strong></td><td>Requests a result or writes output.</td><td>Triggers execution of the required lineage.</td></tr><tr><td><strong>map vs flatMap</strong></td><td>map emits one result per input; flatMap emits zero or more.</td><td>Common RDD interview distinction.</td></tr><tr><td><strong>reduceByKey vs groupByKey</strong></td><td>reduceByKey performs local combining before shuffle.</td><td>Prefer aggregating before shuffle when semantically possible.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why is groupBy wide?</li><li>Why is reduceByKey preferred over groupByKey?</li><li>Does every transformation create a stage?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="schemas-files" data-cat="data" style="--section:#2563eb">
+      <header class="section-head"><span class="num">9</span><div><span class="eyebrow">Data & APIs</span><h2>Schemas, File Formats, and Scan Behavior</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Schema quality and file format directly affect planning, scan cost, correctness, and pushdown opportunities.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Explicit schema</strong></td><td>Avoids repeated inference and protects expected types.</td><td>Preferred in production ingestion.</td></tr><tr><td><strong>Parquet/ORC</strong></td><td>Columnar formats with statistics and compression.</td><td>Support column pruning and predicate pushdown.</td></tr><tr><td><strong>CSV/JSON</strong></td><td>Text formats that are flexible but expensive to parse.</td><td>Schema inference scans data and can infer incorrectly.</td></tr><tr><td><strong>Column pruning</strong></td><td>Reads only required columns.</td><td>Reduces I/O and decode cost.</td></tr><tr><td><strong>Predicate pushdown</strong></td><td>Pushes supported filters toward the data source.</td><td>Different from partition pruning.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>inferSchema vs explicit schema?</li><li>Why is Parquet preferred for analytics?</li><li>Predicate pushdown vs partition pruning?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="partition-basics" data-cat="partitions" style="--section:#c2410c">
+      <header class="section-head"><span class="num">10</span><div><span class="eyebrow">Partitions</span><h2>Partition Fundamentals</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Partitions control parallelism, task size, shuffle distribution, output file count, and fault-recovery granularity.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Input partition</strong></td><td>Chunk produced while reading files or another source.</td><td>Affected by file sizes, splitability, open cost, and source rules.</td></tr><tr><td><strong>Shuffle partition</strong></td><td>Output bucket created during redistribution.</td><td>Controls reducer-side task count.</td></tr><tr><td><strong>Storage partition</strong></td><td>Directory-level physical organization by column values.</td><td>Used for partition pruning.</td></tr><tr><td><strong>Kafka partition</strong></td><td>Ordering and parallelism unit in Kafka.</td><td>Usually maps to streaming input partitions.</td></tr></tbody></table></div>
+        <div class="note">128 MB is a useful interview approximation for many file-based examples, but actual input partitioning also depends on format splitability, file open cost, and runtime configuration.</div>
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Partition vs task?</li><li>How do partitions affect output files?</li><li>Why can too many partitions be harmful?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="partition-vs-bucket" data-cat="partitions" style="--section:#c2410c">
+      <header class="section-head"><span class="num">11</span><div><span class="eyebrow">Partitions</span><h2>Partitioning vs Bucketing</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Partitioning creates directory groups by column values. Bucketing hashes rows into a fixed number of buckets. They solve different physical-layout problems.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Physical layout</strong></td><td>Partitioning: directories by value.</td><td>Bucketing: fixed hash buckets.</td></tr><tr><td><strong>Best columns</strong></td><td>Partitioning: low/moderate-cardinality columns such as date or region.</td><td>Bucketing: high-cardinality join/group keys such as customer_id.</td></tr><tr><td><strong>Pruning</strong></td><td>Partition pruning can skip directories.</td><td>Bucket pruning can skip compatible buckets for supported filters.</td></tr><tr><td><strong>Join impact</strong></td><td>Partitioning may help only when join filters align with partition keys.</td><td>Compatible bucketing can reduce or avoid join shuffle.</td></tr><tr><td><strong>Main risk</strong></td><td>Too many directories and tiny files.</td><td>Wrong bucket count, skewed keys, or metadata incompatibility.</td></tr><tr><td><strong>Combined design</strong></td><td>Partition by date and bucket by customer_id.</td><td>Useful when queries filter by date and join by customer.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Partitioning vs bucketing?</li><li>Can bucketing guarantee a shuffle-free join?</li><li>Why not partition by user_id?</li><li>How do you choose bucket count?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="repartition-coalesce" data-cat="partitions" style="--section:#c2410c">
+      <header class="section-head"><span class="num">12</span><div><span class="eyebrow">Partitions</span><h2>Repartition vs Coalesce</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Both change partition count, but they have different data-movement behavior and use cases.</p>
+        <div class="verbatim">8b. repartition vs coalesce
+repartition(n)	coalesce(n)
+Shuffle	✅ Full shuffle	❌ No shuffle (merge)
+Direction	Increase or decrease	Only decrease
+Use when	Fixing data skew, slow stages	Fixing small file problem</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>repartition</strong></td><td>Redistributes records and can increase or decrease partitions.</td><td>Use for balanced downstream parallelism or distribution by keys.</td></tr><tr><td><strong>coalesce</strong></td><td>Usually merges existing partitions without a full shuffle.</td><td>Use to reduce small output files when data is already reasonably balanced.</td></tr><tr><td><strong>Single output</strong></td><td>One partition produces one data file per task attempt.</td><td>Forcing one partition creates a serial bottleneck on large data.</td></tr></tbody></table></div>
+        <div class="note">Output part files = number of partitions at write time<br>Use coalesce(1) or repartition(1) to write a single file (use carefully on large data)<br>Use repartition(n) to control number of output part files</div>
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why can coalesce create uneven partitions?</li><li>When is repartition(1) dangerous?</li><li>Which operation performs a full shuffle?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="shuffle" data-cat="performance" style="--section:#b45309">
+      <header class="section-head"><span class="num">13</span><div><span class="eyebrow">Performance</span><h2>Shuffle: What Happens and Why It Is Expensive</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Shuffle redistributes records so related keys reach the same downstream partition. It costs network I/O, serialization, sorting, memory, disk spill, and synchronization.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Shuffle write</strong></td><td>Map-side tasks partition, serialize, buffer, sort, and write blocks.</td><td>Spill occurs when buffers exceed memory.</td></tr><tr><td><strong>Shuffle fetch</strong></td><td>Reduce-side tasks fetch blocks from many executors.</td><td>Network and remote-block failures can dominate.</td></tr><tr><td><strong>Shuffle read</strong></td><td>Fetched records are merged, aggregated, sorted, or joined.</td><td>Skew creates a few very large tasks.</td></tr><tr><td><strong>Stage barrier</strong></td><td>Next stage waits for required upstream shuffle output.</td><td>One slow task can delay the entire stage.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why is shuffle expensive?</li><li>Does shuffle always write to disk?</li><li>What metrics indicate shuffle pressure?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="aggregations" data-cat="data" style="--section:#2563eb">
+      <header class="section-head"><span class="num">14</span><div><span class="eyebrow">Data & APIs</span><h2>Aggregations and Grouping</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Grouping requires rows with the same key to meet, so it normally creates a shuffle. Efficient aggregation reduces data before and during redistribution.</p>
+        <div class="verbatim">Group By on CSV Read
+Key Points:
+
+groupBy is a wide transformation → triggers shuffle
+Default shuffle partitions = 200 (spark.sql.shuffle.partitions)
+Common aggregations: count, sum, avg, max, min</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Partial aggregation</strong></td><td>Combines records locally before network transfer.</td><td>Reduces shuffle volume.</td></tr><tr><td><strong>High-cardinality grouping</strong></td><td>Creates many groups and large hash/sort state.</td><td>Can raise memory and spill cost.</td></tr><tr><td><strong>Skewed groups</strong></td><td>One hot key creates one oversized reducer partition.</td><td>Use salting or redesign only when skew is confirmed.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why does groupBy cause shuffle?</li><li>How does map-side combine help?</li><li>How would you diagnose a skewed aggregation?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="windows" data-cat="data" style="--section:#2563eb">
+      <header class="section-head"><span class="num">15</span><div><span class="eyebrow">Data & APIs</span><h2>Window Functions</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Window functions calculate across related rows while preserving row-level output. They usually require repartitioning by window keys and sorting within partitions.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Partition specification</strong></td><td>Defines independent groups.</td><td>Wrong key can create skew or excessive movement.</td></tr><tr><td><strong>Order specification</strong></td><td>Defines row sequence.</td><td>Sorting is often the dominant cost.</td></tr><tr><td><strong>Frame</strong></td><td>Defines which neighboring rows contribute.</td><td>Rows vs range frames have different semantics.</td></tr><tr><td><strong>Ranking</strong></td><td>row_number, rank, dense_rank.</td><td>Know tie behavior.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Window vs groupBy?</li><li>rank vs dense_rank vs row_number?</li><li>Why are windows expensive?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="joins" data-cat="joins" style="--section:#b91c1c">
+      <header class="section-head"><span class="num">16</span><div><span class="eyebrow">Joins</span><h2>Spark Join Strategies — Interview View</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Spark selects a physical join based on predicate type, join type, size estimates, hints, existing distribution, and adaptive runtime statistics.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Broadcast hash join</strong></td><td>One equi-join side is small enough to copy to every executor.</td><td>Broadcast → build hash table → probe large side. Avoids large-side shuffle.</td></tr><tr><td><strong>Sort-merge join</strong></td><td>Both equi-join sides are large and sortable.</td><td>Shuffle both sides → sort → merge. Stable for large data but shuffle-heavy.</td></tr><tr><td><strong>Shuffled hash join</strong></td><td>Both sides shuffle; one side of each resulting partition can fit in memory.</td><td>Build local hash table per partition. Faster than sorting when safe, but memory-sensitive.</td></tr><tr><td><strong>Broadcast nested-loop join</strong></td><td>Non-equi/range/cross condition and one side can be broadcast.</td><td>Broadcast small side, then compare pairs. Potentially very expensive.</td></tr><tr><td><strong>Cartesian product</strong></td><td>No usable equality condition and no broadcast strategy.</td><td>Avoid unless intentionally producing all combinations.</td></tr></tbody></table></div>
+        <div class="note">Physical-plan keywords to recognize: BroadcastHashJoin, SortMergeJoin, ShuffledHashJoin, BroadcastNestedLoopJoin, BroadcastExchange, Exchange hashpartitioning, BuildLeft, BuildRight, AdaptiveSparkPlan.</div>
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How does Spark choose a join?</li><li>Why can a broadcast join still fail?</li><li>Sort-merge vs shuffled-hash?</li><li>What strategy is common for range joins?</li><li>What does BuildRight mean?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="join-design" data-cat="joins" style="--section:#b91c1c">
+      <header class="section-head"><span class="num">17</span><div><span class="eyebrow">Joins</span><h2>Join Design, Hints, and Failure Patterns</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Most join failures come from wrong size estimates, key skew, many-to-many explosion, null semantics, or an unsuitable physical strategy.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Statistics</strong></td><td>Planner relies on estimated size and cardinality.</td><td>Stale or absent statistics can select the wrong plan.</td></tr><tr><td><strong>Hints</strong></td><td>BROADCAST, MERGE, SHUFFLE_HASH, SHUFFLE_REPLICATE_NL.</td><td>Hints are preferences, not unconditional guarantees.</td></tr><tr><td><strong>Many-to-many join</strong></td><td>Duplicate keys multiply output rows.</td><td>Estimate cardinality before blaming Spark.</td></tr><tr><td><strong>Null keys</strong></td><td>Normal equality does not match null to null.</td><td>Use null-safe semantics only when business logic requires it.</td></tr><tr><td><strong>Skew</strong></td><td>Hot keys create oversized shuffle partitions.</td><td>AQE skew handling or salting can split hot partitions.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why did Spark ignore a join hint?</li><li>How do duplicates affect join output?</li><li>How do null keys behave in an equi-join?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="catalyst" data-cat="optimizer" style="--section:#6d28d9">
+      <header class="section-head"><span class="num">18</span><div><span class="eyebrow">Optimizer</span><h2>Catalyst Optimizer and Physical Planning</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Catalyst turns unresolved expressions into an analyzed logical plan, rewrites it, creates physical alternatives, and selects an executable strategy.</p>
+        <div class="verbatim">Phases of Execution in Spark
+User Code (transformations + action)
+        ↓
+  1. DAG Creation          — Driver builds logical execution plan (lazy)
+        ↓
+  2. Logical Plan          — Unresolved → Analyzed → Optimized (Catalyst Optimizer)
+        ↓
+  3. Physical Plan         — Catalyst picks best physical strategy (sort-merge join vs broadcast join etc.)
+        ↓
+  4. Code Generation       — Tungsten generates optimized JVM bytecode (whole-stage codegen)
+        ↓
+  5. Job Submission        — Action triggers job; DAGScheduler splits DAG into Stages
+        ↓
+  6. Stage → TaskSet       — Each stage broken into tasks (1 task per partition)
+        ↓
+  7. Task Scheduling       — TaskScheduler assigns tasks to Executors via Cluster Manager
+        ↓
+  8. Task Execution        — Executors run tasks; shuffle write at stage boundary
+        ↓
+  9. Shuffle Read          — Next stage reads shuffle files from disk
+        ↓
+ 10. Result returned       — Final result sent to Driver (collect) or written to sink (write)
+Key components:
+
+Catalyst Optimizer: logical plan → optimized logical plan (predicate pushdown, column pruning, constant folding)
+Tungsten: memory management + code generation for CPU efficiency
+DAGScheduler: splits DAG at shuffle boundaries into stages
+TaskScheduler: assigns tasks to free executor slots
+Stage boundary = every wide transformation (shuffle)</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Analyzer</strong></td><td>Resolves tables, columns, data types, and functions using catalogs.</td><td>Unresolved plan is syntactic; analyzed plan is semantically resolved.</td></tr><tr><td><strong>Rule optimizer</strong></td><td>Applies rewrites such as constant folding and predicate simplification.</td><td>Rules do not require runtime data.</td></tr><tr><td><strong>Cost-based planning</strong></td><td>Uses statistics to compare physical alternatives.</td><td>Poor statistics can lead to poor choices.</td></tr><tr><td><strong>Physical plan</strong></td><td>Contains operators such as scans, exchanges, sorts, aggregates, and joins.</td><td>Read physical plans from child scans upward.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Logical vs physical plan?</li><li>What does Catalyst optimize?</li><li>Why can estimated statistics matter?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="tungsten-aqe" data-cat="optimizer" style="--section:#6d28d9">
+      <header class="section-head"><span class="num">19</span><div><span class="eyebrow">Optimizer</span><h2>Tungsten and Adaptive Query Execution</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Tungsten improves memory representation and CPU execution. AQE changes parts of the physical plan using runtime statistics after shuffle boundaries.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Internal binary rows</strong></td><td>Compact representation reduces JVM object overhead.</td><td>One reason DataFrames outperform object-heavy RDD pipelines.</td></tr><tr><td><strong>Whole-stage code generation</strong></td><td>Combines compatible operators into generated JVM code.</td><td>Reduces virtual calls and intermediate objects.</td></tr><tr><td><strong>AQE coalescing</strong></td><td>Merges tiny shuffle partitions.</td><td>Reduces tiny tasks after actual sizes are known.</td></tr><tr><td><strong>AQE join conversion</strong></td><td>May convert sort-merge to broadcast or shuffled-hash.</td><td>Runtime data can differ from estimates.</td></tr><tr><td><strong>AQE skew handling</strong></td><td>Splits oversized shuffle partitions.</td><td>Helps hot partitions, not arbitrary business skew everywhere.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Catalyst vs Tungsten?</li><li>What can AQE change?</li><li>Why does AQE need shuffle statistics?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="memory" data-cat="memory" style="--section:#047857">
+      <header class="section-head"><span class="num">20</span><div><span class="eyebrow">Memory</span><h2>Spark Memory Model</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Executor memory includes JVM heap plus additional container memory. Within heap, Spark balances execution, storage, user objects, and reserved space.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Execution memory</strong></td><td>Shuffle, sort, join, and aggregation working memory.</td><td>Can evict storage blocks when needed.</td></tr><tr><td><strong>Storage memory</strong></td><td>Cached partitions and some broadcast blocks.</td><td>Borrowing is dynamic within unified memory.</td></tr><tr><td><strong>User memory</strong></td><td>Application objects, UDF objects, metadata, and non-Spark structures.</td><td>Not governed by the unified pool.</td></tr><tr><td><strong>Reserved memory</strong></td><td>Internal safety region.</td><td>Not available for normal workload use.</td></tr><tr><td><strong>Memory overhead</strong></td><td>Non-heap JVM, native, Python workers, and system overhead.</td><td>Container can be killed even when JVM heap is below its limit.</td></tr><tr><td><strong>Off-heap</strong></td><td>Optional memory outside JVM heap.</td><td>Reduces GC pressure but requires correct sizing and monitoring.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Heap vs memory overhead?</li><li>Execution vs storage memory?</li><li>Why can PySpark exceed executor heap?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="cache" data-cat="memory" style="--section:#047857">
+      <header class="section-head"><span class="num">21</span><div><span class="eyebrow">Memory</span><h2>Cache, Persist, and Storage Levels</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Caching is useful only when recomputation cost and reuse justify memory pressure. Persist allows explicit storage choices.</p>
+        <div class="verbatim">Storage Levels: MEMORY_ONLY, MEMORY_AND_DISK, DISK_ONLY, MEMORY_ONLY_SER, MEMORY_AND_DISK_SER
+
+Q8. Optimization Techniques
+8a. Cache vs Persist
+cache()	persist(level)
+Storage Level	MEMORY_AND_DISK	Configurable
+Use when	reusing DF, fits in memory	need fine-grained control
+Storage Levels: MEMORY_ONLY, MEMORY_AND_DISK, DISK_ONLY, MEMORY_ONLY_SER, MEMORY_AND_DISK_SER</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Cache candidate</strong></td><td>Reused, expensive-to-recompute, reasonably sized dataset.</td><td>Cache after selective filters when possible.</td></tr><tr><td><strong>Bad cache candidate</strong></td><td>Used once, huge, or cheap to recompute.</td><td>Can evict more valuable data and increase GC.</td></tr><tr><td><strong>Unpersist</strong></td><td>Releases blocks when reuse is finished.</td><td>Important in long-lived applications.</td></tr><tr><td><strong>Checkpoint</strong></td><td>Reliable materialization that truncates lineage.</td><td>Different purpose from caching.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>cache vs persist?</li><li>When should you unpersist?</li><li>Why can caching make a job slower?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="spill-gc" data-cat="memory" style="--section:#047857">
+      <header class="section-head"><span class="num">22</span><div><span class="eyebrow">Memory</span><h2>Serialization, Garbage Collection, and Spill</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">When execution structures do not fit in memory, Spark spills to disk. Serialization and object layout determine CPU, memory, and network cost.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Spill</strong></td><td>Temporary disk materialization for sort, hash, or shuffle state.</td><td>Not always failure; excessive spill indicates pressure.</td></tr><tr><td><strong>GC pressure</strong></td><td>Many JVM objects increase pause time.</td><td>Often worse with object-heavy RDDs or large user structures.</td></tr><tr><td><strong>Serialization</strong></td><td>Transforms records for network and disk transfer.</td><td>Compact serializers reduce size but can add CPU cost.</td></tr><tr><td><strong>Python boundary</strong></td><td>Data crossing Python/JVM processes adds serialization cost.</td><td>Built-in expressions stay in optimized JVM execution.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>What causes spill?</li><li>Why can long GC pauses occur?</li><li>Why are Python UDFs slower than built-ins?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="executor-sizing" data-cat="memory" style="--section:#047857">
+      <header class="section-head"><span class="num">23</span><div><span class="eyebrow">Memory</span><h2>Executor Sizing and Memory Allocation</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Executor sizing balances concurrency, memory per task, garbage collection, failure blast radius, and cluster utilization.</p>
+        <div class="verbatim">Q11. Memory Allocation
+Setup (example: 64 GB node, 16 cores, 2 executors)
+Node RAM         = 64 GB
+OS overhead      = 10%  → 6.4 GB
+Usable RAM       = 64 - 6.4 = 57.6 GB
+
+Executors        = 2  (= num_cores / cores_per_executor = 16 / 8)
+Memory/executor  = 57.6 / 2 = ~28 GB   (--executor-memory)
+
+JVM overhead     = 10% of executor memory → ~2.8 GB  (spark.executor.memoryOverhead)
+Spark memory     = 28 - 2.8 = ~25 GB
+
+Unified pool     = Spark memory × spark.memory.fraction (0.6 default) = 25 × 0.6 = 15 GB
+Reserved buffer  = Spark memory × 0.4 = 10 GB  (user code, internal metadata)
+
+Storage pool     = Unified pool × spark.memory.storageFraction (0.6) = 15 × 0.6 = 9 GB  ← cache/persist
+Execution pool   = Unified pool × 0.4                                = 15 × 0.4 = 6 GB  ← shuffle/sort/join
+
+Cores/executor   = 16 / 2 = 8  → 8 tasks run in parallel per executor
+Formulas
+usable_ram       = node_ram × 0.9
+memory_per_exec  = usable_ram / num_executors
+spark_memory     = memory_per_exec × (1 - overhead_fraction)   # overhead default 0.1
+unified_pool     = spark_memory × spark.memory.fraction         # default 0.6
+storage_pool     = unified_pool × spark.memory.storageFraction  # default 0.6
+execution_pool   = unified_pool × (1 - storageFraction)         # default 0.4
+cores_per_exec   = total_cores / num_executors
+When to tune
+Symptom	Fix
+Shuffle spill / OOM on join	Increase execution pool → lower storageFraction
+Cache evicted too often	Increase storage pool → raise storageFraction
+Many small files, low CPU	Add more executors (smaller --executor-memory, more instances)
+CPU &gt;90% and OOM together	Add more nodes to the cluster
+Long GC pauses	Reduce executor memory or switch to off-heap (spark.memory.offHeap.enabled)
+Dynamic allocation
+spark.dynamicAllocation.enabled          = true
+spark.dynamicAllocation.minExecutors     = 1
+spark.dynamicAllocation.maxExecutors     = 10
+spark.dynamicAllocation.initialExecutors = 2
+Spark scales executor count up/down automatically based on pending tasks.</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Too many cores/executor</strong></td><td>More simultaneous tasks share one heap and one GC process.</td><td>Can amplify memory pressure and long GC pauses.</td></tr><tr><td><strong>Too few cores/executor</strong></td><td>More executors and overhead; potentially underuses node capacity.</td><td>Balance concurrency and failure isolation.</td></tr><tr><td><strong>Large executors</strong></td><td>More cache room but larger GC domain and bigger loss on failure.</td><td>Avoid “one giant executor per node” by default.</td></tr><tr><td><strong>Small executors</strong></td><td>Better isolation and parallelism but more overhead.</td><td>Useful for elastic and heterogeneous workloads.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How do you choose executor cores?</li><li>Why not use all node memory?</li><li>What is executor memory overhead?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="optimization" data-cat="performance" style="--section:#b45309">
+      <header class="section-head"><span class="num">24</span><div><span class="eyebrow">Performance</span><h2>Spark Optimization Checklist</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Optimize from the physical plan and metrics, not from isolated configuration folklore.</p>
+        <div class="verbatim">8. More Optimization Techniques
+1. Data Skew — Salting
+2. Predicate Pushdown
+3. Broadcast Join
+4. Schema: inferSchema vs defined schema
+5. AQE (Adaptive Query Execution)
+6. SparkSession vs SparkContext
+7. Read Parquet file
+8. Write to single CSV instead of part files</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>1. Reduce input</strong></td><td>Partition pruning, predicate pushdown, column pruning, compact files.</td><td>Best optimization is avoiding work.</td></tr><tr><td><strong>2. Reduce shuffle</strong></td><td>Pre-aggregate, select correct join, reuse distribution, avoid unnecessary repartition.</td><td>Measure shuffle read/write.</td></tr><tr><td><strong>3. Balance partitions</strong></td><td>Choose useful partition counts and handle skew.</td><td>Target balanced task durations, not a magic count.</td></tr><tr><td><strong>4. Manage memory</strong></td><td>Cache selectively, size executors, reduce object overhead.</td><td>Spill and GC are symptoms to inspect.</td></tr><tr><td><strong>5. Use optimized APIs</strong></td><td>Built-ins, DataFrames, columnar formats, AQE.</td><td>Avoid Python UDFs for logic expressible with built-ins.</td></tr><tr><td><strong>6. Validate in UI</strong></td><td>Confirm the plan and the bottleneck.</td><td>Do not tune based only on total runtime.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How do you approach a slow Spark job?</li><li>What are your first three checks?</li><li>Why is reducing input often better than adding hardware?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="optimization-compare" data-cat="performance" style="--section:#b45309">
+      <header class="section-head"><span class="num">25</span><div><span class="eyebrow">Performance</span><h2>High-Frequency Optimization Comparisons</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">These comparisons appear frequently in Spark interviews.</p>
+        <div class="verbatim">8c. groupBy vs reduceByKey / map vs flatMap
+reduceByKey: combines locally before shuffle → faster than groupBy for RDDs
+map: one input → one output
+flatMap: one input → zero or more outputs (e.g., splitting lines into words)
+8d. Avoid collect() — use show / take / write
+collect() pulls ALL data to driver → OOM risk on large data
+Prefer show(n), take(n), or write to sink
+8e. Bucketing vs Partitioning
+Partitioning	Bucketing
+Based on	Column values (directories)	Hash of column (fixed buckets)
+Partition pruning	✅ Yes	✅ Yes
+Shuffle on join	Possible	❌ Eliminated (if both sides bucketed same way)
+Good for	Low cardinality cols (date, region)	High cardinality cols (user_id)</div>
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Broadcast vs sort-merge</strong></td><td>No large-side shuffle vs shuffle-and-sort both sides.</td><td>Broadcast requires reliable size and executor memory.</td></tr><tr><td><strong>Cache vs recompute</strong></td><td>Memory pressure vs repeated compute cost.</td><td>Cache only with reuse.</td></tr><tr><td><strong>Scale up vs scale out</strong></td><td>Larger executors vs more executors/nodes.</td><td>Scale out often improves parallelism and isolation.</td></tr><tr><td><strong>collect vs write</strong></td><td>Driver materialization vs distributed sink.</td><td>Never collect unbounded production data.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>repartition vs coalesce?</li><li>partitioning vs bucketing?</li><li>cache vs checkpoint?</li><li>broadcast vs sort-merge join?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="skew-small-files" data-cat="performance" style="--section:#b45309">
+      <header class="section-head"><span class="num">26</span><div><span class="eyebrow">Performance</span><h2>Data Skew and Small Files</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Skew creates a few slow tasks; small files create excessive metadata, scheduling, and open-cost overhead. They are different problems but often appear together.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Skew symptom</strong></td><td>A few tasks run far longer and process far more data.</td><td>Inspect task distribution and shuffle-read size.</td></tr><tr><td><strong>Skew fixes</strong></td><td>AQE skew splitting, salting, pre-aggregation, hot-key isolation, better keys.</td><td>Choose the least invasive fix.</td></tr><tr><td><strong>Small-file symptom</strong></td><td>Thousands of short tasks, slow listing, low throughput.</td><td>Driver and filesystem metadata overhead dominate.</td></tr><tr><td><strong>Small-file fixes</strong></td><td>Compaction, controlled output partitions, sensible partition columns.</td><td>Do not force one file for large datasets.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How do you detect skew?</li><li>Salting trade-offs?</li><li>Why are many small files bad?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="pyspark-boundary" data-cat="architecture" style="--section:#0f766e">
+      <header class="section-head"><span class="num">27</span><div><span class="eyebrow">Architecture</span><h2>PySpark JVM–Python Boundary and UDFs</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">PySpark coordinates through a Python driver and JVM driver. Native DataFrame expressions execute in optimized JVM operators; Python UDFs require data exchange with Python worker processes.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Built-in expressions</strong></td><td>Remain visible to Catalyst and code generation.</td><td>Preferred for performance and optimization.</td></tr><tr><td><strong>Python UDF</strong></td><td>Serializes batches/rows to a Python worker.</td><td>Adds process and serialization overhead.</td></tr><tr><td><strong>Pandas UDF</strong></td><td>Uses vectorized batches and Arrow.</td><td>Often faster than row UDFs but still crosses the language boundary.</td></tr><tr><td><strong>Python worker memory</strong></td><td>Usually comes from executor overhead/container memory.</td><td>Can cause container OOM even when JVM heap looks healthy.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Why are Python UDFs slower?</li><li>Pandas UDF vs normal UDF?</li><li>Where does Python worker memory come from?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="spark-ui" data-cat="operations" style="--section:#0369a1">
+      <header class="section-head"><span class="num">28</span><div><span class="eyebrow">Operations</span><h2>Spark UI and Troubleshooting</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Use the UI to identify whether the bottleneck is scan, scheduling, shuffle, skew, spill, GC, serialization, or driver pressure.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Jobs tab</strong></td><td>Actions, jobs, and overall timelines.</td><td>Start here to locate the slow job.</td></tr><tr><td><strong>Stages tab</strong></td><td>Task distribution, shuffle, spill, GC, input, and output.</td><td>Best place to detect skew and partition imbalance.</td></tr><tr><td><strong>SQL tab</strong></td><td>Physical operator graph and metrics.</td><td>Identify joins, exchanges, scans, and AQE changes.</td></tr><tr><td><strong>Executors tab</strong></td><td>Memory, GC, task count, failures, and lost executors.</td><td>Detect unhealthy or uneven executors.</td></tr><tr><td><strong>Storage tab</strong></td><td>Cached datasets and block distribution.</td><td>Confirm whether expected data is actually cached.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How do you diagnose one slow stage?</li><li>What indicates skew?</li><li>What indicates driver OOM vs executor OOM?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="scheduling" data-cat="operations" style="--section:#0369a1">
+      <header class="section-head"><span class="num">29</span><div><span class="eyebrow">Operations</span><h2>Dynamic Allocation, Speculation, and Scheduling</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">These features change resource usage and straggler behavior but do not fix inefficient plans.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Dynamic allocation</strong></td><td>Adds or removes executors based on backlog and idleness.</td><td>Requires shuffle preservation support.</td></tr><tr><td><strong>Speculation</strong></td><td>Runs duplicate copies of unusually slow tasks.</td><td>Helps random stragglers, not deterministic skew.</td></tr><tr><td><strong>Fair scheduling</strong></td><td>Shares resources among concurrent jobs/pools.</td><td>Useful for multi-user or service workloads.</td></tr><tr><td><strong>Locality</strong></td><td>Prefers tasks near their input data when possible.</td><td>Less important for remote object storage.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Dynamic allocation vs static executors?</li><li>When does speculation help?</li><li>Why can speculation worsen load?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="streaming" data-cat="streaming" style="--section:#be185d">
+      <header class="section-head"><span class="num">30</span><div><span class="eyebrow">Streaming</span><h2>Structured Streaming Concepts</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Structured Streaming treats an unbounded input as an incrementally updated table and executes a repeated query using the DataFrame engine.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Micro-batch</strong></td><td>Processes new data in small batches.</td><td>Most common execution mode.</td></tr><tr><td><strong>Checkpoint</strong></td><td>Stores offsets, state metadata, and progress.</td><td>Required for reliable restart.</td></tr><tr><td><strong>Output mode</strong></td><td>Append, update, or complete semantics.</td><td>Must match aggregation and sink support.</td></tr><tr><td><strong>Watermark</strong></td><td>Bounds how long late data may update state.</td><td>Controls state cleanup, not event rejection by itself.</td></tr><tr><td><strong>State store</strong></td><td>Persists aggregation, deduplication, or join state.</td><td>State growth is a key operational risk.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Watermark vs trigger?</li><li>Exactly-once depends on what?</li><li>Why can stateful streaming run out of memory/disk?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="kafka" data-cat="streaming" style="--section:#be185d">
+      <header class="section-head"><span class="num">31</span><div><span class="eyebrow">Streaming</span><h2>Spark and Kafka — Interview View</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Kafka partitions determine source parallelism and per-partition order. Spark checkpoints track consumed offsets and state progress.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Source parallelism</strong></td><td>Limited by Kafka partitions unless Spark splits work further internally.</td><td>More executors cannot exceed useful source parallelism.</td></tr><tr><td><strong>Ordering</strong></td><td>Guaranteed only within a Kafka partition.</td><td>No global ordering across partitions.</td></tr><tr><td><strong>Offsets</strong></td><td>Represent source progress.</td><td>Checkpoint continuity is essential after restart.</td></tr><tr><td><strong>Backpressure</strong></td><td>Processing must keep up with arrival rate.</td><td>Tune ingestion rate, partitions, cluster capacity, and state cost.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Kafka partition vs Spark partition?</li><li>How is offset progress recovered?</li><li>What causes consumer lag in Spark streaming?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="quality-security" data-cat="operations" style="--section:#0369a1">
+      <header class="section-head"><span class="num">32</span><div><span class="eyebrow">Operations</span><h2>Testing, Data Quality, Security, and Observability</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Production Spark reliability depends on correctness checks, deterministic transformations, secure configuration, and measurable SLAs—not performance tuning alone.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Testing</strong></td><td>Unit-test transformations and integration-test source/sink behavior.</td><td>Use small deterministic datasets and edge cases.</td></tr><tr><td><strong>Data quality</strong></td><td>Schema, null, uniqueness, range, referential, and volume checks.</td><td>Fail, quarantine, or alert based on severity.</td></tr><tr><td><strong>Security</strong></td><td>Authentication, encryption, secrets, filesystem permissions, and UI access.</td><td>Avoid credentials in configuration or logs.</td></tr><tr><td><strong>Observability</strong></td><td>Runtime, freshness, volume, failure rate, skew, spill, and cost.</td><td>Tie technical metrics to pipeline SLAs.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>How do you test Spark transformations?</li><li>What metrics define a healthy pipeline?</li><li>How do you protect secrets?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="interview-bank" data-cat="interview" style="--section:#334155">
+      <header class="section-head"><span class="num">33</span><div><span class="eyebrow">Interview</span><h2>Rapid Spark Interview Questions</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Use these as a final self-test. Answer with the concept, the trade-off, and one production symptom.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Architecture</strong></td><td>Driver vs executor? Worker vs executor? Client vs cluster mode?</td><td>Explain ownership and failure behavior.</td></tr><tr><td><strong>Execution</strong></td><td>Action vs transformation? Job vs stage vs task? Narrow vs wide?</td><td>Always connect to shuffle and partitions.</td></tr><tr><td><strong>Data layout</strong></td><td>Partitioning vs bucketing? repartition vs coalesce?</td><td>Discuss pruning, shuffle, and file layout.</td></tr><tr><td><strong>Joins</strong></td><td>Broadcast vs sort-merge vs shuffled-hash vs nested-loop?</td><td>Use size, predicate, memory, and shuffle.</td></tr><tr><td><strong>Memory</strong></td><td>Execution vs storage? heap vs overhead? spill vs OOM?</td><td>Explain symptoms and fixes.</td></tr><tr><td><strong>Optimization</strong></td><td>How do you tune a slow job?</td><td>Start with plan/UI, then reduce input and shuffle.</td></tr><tr><td><strong>Streaming</strong></td><td>Watermark, checkpoint, output modes, exactly-once?</td><td>Include source, state, and sink guarantees.</td></tr></tbody></table></div>
+        
+        <div class="interview-box"><h3>Common interview questions</h3><ul><li>Can you explain Spark end to end in two minutes?</li><li>How would you debug a job that became 3× slower?</li><li>How would you choose a join strategy?</li></ul></div>
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><section class="topic" id="revision" data-cat="interview" style="--section:#334155">
+      <header class="section-head"><span class="num">34</span><div><span class="eyebrow">Interview</span><h2>One-Page Revision Sheet</h2></div><button class="collapse" aria-label="Collapse section">−</button></header>
+      <div class="section-body">
+        <p class="summary">Memorize these relationships, then support each with one example and one trade-off.</p>
+        
+        <div class="table-wrap"><table><thead><tr><th>Concept</th><th>Meaning / Use</th><th>Interview perspective</th></tr></thead><tbody><tr><td><strong>Execution</strong></td><td>Action → job → stages at shuffle boundaries → tasks per partition.</td><td>One core runs one task at a time.</td></tr><tr><td><strong>Performance</strong></td><td>Scan less, shuffle less, balance partitions, use optimized operators.</td><td>Validate in physical plan and UI.</td></tr><tr><td><strong>Joins</strong></td><td>Small side → broadcast; large equi sides → sort-merge; partition-fit smaller side → shuffled hash; non-equi → nested loop.</td><td>AQE may change the runtime strategy.</td></tr><tr><td><strong>Storage</strong></td><td>Partition low-cardinality filters; bucket high-cardinality join keys.</td><td>Compatibility and metadata determine benefit.</td></tr><tr><td><strong>Memory</strong></td><td>Execution + storage share unified memory; overhead covers native/Python/system use.</td><td>Spill is pressure; container OOM can occur outside heap.</td></tr><tr><td><strong>Streaming</strong></td><td>Checkpoint progress, watermark late data, manage state, match sink guarantees.</td><td>Exactly-once is end-to-end, not a single switch.</td></tr></tbody></table></div>
+        
+        
+        <a class="back" href="#index">↑ Back to Index</a>
+      </div>
+    </section><div class="empty" id="empty">No matching Spark topic found.</div></main>
+<button class="topbtn" id="topbtn" aria-label="Back to top">↑</button>
+<script>
+const sections=[...document.querySelectorAll('.topic')];
+const links=[...document.querySelectorAll('#indexGrid a')];
+const search=document.getElementById('search');
+const empty=document.getElementById('empty');
+let active='all';
+function apply(){
+ const q=search.value.trim().toLowerCase(); let shown=0;
+ sections.forEach(s=>{const okCat=active==='all'||s.dataset.cat===active; const okQ=!q||s.innerText.toLowerCase().includes(q); const show=okCat&&okQ; s.style.display=show?'':'none'; if(show) shown++;});
+ links.forEach(a=>{const target=document.querySelector(a.getAttribute('href')); a.style.display=target&&target.style.display!=='none'?'':'none';});
+ empty.style.display=shown?'none':'block';
+}
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter;apply();}));
+search.addEventListener('input',apply);
+document.querySelectorAll('.collapse').forEach(b=>b.addEventListener('click',()=>{const s=b.closest('.topic');s.classList.toggle('closed');b.textContent=s.classList.contains('closed')?'+':'−';}));
+const theme=document.getElementById('theme');theme.addEventListener('click',()=>{const d=document.documentElement;const dark=d.dataset.theme==='dark';d.dataset.theme=dark?'light':'dark';theme.textContent=dark?'☾':'☀';localStorage.setItem('spark-theme',d.dataset.theme);});
+const saved=localStorage.getItem('spark-theme');if(saved){document.documentElement.dataset.theme=saved;theme.textContent=saved==='dark'?'☀':'☾';}
+const topbtn=document.getElementById('topbtn');const topbar=document.getElementById('topbar');let last=0;
+window.addEventListener('scroll',()=>{const y=scrollY;topbtn.classList.toggle('show',y>500);if(innerWidth<761){if(y>last&&y>130)topbar.classList.add('hide');else topbar.classList.remove('hide');}else topbar.classList.remove('hide');last=y;},{passive:true});
+topbtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body></html>
