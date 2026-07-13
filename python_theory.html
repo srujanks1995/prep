@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>Python Theory Interview Guide</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3ff;
+      --text: #172033;
+      --muted: #5d687c;
+      --border: #dbe3f1;
+      --accent: #3157d5;
+      --accent-dark: #1f3da3;
+      --accent-soft: #e8edff;
+      --success: #0d7a56;
+      --code-bg: #111827;
+      --code-text: #e5edf9;
+      --shadow: 0 10px 35px rgba(34, 49, 82, 0.09);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 16px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.58;
+      overflow-x: hidden;
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, .24), transparent 24%),
+        radial-gradient(circle at 12% 100%, rgba(250, 204, 21, .24), transparent 30%),
+        linear-gradient(135deg, #0f766e 0%, #2563eb 55%, #7c3aed 100%);
+      color: white;
+      padding: 48px 20px 36px;
+      transition: transform .28s ease, opacity .28s ease;
+      will-change: transform;
+    }
+
+    .hero-inner,
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 16px 0 0;
+      color: #d7e0f5;
+      font-size: 1.04rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .hero-meta span {
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .88rem;
+    }
+
+    .page {
+      padding: 26px 0 70px;
+    }
+
+    .controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .search-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .search-input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0 15px;
+      font: inherit;
+      color: var(--text);
+      background: #fbfcff;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(49, 87, 213, .12);
+    }
+
+    .clear-btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 0 18px;
+      background: var(--text);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip-strip {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 14px 0 3px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .chip-strip::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .filter-chip {
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: #26334f;
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .jump-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .jump-links a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .concept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin: 24px 0;
+    }
+
+    .concept-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      display: block;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-weight: 800;
+      font-size: .72rem;
+      margin-bottom: 5px;
+    }
+
+    .concept-head h2 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.05rem);
+      line-height: 1.2;
+    }
+
+    .concept-tag {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #e8f7f1;
+      color: var(--success);
+      padding: 7px 11px;
+      font-weight: 800;
+      font-size: .8rem;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .concept-grid article {
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 17px;
+      min-width: 0;
+      background: #fcfdff;
+    }
+
+    .concept-grid h3 {
+      margin: 0 0 8px;
+      font-size: 1.04rem;
+    }
+
+    .concept-grid p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    pre {
+      margin: 12px 0 0;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 13px;
+      padding: 15px;
+      overflow-x: auto;
+      font-size: .86rem;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    :not(pre) > code {
+      background: #edf1fb;
+      color: #20366e;
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: .82rem;
+    }
+
+    .flow span {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 9px;
+      padding: 6px 8px;
+    }
+
+    .equivalent {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 8px;
+    }
+
+    .compact-list {
+      margin: 9px 0 0;
+      padding-left: 20px;
+    }
+
+    .compact-list li + li {
+      margin-top: 7px;
+    }
+
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-top: 24px;
+    }
+
+    .section-title {
+      margin: 0;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.35rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      background: #172033;
+      color: white;
+      padding: 14px 18px;
+      font-size: .86rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    th:first-child { width: 38%; }
+
+    td {
+      vertical-align: top;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    tr:nth-child(even) td {
+      background: #fbfcff;
+    }
+
+    .question-cell {
+      font-weight: 760;
+    }
+
+    .q-number {
+      display: inline-grid;
+      place-items: center;
+      min-width: 34px;
+      height: 28px;
+      margin-right: 9px;
+      padding: 0 7px;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: .79rem;
+      vertical-align: middle;
+    }
+
+    .answer-cell {
+      color: #39445a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty-state {
+      display: none;
+      padding: 34px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .back-top {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 10px 28px rgba(49, 87, 213, .35);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 0 0;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 780px) {
+      .hero {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 20px 14px 17px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .18);
+      }
+
+      .hero.hero-hidden {
+        transform: translateY(calc(-100% - 8px));
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .hero h1 {
+        font-size: clamp(1.62rem, 8vw, 2.15rem);
+        letter-spacing: -0.035em;
+      }
+
+      .hero p {
+        margin-top: 9px;
+        font-size: .91rem;
+        line-height: 1.45;
+      }
+
+      .hero-meta {
+        gap: 6px;
+        margin-top: 12px;
+      }
+
+      .hero-meta span {
+        padding: 5px 8px;
+        font-size: .72rem;
+      }
+
+      .hero-inner,
+      .page {
+        width: min(100% - 16px, 1180px);
+      }
+
+      .chip-strip {
+        display: flex;
+        flex-wrap: wrap;
+        overflow: visible;
+        gap: 7px;
+        padding-bottom: 0;
+      }
+
+      .filter-chip {
+        flex: 0 1 auto;
+        padding: 8px 10px;
+        font-size: .78rem;
+      }
+
+      .search-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .clear-btn {
+        min-height: 44px;
+      }
+
+      .concept-head {
+        display: block;
+      }
+
+      .concept-tag {
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .concept-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .concept-card {
+        padding: 15px;
+      }
+
+      .status-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .table-card {
+        overflow: visible;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+      }
+
+      .section-title {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        margin-bottom: 10px;
+      }
+
+      table,
+      tbody,
+      tr,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr.qa-row {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        box-shadow: 0 6px 18px rgba(34, 49, 82, .06);
+        margin-bottom: 11px;
+        overflow: hidden;
+      }
+
+      td {
+        border: 0;
+        padding: 14px 15px;
+      }
+
+      tr:nth-child(even) td {
+        background: transparent;
+      }
+
+      .question-cell {
+        border-bottom: 1px solid var(--border);
+        background: #f1f4ff !important;
+      }
+
+      .question-cell::before {
+        content: "Question";
+        display: block;
+        color: var(--accent);
+        font-size: .69rem;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        margin-bottom: 5px;
+      }
+
+      .answer-cell::before {
+        content: "Answer";
+        display: block;
+        color: var(--success);
+        font-weight: 800;
+        font-size: .69rem;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        margin-bottom: 5px;
+      }
+
+      pre {
+        max-width: 100%;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        font-size: .76rem;
+        padding: 13px;
+      }
+
+      .flow {
+        overflow: hidden;
+      }
+
+      .back-top {
+        right: 12px;
+        bottom: 12px;
+        width: 46px;
+        height: 46px;
+      }
+    }
+
+    @media print {
+      .controls,
+      .back-top,
+      .jump-links {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+      }
+
+      .concept-card,
+      .table-card {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-inner">
+      <h1>Python Theory Interview Guide</h1>
+      <p>Selected theoretical questions, interview comparisons, and practical explanations of generators and decorators.</p>
+      <div class="hero-meta">
+        <span>Searchable</span>
+        <span>Topic filters</span>
+        <span>Mobile card layout</span>
+        <span>Code examples</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="controls" aria-label="Search and topic filters">
+      <div class="search-wrap">
+        <input id="searchInput" class="search-input" type="search"
+               placeholder="Search questions, answers, or concepts..."
+               aria-label="Search questions and answers">
+        <button id="clearButton" class="clear-btn" type="button">Clear</button>
+      </div>
+
+      <div class="chip-strip" aria-label="Topic filters">
+        <button class="filter-chip active" type="button" data-filter="All">All</button>
+        <button class="filter-chip" type="button" data-filter="Variables &amp; Collections">Variables &amp; Collections</button><button class="filter-chip" type="button" data-filter="Control Flow">Control Flow</button><button class="filter-chip" type="button" data-filter="Functions">Functions</button><button class="filter-chip" type="button" data-filter="Generators &amp; Iterators">Generators &amp; Iterators</button><button class="filter-chip" type="button" data-filter="OOP">OOP</button><button class="filter-chip" type="button" data-filter="Memory">Memory</button><button class="filter-chip" type="button" data-filter="Exceptions">Exceptions</button><button class="filter-chip" type="button" data-filter="Decorators">Decorators</button><button class="filter-chip" type="button" data-filter="Modules">Modules</button><button class="filter-chip" type="button" data-filter="Files">Files</button><button class="filter-chip" type="button" data-filter="Concurrency">Concurrency</button><button class="filter-chip" type="button" data-filter="Performance">Performance</button><button class="filter-chip" type="button" data-filter="Tricky">Tricky</button><button class="filter-chip" type="button" data-filter="Differences">Differences</button>
+      </div>
+
+      <div class="status-line">
+        <span id="resultCount">Showing all questions</span>
+        <span class="jump-links">
+          <a href="#generator-concept">Generators</a>
+          <a href="#decorator-concept">Decorators</a>
+          <a href="#questions">Questions</a>
+          <a href="#differences">Differences</a>
+        </span>
+      </div>
+    </section>
+
+    
+<section class="concept-card" id="generator-concept">
+  <div class="concept-head">
+    <div>
+      <span class="eyebrow">Concept explanation</span>
+      <h2>Generators: produce values only when requested</h2>
+    </div>
+    <span class="concept-tag">Lazy + memory efficient</span>
+  </div>
+
+  <div class="concept-grid">
+    <article>
+      <h3>1. Normal function versus generator</h3>
+      <p>A normal function calculates its result and finishes. A generator pauses whenever it reaches <code>yield</code>. Its local variables remain available when execution resumes.</p>
+      <pre><code class="language-python">def normal_numbers():
+    return [1, 2, 3]
+
+def generated_numbers():
+    yield 1
+    yield 2
+    yield 3
+
+numbers = generated_numbers()
+
+print(next(numbers))  # 1
+print(next(numbers))  # 2
+print(next(numbers))  # 3
+# The next call raises StopIteration.</code></pre>
+      <div class="flow">
+        <span>Call generator</span><b>→</b><span>Generator object</span><b>→</b>
+        <span>next()</span><b>→</b><span>Run until yield</span><b>→</b><span>Pause</span>
+      </div>
+    </article>
+
+    <article>
+      <h3>2. Why this matters for large files</h3>
+      <p>The generator below yields one parsed record at a time. Memory usage stays nearly constant even when the file contains millions of rows.</p>
+      <pre><code class="language-python">import csv
+from collections.abc import Iterator
+
+def read_valid_rows(path: str) -> Iterator[dict[str, str]]:
+    with open(path, encoding="utf-8", newline="") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+            if row.get("customer_id") and row.get("amount"):
+                yield row
+
+for record in read_valid_rows("large_sales.csv"):
+    process(record)</code></pre>
+    </article>
+
+    <article>
+      <h3>3. Yield records in batches</h3>
+      <p>Batch generators reduce database or API overhead while still avoiding full-file loading.</p>
+      <pre><code class="language-python">from collections.abc import Iterable, Iterator
+from typing import TypeVar
+
+T = TypeVar("T")
+
+def batches(
+    items: Iterable[T],
+    size: int
+) -> Iterator[list[T]]:
+    if size &lt;= 0:
+        raise ValueError("size must be positive")
+
+    batch: list[T] = []
+
+    for item in items:
+        batch.append(item)
+
+        if len(batch) == size:
+            yield batch
+            batch = []
+
+    if batch:
+        yield batch
+
+for batch in batches(range(10), 4):
+    print(batch)
+
+# [0, 1, 2, 3]
+# [4, 5, 6, 7]
+# [8, 9]</code></pre>
+    </article>
+
+    <article>
+      <h3>4. Generator interview points</h3>
+      <ul class="compact-list">
+        <li>A generator is an iterator.</li>
+        <li>Values are computed lazily.</li>
+        <li>Execution state is preserved between yields.</li>
+        <li>Generators are usually single-use.</li>
+        <li>They are ideal for files, API pages, streams and database cursors.</li>
+        <li>They trade random access for lower memory usage.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+    
+<section class="concept-card" id="decorator-concept">
+  <div class="concept-head">
+    <div>
+      <span class="eyebrow">Concept explanation</span>
+      <h2>Decorators: wrap a function with reusable behavior</h2>
+    </div>
+    <span class="concept-tag">Logging + timing + retry</span>
+  </div>
+
+  <div class="concept-grid">
+    <article>
+      <h3>1. Basic decorator</h3>
+      <p>A decorator receives a function and returns another callable. The wrapper can run logic before and after the original function.</p>
+      <pre><code class="language-python">from functools import wraps
+
+def log_call(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        print(f"Starting {function.__name__}")
+        result = function(*args, **kwargs)
+        print(f"Completed {function.__name__}")
+        return result
+
+    return wrapper
+
+@log_call
+def load_file(path: str) -> str:
+    return f"Loaded {path}"
+
+print(load_file("sales.csv"))</code></pre>
+      <div class="equivalent"><code>@log_call</code> is equivalent to <code>load_file = log_call(load_file)</code>.</div>
+    </article>
+
+    <article>
+      <h3>2. Timing decorator</h3>
+      <p>This reusable decorator measures any function without adding timing logic inside every function.</p>
+      <pre><code class="language-python">from functools import wraps
+from time import perf_counter
+
+def measure_time(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        started = perf_counter()
+
+        try:
+            return function(*args, **kwargs)
+        finally:
+            elapsed = perf_counter() - started
+            print(
+                f"{function.__name__} took "
+                f"{elapsed:.4f} seconds"
+            )
+
+    return wrapper
+
+@measure_time
+def transform(records):
+    return [record.strip() for record in records]</code></pre>
+    </article>
+
+    <article>
+      <h3>3. Decorator with arguments: retry</h3>
+      <p>The outer function receives decorator settings. The decorator receives the target function. The wrapper performs the retry behavior.</p>
+      <pre><code class="language-python">from functools import wraps
+from time import sleep
+
+def retry(max_attempts: int, delay: float = 0.0):
+    if max_attempts &lt; 1:
+        raise ValueError("max_attempts must be at least 1")
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            last_error = None
+
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return function(*args, **kwargs)
+                except ConnectionError as error:
+                    last_error = error
+
+                    if attempt &lt; max_attempts:
+                        sleep(delay)
+
+            raise last_error
+
+        return wrapper
+
+    return decorator
+
+@retry(max_attempts=3, delay=1)
+def call_service():
+    ...</code></pre>
+    </article>
+
+    <article>
+      <h3>4. Decorator interview points</h3>
+      <ul class="compact-list">
+        <li>Functions are first-class objects.</li>
+        <li>A decorator returns a replacement callable.</li>
+        <li><code>*args</code> and <code>**kwargs</code> keep wrappers generic.</li>
+        <li><code>functools.wraps</code> preserves metadata.</li>
+        <li>Common uses: logging, retries, validation, caching and authorization.</li>
+        <li>Do not hide important business logic inside too many decorator layers.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+
+    <section class="table-card" id="questions">
+      <h2 class="section-title">Selected theoretical questions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Answer</th>
+          </tr>
+        </thead>
+        <tbody id="questionBody">
+          <tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">37</span><span class="q-text">What does the global keyword do?</span></td><td class="answer-cell">The <code>global</code> keyword tells Python that an assignment inside a function must update a module-level variable instead of creating a new local variable. Excessive global state should be avoided because it increases coupling and makes testing harder.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">38</span><span class="q-text">What does the nonlocal keyword do?</span></td><td class="answer-cell"><code>nonlocal</code> allows a nested function to update a variable from the nearest enclosing function scope. It does not refer to module-level global variables.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">39</span><span class="q-text">What is hashability?</span></td><td class="answer-cell">A hashable object has a hash value that remains stable during its lifetime and supports equality comparison. Hashable objects can be dictionary keys or set elements.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">40</span><span class="q-text">Is every immutable object hashable?</span></td><td class="answer-cell">No. A tuple is immutable, but it is unhashable when it contains an unhashable object such as a list.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">41</span><span class="q-text">What is a list?</span></td><td class="answer-cell">A list is an ordered, mutable collection that allows duplicates, indexing, slicing and mixed data types.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">42</span><span class="q-text">What is a tuple?</span></td><td class="answer-cell">A tuple is an ordered, immutable collection that allows duplicates. It is useful for fixed records, multiple return values and compound keys.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">43</span><span class="q-text">What is the difference between a list and a tuple?</span></td><td class="answer-cell">A list is mutable and uses square brackets. A tuple is immutable and usually uses parentheses. Lists suit changing collections; tuples suit fixed records.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">44</span><span class="q-text">When should a tuple be used?</span></td><td class="answer-cell">Use a tuple for fixed data, coordinates, multiple return values or a hashable sequence, provided every element is hashable.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">45</span><span class="q-text">What is a set?</span></td><td class="answer-cell">A set is a mutable collection of unique, hashable elements. It is useful for deduplication, membership testing, union, intersection and difference.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">46</span><span class="q-text">What is a frozen set?</span></td><td class="answer-cell">A <code>frozenset</code> is an immutable and hashable set. It can be used as a dictionary key or as an element of another set.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">51</span><span class="q-text">Can a tuple be used as a dictionary key?</span></td><td class="answer-cell">Yes, when every element inside the tuple is hashable. A tuple containing a list cannot be used as a key.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">55</span><span class="q-text">What is the difference between append() and extend()?</span></td><td class="answer-cell"><code>append()</code> adds one object as a single list element. <code>extend()</code> iterates over another iterable and adds each element separately.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">56</span><span class="q-text">What is the difference between remove() and pop()?</span></td><td class="answer-cell"><code>remove(value)</code> deletes the first matching value and returns nothing. <code>pop(index)</code> removes and returns the item at an index; without an index it removes the last item.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">57</span><span class="q-text">What is the difference between del and remove()?</span></td><td class="answer-cell"><code>del</code> removes by index, slice or variable name. <code>remove()</code> searches for and deletes the first matching value.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">61</span><span class="q-text">What is the difference between sort() and sorted()?</span></td><td class="answer-cell"><code>list.sort()</code> modifies a list in place and returns <code>None</code>. <code>sorted()</code> accepts any iterable and returns a new list.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">62</span><span class="q-text">Do dictionaries preserve insertion order?</span></td><td class="answer-cell">Yes. Python 3.7+ guarantees insertion order. Updating an existing key normally keeps its position; deleting and reinserting places it at the end.</td></tr>
+<tr class="qa-row" data-topic="Variables &amp; Collections"><td class="question-cell"><span class="q-number">68</span><span class="q-text">Why is deque.popleft() better than list.pop(0)?</span></td><td class="answer-cell"><code>deque.popleft()</code> is normally O(1). <code>list.pop(0)</code> is O(n) because remaining elements must shift left.</td></tr>
+<tr class="qa-row" data-topic="Control Flow"><td class="question-cell"><span class="q-number">84</span><span class="q-text">What is the difference between / and //?</span></td><td class="answer-cell"><code>/</code> performs true division. <code>//</code> performs floor division, rounding toward negative infinity.</td></tr>
+<tr class="qa-row" data-topic="Control Flow"><td class="question-cell"><span class="q-number">85</span><span class="q-text">What does the modulo operator % do?</span></td><td class="answer-cell">The modulo operator returns the remainder associated with floor division. It is useful for divisibility, parity, cyclic indexes and partition assignment.</td></tr>
+<tr class="qa-row" data-topic="Control Flow"><td class="question-cell"><span class="q-number">88</span><span class="q-text">Do and and or always return Boolean values?</span></td><td class="answer-cell">No. They return one of their operands. <code>a and b</code> returns the first falsy operand or the last operand. <code>a or b</code> returns the first truthy operand or the last operand.</td></tr>
+<tr class="qa-row" data-topic="Control Flow"><td class="question-cell"><span class="q-number">96</span><span class="q-text">What does all() do?</span></td><td class="answer-cell"><code>all(iterable)</code> returns <code>True</code> when every item is truthy. It also returns <code>True</code> for an empty iterable.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">99</span><span class="q-text">What is the difference between parameters and arguments?</span></td><td class="answer-cell">Parameters are names declared in a function definition. Arguments are actual values supplied when the function is called.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">105</span><span class="q-text">What does *args mean?</span></td><td class="answer-cell"><code>*args</code> collects extra positional arguments into a tuple.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">106</span><span class="q-text">What does **kwargs mean?</span></td><td class="answer-cell"><code>**kwargs</code> collects extra keyword arguments into a dictionary.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">112</span><span class="q-text">What does return do?</span></td><td class="answer-cell"><code>return</code> ends the function call and sends a value to the caller. If no value is supplied, the function returns <code>None</code>.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">113</span><span class="q-text">Can a Python function return multiple values?</span></td><td class="answer-cell">A function returns one object. Comma-separated values are packed into a tuple and can be unpacked by the caller.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">114</span><span class="q-text">What is recursion?</span></td><td class="answer-cell">Recursion occurs when a function calls itself directly or indirectly. It requires a base case to stop further calls.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">115</span><span class="q-text">What is the recursion limit?</span></td><td class="answer-cell">It limits nested Python calls and protects the interpreter from uncontrolled stack growth. It can be inspected with <code>sys.getrecursionlimit()</code>.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">116</span><span class="q-text">Does Python optimize tail recursion?</span></td><td class="answer-cell">No. Python does not perform tail-call optimization, so deep tail recursion can still raise <code>RecursionError</code>.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">117</span><span class="q-text">What is the LEGB scope rule?</span></td><td class="answer-cell">Python resolves names in Local, Enclosing, Global and Built-in scopes, in that order.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">118</span><span class="q-text">What is a closure?</span></td><td class="answer-cell">A closure is a nested function that remembers variables from its enclosing scope even after the enclosing function has finished.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">119</span><span class="q-text">What is a higher-order function?</span></td><td class="answer-cell">A higher-order function accepts another function, returns a function, or both.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">120</span><span class="q-text">Are functions first-class objects in Python?</span></td><td class="answer-cell">Yes. Functions can be assigned, stored, passed as arguments, returned and dynamically replaced.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">121</span><span class="q-text">What are type hints?</span></td><td class="answer-cell">Type hints are optional annotations that improve documentation, editor support and static analysis. They are not automatically enforced at runtime.</td></tr>
+<tr class="qa-row" data-topic="Functions"><td class="question-cell"><span class="q-number">122</span><span class="q-text">What is a docstring?</span></td><td class="answer-cell">A docstring is the first string inside a module, class, method or function and documents its behavior.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">123</span><span class="q-text">What is a list comprehension?</span></td><td class="answer-cell">A concise way to create a list by transforming and optionally filtering elements from an iterable.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">124</span><span class="q-text">What is a dictionary comprehension?</span></td><td class="answer-cell">A concise way to create key-value pairs, such as <code>{key: value for item in iterable}</code>.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">125</span><span class="q-text">What is a set comprehension?</span></td><td class="answer-cell">A concise way to create a set. Duplicate generated values are automatically removed.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">126</span><span class="q-text">Is there a tuple comprehension?</span></td><td class="answer-cell">No. Parentheses around a comprehension create a generator expression. Use <code>tuple(...)</code> to materialize a tuple.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">127</span><span class="q-text">What is an iterable?</span></td><td class="answer-cell">An iterable is an object that can produce an iterator, such as a list, tuple, string, dictionary, file or generator.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">128</span><span class="q-text">What is an iterator?</span></td><td class="answer-cell">An iterator maintains traversal state and implements <code>__iter__()</code> and <code>__next__()</code>.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">129</span><span class="q-text">What happens when an iterator is exhausted?</span></td><td class="answer-cell"><code>next()</code> raises <code>StopIteration</code>. Most iterators are single-use.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">130</span><span class="q-text">What is a generator?</span></td><td class="answer-cell">A generator is a special iterator created by a function containing <code>yield</code> or by a generator expression. It produces values lazily.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">131</span><span class="q-text">What is the difference between return and yield?</span></td><td class="answer-cell"><code>return</code> ends a function. <code>yield</code> pauses a generator, emits a value and preserves local state for later resumption.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">132</span><span class="q-text">Why are generators useful in data engineering?</span></td><td class="answer-cell">They support memory-efficient processing of large files, API pages, database cursors and streaming records without loading everything into RAM.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">133</span><span class="q-text">What is lazy evaluation?</span></td><td class="answer-cell">Lazy evaluation delays computation until a value is requested.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">134</span><span class="q-text">What does yield from do?</span></td><td class="answer-cell"><code>yield from</code> delegates iteration to another iterable or generator.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">135</span><span class="q-text">What is a generator expression?</span></td><td class="answer-cell">A lazy expression such as <code>(x * x for x in values)</code>. Unlike a list comprehension, it does not immediately store all results.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">136</span><span class="q-text">What is the main limitation of an iterator?</span></td><td class="answer-cell">It is usually forward-only, single-use and does not support indexing or direct length operations.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">137</span><span class="q-text">What does iter() do?</span></td><td class="answer-cell"><code>iter()</code> obtains an iterator from an iterable. It can also create a callable/sentinel iterator.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">138</span><span class="q-text">What does next() do?</span></td><td class="answer-cell"><code>next()</code> retrieves the next iterator item. It may accept a default value to avoid <code>StopIteration</code>.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">139</span><span class="q-text">What is itertools?</span></td><td class="answer-cell"><code>itertools</code> provides memory-efficient iterator tools such as <code>chain</code>, <code>islice</code>, <code>product</code> and <code>groupby</code>.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">140</span><span class="q-text">What does itertools.islice() do?</span></td><td class="answer-cell">It lazily selects a slice from an iterator without materializing the complete sequence.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">141</span><span class="q-text">What does itertools.chain() do?</span></td><td class="answer-cell">It lazily treats multiple iterables as one continuous sequence.</td></tr>
+<tr class="qa-row" data-topic="Generators &amp; Iterators"><td class="question-cell"><span class="q-number">142</span><span class="q-text">What is the difference between a comprehension and map()?</span></td><td class="answer-cell">Both transform iterables. Comprehensions are often more readable and support inline filtering. <code>map()</code> is lazy and convenient with existing functions.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">143</span><span class="q-text">What is object-oriented programming?</span></td><td class="answer-cell">OOP organizes software around objects that combine state and behavior. Its main ideas are encapsulation, abstraction, inheritance and polymorphism.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">144</span><span class="q-text">What is a class?</span></td><td class="answer-cell">A class is a blueprint that defines attributes and methods shared by its instances.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">145</span><span class="q-text">What is an instance?</span></td><td class="answer-cell">An instance is a concrete object created from a class.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">146</span><span class="q-text">What is self?</span></td><td class="answer-cell"><code>self</code> refers to the current instance inside an instance method.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">147</span><span class="q-text">What is __init__()?</span></td><td class="answer-cell"><code>__init__()</code> initializes an object after it has been created.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">148</span><span class="q-text">What is __new__()?</span></td><td class="answer-cell"><code>__new__()</code> creates and returns a new instance before <code>__init__()</code> runs.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">149</span><span class="q-text">What is encapsulation?</span></td><td class="answer-cell">Encapsulation groups state and behavior inside a class and controls interaction with internal details.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">150</span><span class="q-text">Does Python support private members?</span></td><td class="answer-cell">Python uses conventions rather than strict privacy. A single underscore indicates internal use; double underscores trigger name mangling.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">151</span><span class="q-text">What is name mangling?</span></td><td class="answer-cell">A name such as <code>__value</code> is internally changed to include the class name, reducing accidental access or overriding.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">152</span><span class="q-text">What is abstraction?</span></td><td class="answer-cell">Abstraction exposes essential behavior while hiding implementation details. Abstract base classes can define required interfaces.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">153</span><span class="q-text">What is inheritance?</span></td><td class="answer-cell">Inheritance allows a subclass to reuse, extend or override behavior from a parent class.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">154</span><span class="q-text">What is multiple inheritance?</span></td><td class="answer-cell">Multiple inheritance allows a class to inherit from more than one parent. Python resolves lookup using the method resolution order.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">155</span><span class="q-text">What is polymorphism?</span></td><td class="answer-cell">Polymorphism allows different object types to support the same interface while implementing it differently.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">156</span><span class="q-text">What is method overriding?</span></td><td class="answer-cell">A subclass supplies its own implementation of a method inherited from a parent.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">157</span><span class="q-text">Does Python support method overloading?</span></td><td class="answer-cell">Not traditional signature-based overloading. Similar behavior can be implemented with default arguments, <code>*args</code>, <code>singledispatch</code> or type inspection.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">158</span><span class="q-text">What does super() do?</span></td><td class="answer-cell"><code>super()</code> calls the next implementation in the method resolution order and supports cooperative inheritance.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">159</span><span class="q-text">What is the method resolution order?</span></td><td class="answer-cell">MRO is the sequence Python follows when searching classes for a method or attribute. Python uses C3 linearization.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">160</span><span class="q-text">What is an instance method?</span></td><td class="answer-cell">An instance method receives <code>self</code> and works with object state.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">161</span><span class="q-text">What is a class method?</span></td><td class="answer-cell">A class method uses <code>@classmethod</code>, receives <code>cls</code> and is often used for alternative constructors.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">162</span><span class="q-text">What is a static method?</span></td><td class="answer-cell">A static method uses <code>@staticmethod</code> and receives neither the instance nor class automatically.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">163</span><span class="q-text">What is a property?</span></td><td class="answer-cell">A property exposes controlled method logic through attribute syntax using <code>@property</code> and optional setters.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">164</span><span class="q-text">What is composition?</span></td><td class="answer-cell">Composition builds an object using other objects and models a has-a relationship.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">165</span><span class="q-text">What is the difference between composition and inheritance?</span></td><td class="answer-cell">Inheritance models an is-a relationship and creates tighter coupling. Composition models a has-a relationship and is generally more flexible.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">166</span><span class="q-text">What is an abstract base class?</span></td><td class="answer-cell">An abstract base class defines a common interface and may require subclasses to implement methods marked with <code>@abstractmethod</code>.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">167</span><span class="q-text">What is a dataclass?</span></td><td class="answer-cell">A dataclass automatically generates common methods such as <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code> from declared fields.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">168</span><span class="q-text">What are magic or dunder methods?</span></td><td class="answer-cell">Special methods such as <code>__len__</code>, <code>__iter__</code> and <code>__add__</code> integrate custom objects with Python syntax and built-ins.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">169</span><span class="q-text">What is the difference between __str__() and __repr__()?</span></td><td class="answer-cell"><code>__str__()</code> is user-friendly. <code>__repr__()</code> is developer-oriented and ideally unambiguous.</td></tr>
+<tr class="qa-row" data-topic="OOP"><td class="question-cell"><span class="q-number">170</span><span class="q-text">What does __slots__ do?</span></td><td class="answer-cell"><code>__slots__</code> declares permitted instance attributes and can reduce per-instance memory usage.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">171</span><span class="q-text">What is assignment copying?</span></td><td class="answer-cell">Assignment creates another reference to the same object; it does not copy the object.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">172</span><span class="q-text">What is a shallow copy?</span></td><td class="answer-cell">A shallow copy creates a new outer container but shares references to nested objects.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">173</span><span class="q-text">What is a deep copy?</span></td><td class="answer-cell">A deep copy recursively creates independent copies of nested objects where possible.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">174</span><span class="q-text">How is a shallow copy created?</span></td><td class="answer-cell">Use <code>copy.copy()</code>, list slicing, <code>list.copy()</code> or <code>dict.copy()</code>.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">175</span><span class="q-text">How is a deep copy created?</span></td><td class="answer-cell">Use <code>copy.deepcopy()</code>.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">176</span><span class="q-text">When can deep copying be problematic?</span></td><td class="answer-cell">It may be expensive, duplicate unnecessary data and behave poorly with files, locks, sockets or database connections.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">177</span><span class="q-text">How does Python manage memory?</span></td><td class="answer-cell">CPython uses a private heap, reference counting, cyclic garbage collection and specialized allocators.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">178</span><span class="q-text">What is reference counting?</span></td><td class="answer-cell">CPython tracks how many references point to each object and normally deallocates it when the count reaches zero.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">179</span><span class="q-text">What is garbage collection?</span></td><td class="answer-cell">Garbage collection removes unreachable objects, especially reference cycles that reference counting cannot reclaim.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">180</span><span class="q-text">What is a reference cycle?</span></td><td class="answer-cell">A cycle occurs when objects reference one another and remain above a zero reference count even when unreachable.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">181</span><span class="q-text">What is the gc module?</span></td><td class="answer-cell">The <code>gc</code> module allows inspection and control of Python's cyclic garbage collector.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">182</span><span class="q-text">What is interning or object caching?</span></td><td class="answer-cell">Python may reuse selected immutable objects, such as small integers or some strings, as an optimization.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">183</span><span class="q-text">What is a weak reference?</span></td><td class="answer-cell">A weak reference points to an object without preventing it from being garbage-collected.</td></tr>
+<tr class="qa-row" data-topic="Memory"><td class="question-cell"><span class="q-number">184</span><span class="q-text">What is a memory leak in Python?</span></td><td class="answer-cell">A memory leak occurs when objects remain reachable unnecessarily, caches grow without limits or native resources are not released.</td></tr>
+<tr class="qa-row" data-topic="Exceptions"><td class="question-cell"><span class="q-number">189</span><span class="q-text">What is the purpose of finally?</span></td><td class="answer-cell">A <code>finally</code> block runs whether the <code>try</code> block succeeds, fails or returns. It is used for reliable cleanup.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">200</span><span class="q-text">What is a decorator?</span></td><td class="answer-cell">A decorator is a callable that wraps or modifies another function or class without changing its original source directly.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">201</span><span class="q-text">What are common decorator use cases?</span></td><td class="answer-cell">Logging, timing, retries, caching, authentication, validation, rate limiting, transactions and metrics.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">202</span><span class="q-text">What does @decorator syntax mean?</span></td><td class="answer-cell"><code>@decorator</code> is approximately equivalent to <code>function = decorator(function)</code>.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">203</span><span class="q-text">Why is functools.wraps used?</span></td><td class="answer-cell"><code>functools.wraps</code> preserves the original function's name, docstring, annotations and metadata.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">204</span><span class="q-text">Can decorators accept arguments?</span></td><td class="answer-cell">Yes. A parameterized decorator normally has a decorator factory, decorator and wrapper function.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">205</span><span class="q-text">What is a context manager?</span></td><td class="answer-cell">A context manager performs setup and cleanup around a block of code.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">206</span><span class="q-text">What is the with statement?</span></td><td class="answer-cell">The <code>with</code> statement enters a context manager and guarantees its exit logic runs afterward.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">207</span><span class="q-text">Which methods implement a class-based context manager?</span></td><td class="answer-cell"><code>__enter__()</code> performs setup and <code>__exit__()</code> performs cleanup.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">208</span><span class="q-text">What does contextlib.contextmanager do?</span></td><td class="answer-cell">It converts a generator function into a context manager. Code before <code>yield</code> performs setup; code after it performs cleanup.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">209</span><span class="q-text">What are common examples of context managers?</span></td><td class="answer-cell">Files, database transactions, locks, temporary directories, redirected output and execution timers.</td></tr>
+<tr class="qa-row" data-topic="Decorators"><td class="question-cell"><span class="q-number">210</span><span class="q-text">Can a context manager suppress an exception?</span></td><td class="answer-cell">Yes. Returning <code>True</code> from <code>__exit__()</code> indicates that the exception was handled.</td></tr>
+<tr class="qa-row" data-topic="Modules"><td class="question-cell"><span class="q-number">213</span><span class="q-text">What is __init__.py?</span></td><td class="answer-cell"><code>__init__.py</code> identifies and initializes a traditional Python package and can expose package-level objects.</td></tr>
+<tr class="qa-row" data-topic="Modules"><td class="question-cell"><span class="q-number">216</span><span class="q-text">What is the purpose of if __name__ == '__main__'?</span></td><td class="answer-cell">It runs a block only when the file is executed directly, not when imported.</td></tr>
+<tr class="qa-row" data-topic="Modules"><td class="question-cell"><span class="q-number">228</span><span class="q-text">What is pyproject.toml?</span></td><td class="answer-cell"><code>pyproject.toml</code> is a standardized project configuration file for builds, metadata, dependencies and development tools.</td></tr>
+<tr class="qa-row" data-topic="Files"><td class="question-cell"><span class="q-number">237</span><span class="q-text">What do seek() and tell() do?</span></td><td class="answer-cell"><code>tell()</code> returns the current file position. <code>seek()</code> moves the file pointer.</td></tr>
+<tr class="qa-row" data-topic="Files"><td class="question-cell"><span class="q-number">239</span><span class="q-text">What is serialization?</span></td><td class="answer-cell">Serialization converts an in-memory object into a format suitable for storage or transmission.</td></tr>
+<tr class="qa-row" data-topic="Files"><td class="question-cell"><span class="q-number">240</span><span class="q-text">What is deserialization?</span></td><td class="answer-cell">Deserialization reconstructs usable data or objects from a serialized representation.</td></tr>
+<tr class="qa-row" data-topic="Files"><td class="question-cell"><span class="q-number">243</span><span class="q-text">What is the difference between json.load() and json.loads()?</span></td><td class="answer-cell"><code>json.load()</code> reads JSON from a file-like object. <code>json.loads()</code> parses JSON from a string or bytes.</td></tr>
+<tr class="qa-row" data-topic="Files"><td class="question-cell"><span class="q-number">244</span><span class="q-text">What is the difference between json.dump() and json.dumps()?</span></td><td class="answer-cell"><code>json.dump()</code> writes JSON to a file-like object. <code>json.dumps()</code> returns a JSON string.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">263</span><span class="q-text">What is concurrency?</span></td><td class="answer-cell">Concurrency means multiple tasks make progress during overlapping periods, even if they are not executing simultaneously.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">264</span><span class="q-text">What is parallelism?</span></td><td class="answer-cell">Parallelism means multiple tasks execute physically at the same time.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">265</span><span class="q-text">What is a thread?</span></td><td class="answer-cell">A thread is a lightweight execution unit inside a process. Threads share process memory.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">266</span><span class="q-text">What is a process?</span></td><td class="answer-cell">A process is an independent running program with its own memory and operating-system resources.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">267</span><span class="q-text">What is the Global Interpreter Lock?</span></td><td class="answer-cell">In standard CPython, the GIL allows only one thread at a time to execute Python bytecode within a process.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">268</span><span class="q-text">Does the GIL make threading useless?</span></td><td class="answer-cell">No. Threads remain useful for I/O-bound tasks because they can release the GIL while waiting.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">269</span><span class="q-text">When should multithreading be used?</span></td><td class="answer-cell">Primarily for I/O-bound work such as API requests, database calls and concurrent file operations.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">270</span><span class="q-text">When should multiprocessing be used?</span></td><td class="answer-cell">For CPU-bound work that can be divided into independent tasks and benefits from multiple cores.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">271</span><span class="q-text">What is ThreadPoolExecutor?</span></td><td class="answer-cell">It manages a reusable pool of worker threads and returns <code>Future</code> objects for submitted tasks.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">272</span><span class="q-text">What is ProcessPoolExecutor?</span></td><td class="answer-cell">It manages worker processes for parallel execution. Functions and data generally must be picklable.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">273</span><span class="q-text">What is a race condition?</span></td><td class="answer-cell">A race condition occurs when the result depends on unpredictable timing of concurrent access to shared state.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">274</span><span class="q-text">What is a lock?</span></td><td class="answer-cell">A lock allows only one task at a time to enter a protected critical section.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">275</span><span class="q-text">What is a deadlock?</span></td><td class="answer-cell">A deadlock occurs when tasks wait indefinitely for resources held by one another.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">276</span><span class="q-text">What is thread safety?</span></td><td class="answer-cell">Thread-safe code behaves correctly when multiple threads use it concurrently.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">277</span><span class="q-text">What is a semaphore?</span></td><td class="answer-cell">A semaphore limits how many concurrent tasks may access a resource.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">278</span><span class="q-text">What is a queue used for in concurrent programs?</span></td><td class="answer-cell">A queue safely transfers work between producers and consumers and reduces direct shared-state access.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">279</span><span class="q-text">What is asynchronous programming?</span></td><td class="answer-cell">Asynchronous programming allows waiting tasks to pause so other tasks can run.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">280</span><span class="q-text">What is asyncio?</span></td><td class="answer-cell"><code>asyncio</code> is Python's event-loop framework for asynchronous I/O.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">281</span><span class="q-text">What is a coroutine?</span></td><td class="answer-cell">A coroutine is declared with <code>async def</code> and can pause at <code>await</code>.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">282</span><span class="q-text">What does await do?</span></td><td class="answer-cell"><code>await</code> suspends the current coroutine until an awaitable completes.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">283</span><span class="q-text">What is the event loop?</span></td><td class="answer-cell">The event loop schedules coroutines, handles I/O readiness and resumes tasks.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">284</span><span class="q-text">Can blocking code be called directly inside async code?</span></td><td class="answer-cell">It can, but it blocks the event loop. Use async libraries or move blocking work to an executor.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">285</span><span class="q-text">What is the difference between threads and AsyncIO?</span></td><td class="answer-cell">Threads use operating-system scheduling and shared memory. AsyncIO uses cooperative scheduling where tasks yield control at <code>await</code>.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">286</span><span class="q-text">What is the producer-consumer pattern?</span></td><td class="answer-cell">Producers create work and put it into a queue; consumers retrieve and process it.</td></tr>
+<tr class="qa-row" data-topic="Concurrency"><td class="question-cell"><span class="q-number">287</span><span class="q-text">What is backpressure?</span></td><td class="answer-cell">Backpressure slows producers when consumers cannot keep up, preventing unbounded memory growth and overload.</td></tr>
+<tr class="qa-row" data-topic="Performance"><td class="question-cell"><span class="q-number">305</span><span class="q-text">What is profiling?</span></td><td class="answer-cell">Profiling measures where a program spends CPU time, memory or function calls so optimization targets real bottlenecks.</td></tr>
+<tr class="qa-row" data-topic="Performance"><td class="question-cell"><span class="q-number">309</span><span class="q-text">What is memoization?</span></td><td class="answer-cell">Memoization caches function results by input arguments to avoid repeated calculations.</td></tr>
+<tr class="qa-row" data-topic="Tricky"><td class="question-cell"><span class="q-number">371</span><span class="q-text">What happens when a function has no return statement?</span></td><td class="answer-cell">It automatically returns <code>None</code>.</td></tr>
+<tr class="qa-row" data-topic="Tricky"><td class="question-cell"><span class="q-number">372</span><span class="q-text">Why does list.sort() return None?</span></td><td class="answer-cell">It modifies the original list in place. Returning <code>None</code> makes the mutation explicit and discourages confusing chained expressions.</td></tr>
+        </tbody>
+      </table>
+      <div class="empty-state" id="questionEmpty">No matching questions found.</div>
+    </section>
+
+    <section class="table-card" id="differences">
+      <h2 class="section-title">Important difference questions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Comparison</th>
+            <th>Difference</th>
+          </tr>
+        </thead>
+        <tbody id="differenceBody">
+          <tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">List versus tuple?</span></td><td class="answer-cell">A list is mutable and suits changing collections. A tuple is immutable and suits fixed records or hashable compound keys.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Set versus list?</span></td><td class="answer-cell">A set stores unique hashable values and provides fast average membership testing. A list preserves position and duplicates.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Dictionary versus set?</span></td><td class="answer-cell">A dictionary stores key-value mappings. A set stores only unique values.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Shallow copy versus deep copy?</span></td><td class="answer-cell">A shallow copy duplicates the outer container but shares nested objects. A deep copy recursively duplicates nested objects.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">is versus ==?</span></td><td class="answer-cell"><code>is</code> compares object identity. <code>==</code> compares value equality.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">append() versus extend()?</span></td><td class="answer-cell"><code>append()</code> adds one object. <code>extend()</code> adds each item from another iterable.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">remove() versus pop()?</span></td><td class="answer-cell"><code>remove()</code> deletes by value. <code>pop()</code> removes and returns by index.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">sort() versus sorted()?</span></td><td class="answer-cell"><code>sort()</code> modifies a list. <code>sorted()</code> returns a new list.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">find() versus index()?</span></td><td class="answer-cell"><code>find()</code> returns -1 when absent. <code>index()</code> raises <code>ValueError</code>.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">break versus continue?</span></td><td class="answer-cell"><code>break</code> exits the loop. <code>continue</code> skips the rest of the current iteration.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">return versus yield?</span></td><td class="answer-cell"><code>return</code> ends a function. <code>yield</code> pauses a generator and preserves state.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Iterable versus iterator?</span></td><td class="answer-cell">An iterable can produce an iterator. An iterator stores traversal state and emits one item at a time.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Generator versus list?</span></td><td class="answer-cell">A generator is lazy and memory-efficient but generally single-use. A list stores all values and supports indexing.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Function versus lambda?</span></td><td class="answer-cell">A normal function supports multiple statements and documentation. A lambda is limited to one expression.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Instance method versus class method?</span></td><td class="answer-cell">An instance method receives <code>self</code>. A class method receives <code>cls</code>.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Class method versus static method?</span></td><td class="answer-cell">A class method receives the class automatically. A static method receives neither class nor instance.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">__str__() versus __repr__()?</span></td><td class="answer-cell"><code>__str__()</code> is user-friendly. <code>__repr__()</code> is developer-oriented.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Inheritance versus composition?</span></td><td class="answer-cell">Inheritance models an is-a relationship. Composition models a has-a relationship and is usually more flexible.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Multithreading versus multiprocessing?</span></td><td class="answer-cell">Threads share memory and suit I/O-bound work. Processes have separate memory and suit CPU-bound parallel work.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Synchronous versus asynchronous?</span></td><td class="answer-cell">Synchronous code waits for each operation. Asynchronous code can suspend waiting tasks and continue other work.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">JSON versus Pickle?</span></td><td class="answer-cell">JSON is language-independent and safer for exchange. Pickle is Python-specific and unsafe for untrusted input.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">read() versus file iteration?</span></td><td class="answer-cell"><code>read()</code> may load the full file. File iteration processes one line at a time.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">EAFP versus LBYL?</span></td><td class="answer-cell">EAFP attempts the operation and handles exceptions. LBYL checks conditions first.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">@property versus getter?</span></td><td class="answer-cell">A property uses attribute syntax. A getter requires explicit method-call syntax.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Full load versus incremental load?</span></td><td class="answer-cell">A full load processes all source data. An incremental load processes only new or changed data.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">ETL versus ELT?</span></td><td class="answer-cell">ETL transforms before loading. ELT loads first and transforms in the target platform.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Batch versus streaming?</span></td><td class="answer-cell">Batch handles bounded groups periodically. Streaming continuously handles incoming events.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">At-most-once versus at-least-once?</span></td><td class="answer-cell">At-most-once may lose messages but avoids duplicates. At-least-once avoids loss but may create duplicates.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Retry versus replay?</span></td><td class="answer-cell">A retry repeats a failed operation. A replay reprocesses historical stored data or events.</td></tr>
+<tr class="qa-row" data-topic="Differences"><td class="question-cell"><span class="q-text">Logging versus printing?</span></td><td class="answer-cell">Logging supports levels, timestamps, destinations and monitoring. Printing is mainly for simple output or temporary debugging.</td></tr>
+        </tbody>
+      </table>
+      <div class="empty-state" id="differenceEmpty">No matching differences found.</div>
+    </section>
+
+    <p class="footer">Designed for desktop and mobile interview revision.</p>
+  </main>
+
+  <button class="back-top" id="backTop" type="button" aria-label="Back to top">↑</button>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const clearButton = document.getElementById("clearButton");
+    const chips = [...document.querySelectorAll(".filter-chip")];
+    const rows = [...document.querySelectorAll(".qa-row")];
+    const resultCount = document.getElementById("resultCount");
+    const questionEmpty = document.getElementById("questionEmpty");
+    const differenceEmpty = document.getElementById("differenceEmpty");
+    const backTop = document.getElementById("backTop");
+    const hero = document.querySelector(".hero");
+    const mobileView = window.matchMedia("(max-width: 780px)");
+
+    let activeTopic = "All";
+
+    function normalize(value) {
+      return value.toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    function applyFilters() {
+      const query = normalize(searchInput.value);
+      let visibleCount = 0;
+      let questionVisible = 0;
+      let differenceVisible = 0;
+
+      rows.forEach((row) => {
+        const topic = row.dataset.topic;
+        const text = normalize(row.textContent);
+        const topicMatches = activeTopic === "All" || topic === activeTopic;
+        const searchMatches = query === "" || text.includes(query);
+        const visible = topicMatches && searchMatches;
+
+        row.classList.toggle("hidden", !visible);
+
+        if (visible) {
+          visibleCount += 1;
+          if (topic === "Differences") differenceVisible += 1;
+          else questionVisible += 1;
+        }
+      });
+
+      questionEmpty.style.display = questionVisible === 0 ? "block" : "none";
+      differenceEmpty.style.display = differenceVisible === 0 ? "block" : "none";
+
+      const topicText = activeTopic === "All" ? "all topics" : activeTopic;
+      resultCount.textContent =
+        `Showing ${visibleCount} result${visibleCount === 1 ? "" : "s"} in ${topicText}`;
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        activeTopic = chip.dataset.filter;
+        chips.forEach((item) => item.classList.toggle("active", item === chip));
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+
+    clearButton.addEventListener("click", () => {
+      searchInput.value = "";
+      activeTopic = "All";
+      chips.forEach((chip) => {
+        chip.classList.toggle("active", chip.dataset.filter === "All");
+      });
+      applyFilters();
+      searchInput.focus();
+    });
+
+    function updateScrollUI() {
+      const scrollPosition = window.scrollY;
+
+      backTop.style.display = scrollPosition > 500 ? "block" : "none";
+
+      if (mobileView.matches && scrollPosition > 80) {
+        hero.classList.add("hero-hidden");
+      } else {
+        hero.classList.remove("hero-hidden");
+      }
+    }
+
+    window.addEventListener("scroll", updateScrollUI, { passive: true });
+    mobileView.addEventListener?.("change", updateScrollUI);
+
+    backTop.addEventListener("click", () => {
+      hero.classList.remove("hero-hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    applyFilters();
+    updateScrollUI();
+  </script>
+</body>
+</html>
