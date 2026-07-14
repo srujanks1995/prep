@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL vs PySpark Interview Questions</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #5b6475;
+      --border: #d9dfeb;
+      --sql: #0f766e;
+      --sql-soft: #dff7f3;
+      --spark: #c2410c;
+      --spark-soft: #fff0e8;
+      --python: #1d4ed8;
+      --python-soft: #e8f0ff;
+      --accent: #4338ca;
+      --accent-soft: #ecebff;
+      --code: #111827;
+      --code-text: #f8fafc;
+      --note: #fef3c7;
+      --shadow: 0 8px 24px rgba(23, 32, 51, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      background: linear-gradient(135deg, #312e81, #4338ca 55%, #6d28d9);
+      color: #fff;
+      padding: 34px 20px 28px;
+    }
+
+    .header-wrap,
+    main,
+    .index-wrap {
+      width: min(1450px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.15;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      max-width: 850px;
+      color: #e0e7ff;
+      font-size: 1rem;
+    }
+
+    .controls {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .index-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #search {
+      flex: 1 1 320px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    #search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    main {
+      padding: 24px 0 70px;
+    }
+
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .toc h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    .toc-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .toc a {
+      text-decoration: none;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      overflow: hidden;
+      scroll-margin-top: 18px;
+    }
+
+    .question-title {
+      padding: 15px 18px;
+      background: linear-gradient(90deg, #eef2ff, #f5f3ff);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .question-number {
+      background: var(--accent);
+      color: #fff;
+      min-width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .question-title h2 {
+      margin: 0;
+      font-size: 1.18rem;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .panel {
+      min-width: 0;
+      padding: 0 16px 18px;
+    }
+
+    .panel + .panel {
+      border-left: 1px solid var(--border);
+    }
+
+    .panel-head {
+      margin: 0 -16px 14px;
+      padding: 11px 16px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .sql-head {
+      background: var(--sql-soft);
+      color: var(--sql);
+    }
+
+    .spark-head {
+      background: var(--spark-soft);
+      color: var(--spark);
+    }
+
+    .python-head {
+      background: var(--python-soft);
+      color: var(--python);
+    }
+
+    pre {
+      margin: 0;
+      background: var(--code);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      tab-size: 4;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .note {
+      margin-top: 12px;
+      background: var(--note);
+      border-left: 4px solid #d97706;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #78350f;
+      font-size: 0.93rem;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.92rem;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      border: 1px solid var(--border);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .mini-table th {
+      background: #f8fafc;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .top-link {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      text-decoration: none;
+      font-size: 1.35rem;
+      box-shadow: var(--shadow);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 0 20px 30px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 980px) {
+      .toc-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel + .panel {
+        border-left: 0;
+        border-top: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 24px 14px 20px;
+      }
+
+      .header-wrap,
+      main,
+      .index-wrap {
+        width: min(100% - 16px, 1450px);
+      }
+
+      main {
+        padding-top: 14px;
+      }
+
+      .toc-links {
+        grid-template-columns: 1fr;
+      }
+
+      .question-title {
+        align-items: flex-start;
+      }
+
+      .question-title h2 {
+        font-size: 1rem;
+      }
+
+      .panel {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .panel-head {
+        margin-left: -10px;
+        margin-right: -10px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      pre {
+        font-size: 0.79rem;
+        padding: 11px;
+      }
+
+      .filter-btn {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header>
+    <div class="header-wrap">
+      <h1>SQL vs PySpark Interview Questions</h1>
+      <p>
+        Side-by-side solutions for common Data Engineering interview patterns.
+        PostgreSQL syntax is used for SQL, with equivalent PySpark DataFrame code.
+      </p>
+    </div>
+  </header>
+
+  <section class="controls">
+    <div class="index-wrap">
+      <input id="search" type="search" placeholder="Search questions, SQL, PySpark, window functions..." />
+      <button class="filter-btn active" data-filter="all">Show Both</button>
+      <button class="filter-btn" data-filter="sql">SQL Only</button>
+      <button class="filter-btn" data-filter="spark">PySpark Only</button>
+      <button class="filter-btn" data-filter="python">Python Only</button>
+    </div>
+  </section>
+
+  <main>
+    <nav class="toc">
+      <h2>Question Index</h2>
+      <div class="toc-links">
+        <a href="#q1">1. Employee vs Manager Salary</a>
+        <a href="#q2">2. Customers Without Orders</a>
+        <a href="#q3">3. Second-Highest Salary</a>
+        <a href="#q4">4. Top N per Department</a>
+        <a href="#q5">5. Remove Duplicates</a>
+        <a href="#q6">6. Running Total</a>
+        <a href="#q7">7. Consecutive Dates</a>
+        <a href="#q8">8. Monthly Revenue</a>
+        <a href="#q9">9. First & Latest Transaction</a>
+        <a href="#q10">10. Duplicate Business Keys</a>
+        <a href="#q11">11. NOT EXISTS vs Anti Join</a>
+        <a href="#q12">12. January Spend &gt; 10,000</a>
+        <a href="#q13">13. Character Frequency</a>
+        <a href="#q14">14. Palindrome Check</a>
+        <a href="#q15">15. Abstract Product Class</a>
+      </div>
+    </nav>
+
+    <section class="question-card" id="q1" data-search="employees earning more than managers self join salary">
+      <div class="question-title"><span class="question-number">1</span><h2>Employees Earning More Than Their Managers</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    e.employee_id,
+    e.employee_name,
+    e.salary AS employee_salary,
+    m.employee_name AS manager_name,
+    m.salary AS manager_salary
+FROM employees e
+JOIN employees m
+    ON e.manager_id = m.employee_id
+WHERE e.salary &gt; m.salary;</code></pre>
+          <div class="note">Pattern: self-join the employees table—once as employee and once as manager.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>from pyspark.sql import functions as F
+
+e = employees_df.alias("e")
+m = employees_df.alias("m")
+
+result_df = (
+    e.join(
+        m,
+        F.col("e.manager_id") == F.col("m.employee_id"),
+        "inner"
+    )
+    .filter(F.col("e.salary") &gt; F.col("m.salary"))
+    .select(
+        F.col("e.employee_id"),
+        F.col("e.employee_name"),
+        F.col("e.salary").alias("employee_salary"),
+        F.col("m.employee_name").alias("manager_name"),
+        F.col("m.salary").alias("manager_salary")
+    )
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q2" data-search="customers without orders not exists left anti join">
+      <div class="question-title"><span class="question-number">2</span><h2>Customers Without Orders</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    c.customer_id,
+    c.customer_name
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+);</code></pre>
+          <div class="note"><code>NOT EXISTS</code> is preferred because it handles right-side NULL values safely.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>result_df = customers_df.join(
+    orders_df.select("customer_id").distinct(),
+    on="customer_id",
+    how="left_anti"
+)</code></pre>
+          <div class="note"><code>left_anti</code> returns left-side rows that have no match on the right.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q3" data-search="second highest salary dense rank distinct salary">
+      <div class="question-title"><span class="question-number">3</span><h2>Second-Highest Salary</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>WITH ranked AS (
+    SELECT
+        employee_id,
+        employee_name,
+        salary,
+        DENSE_RANK() OVER (
+            ORDER BY salary DESC
+        ) AS salary_rank
+    FROM employees
+    WHERE salary IS NOT NULL
+)
+SELECT
+    employee_id,
+    employee_name,
+    salary
+FROM ranked
+WHERE salary_rank = 2;</code></pre>
+          <div class="note">Use <code>DENSE_RANK()</code> when multiple employees may share the same salary.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+salary_window = Window.orderBy(
+    F.col("salary").desc()
+)
+
+result_df = (
+    employees_df
+    .filter(F.col("salary").isNotNull())
+    .withColumn(
+        "salary_rank",
+        F.dense_rank().over(salary_window)
+    )
+    .filter(F.col("salary_rank") == 2)
+    .drop("salary_rank")
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q4" data-search="top n employees per department row number rank dense rank">
+      <div class="question-title"><span class="question-number">4</span><h2>Top N Employees per Department</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>WITH ranked AS (
+    SELECT
+        employee_id,
+        employee_name,
+        department,
+        salary,
+        ROW_NUMBER() OVER (
+            PARTITION BY department
+            ORDER BY salary DESC, employee_id
+        ) AS row_num
+    FROM employees
+)
+SELECT
+    employee_id,
+    employee_name,
+    department,
+    salary
+FROM ranked
+WHERE row_num &lt;= 3;</code></pre>
+          <div class="note"><code>ROW_NUMBER()</code> returns exactly N rows. Use <code>DENSE_RANK()</code> to include ties.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>department_window = (
+    Window
+    .partitionBy("department")
+    .orderBy(
+        F.col("salary").desc(),
+        F.col("employee_id")
+    )
+)
+
+result_df = (
+    employees_df
+    .withColumn(
+        "row_num",
+        F.row_number().over(department_window)
+    )
+    .filter(F.col("row_num") &lt;= 3)
+    .drop("row_num")
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q5" data-search="remove duplicates latest record per key dedup row number dropduplicates">
+      <div class="question-title"><span class="question-number">5</span><h2>Remove Duplicate Records — Keep the Latest</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>WITH ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY transaction_id
+            ORDER BY
+                updated_at DESC,
+                ingestion_time DESC
+        ) AS row_num
+    FROM transactions
+)
+SELECT *
+FROM ranked
+WHERE row_num = 1;</code></pre>
+          <div class="note">Use deterministic ordering when multiple versions have the same business key.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>dedup_window = (
+    Window
+    .partitionBy("transaction_id")
+    .orderBy(
+        F.col("updated_at").desc(),
+        F.col("ingestion_time").desc()
+    )
+)
+
+result_df = (
+    transactions_df
+    .withColumn(
+        "row_num",
+        F.row_number().over(dedup_window)
+    )
+    .filter(F.col("row_num") == 1)
+    .drop("row_num")
+)</code></pre>
+          <div class="note">Do not use only <code>dropDuplicates(["transaction_id"])</code> when the latest row must be preserved.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q6" data-search="running total cumulative sum window rows unbounded preceding">
+      <div class="question-title"><span class="question-number">6</span><h2>Running Total</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    transaction_id,
+    customer_id,
+    transaction_date,
+    amount,
+    SUM(amount) OVER (
+        PARTITION BY customer_id
+        ORDER BY transaction_date, transaction_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+                 AND CURRENT ROW
+    ) AS running_total
+FROM transactions;</code></pre>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>running_window = (
+    Window
+    .partitionBy("customer_id")
+    .orderBy(
+        F.col("transaction_date"),
+        F.col("transaction_id")
+    )
+    .rowsBetween(
+        Window.unboundedPreceding,
+        Window.currentRow
+    )
+)
+
+result_df = transactions_df.withColumn(
+    "running_total",
+    F.sum("amount").over(running_window)
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q7" data-search="consecutive dates gaps and islands row number date_sub">
+      <div class="question-title"><span class="question-number">7</span><h2>Consecutive Dates — Gaps and Islands</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>WITH distinct_dates AS (
+    SELECT DISTINCT
+        customer_id,
+        activity_date
+    FROM customer_activity
+),
+numbered AS (
+    SELECT
+        customer_id,
+        activity_date,
+        ROW_NUMBER() OVER (
+            PARTITION BY customer_id
+            ORDER BY activity_date
+        ) AS row_num
+    FROM distinct_dates
+),
+grouped AS (
+    SELECT
+        customer_id,
+        activity_date,
+        activity_date - row_num::int AS date_group
+    FROM numbered
+)
+SELECT
+    customer_id,
+    MIN(activity_date) AS start_date,
+    MAX(activity_date) AS end_date,
+    COUNT(*) AS consecutive_days
+FROM grouped
+GROUP BY customer_id, date_group
+ORDER BY customer_id, start_date;</code></pre>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>date_window = (
+    Window
+    .partitionBy("customer_id")
+    .orderBy("activity_date")
+)
+
+numbered_df = (
+    activity_df
+    .select("customer_id", "activity_date")
+    .distinct()
+    .withColumn(
+        "row_num",
+        F.row_number().over(date_window)
+    )
+    .withColumn(
+        "date_group",
+        F.expr("date_sub(activity_date, row_num)")
+    )
+)
+
+result_df = (
+    numbered_df
+    .groupBy("customer_id", "date_group")
+    .agg(
+        F.min("activity_date").alias("start_date"),
+        F.max("activity_date").alias("end_date"),
+        F.count("*").alias("consecutive_days")
+    )
+    .drop("date_group")
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q8" data-search="monthly customer revenue date_trunc group by month">
+      <div class="question-title"><span class="question-number">8</span><h2>Monthly Customer Revenue</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    customer_id,
+    DATE_TRUNC('month', order_date)::date
+        AS revenue_month,
+    SUM(amount) AS monthly_revenue
+FROM orders
+GROUP BY
+    customer_id,
+    DATE_TRUNC('month', order_date)::date
+ORDER BY
+    customer_id,
+    revenue_month;</code></pre>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>result_df = (
+    orders_df
+    .withColumn(
+        "revenue_month",
+        F.to_date(
+            F.date_trunc("month", F.col("order_date"))
+        )
+    )
+    .groupBy(
+        "customer_id",
+        "revenue_month"
+    )
+    .agg(
+        F.sum("amount").alias("monthly_revenue")
+    )
+    .orderBy(
+        "customer_id",
+        "revenue_month"
+    )
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q9" data-search="first latest transaction row_number customer">
+      <div class="question-title"><span class="question-number">9</span><h2>First and Latest Transaction per Customer</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>WITH ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY customer_id
+            ORDER BY transaction_date, transaction_id
+        ) AS first_rank,
+        ROW_NUMBER() OVER (
+            PARTITION BY customer_id
+            ORDER BY
+                transaction_date DESC,
+                transaction_id DESC
+        ) AS latest_rank
+    FROM transactions
+)
+SELECT *
+FROM ranked
+WHERE first_rank = 1
+   OR latest_rank = 1
+ORDER BY customer_id, transaction_date;</code></pre>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>first_window = (
+    Window
+    .partitionBy("customer_id")
+    .orderBy(
+        F.col("transaction_date"),
+        F.col("transaction_id")
+    )
+)
+
+latest_window = (
+    Window
+    .partitionBy("customer_id")
+    .orderBy(
+        F.col("transaction_date").desc(),
+        F.col("transaction_id").desc()
+    )
+)
+
+result_df = (
+    transactions_df
+    .withColumn(
+        "first_rank",
+        F.row_number().over(first_window)
+    )
+    .withColumn(
+        "latest_rank",
+        F.row_number().over(latest_window)
+    )
+    .filter(
+        (F.col("first_rank") == 1)
+        | (F.col("latest_rank") == 1)
+    )
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q10" data-search="duplicate business keys group by having count full rows">
+      <div class="question-title"><span class="question-number">10</span><h2>Find Duplicate Business Keys</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    order_id,
+    COUNT(*) AS duplicate_count
+FROM orders
+GROUP BY order_id
+HAVING COUNT(*) &gt; 1;</code></pre>
+          <div class="note">For a composite key, include every key column in both <code>SELECT</code> and <code>GROUP BY</code>.</div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>duplicate_keys_df = (
+    orders_df
+    .groupBy("order_id")
+    .agg(
+        F.count("*").alias("duplicate_count")
+    )
+    .filter(F.col("duplicate_count") &gt; 1)
+)
+
+duplicate_rows_df = orders_df.join(
+    duplicate_keys_df.select("order_id"),
+    on="order_id",
+    how="inner"
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q11" data-search="not exists not in left anti null differences">
+      <div class="question-title"><span class="question-number">11</span><h2>NOT EXISTS vs NOT IN vs Left Anti Join</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>-- Preferred
+SELECT c.*
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+);
+
+-- Use carefully: NULL can cause unexpected results
+SELECT c.*
+FROM customers c
+WHERE c.customer_id NOT IN (
+    SELECT o.customer_id
+    FROM orders o
+    WHERE o.customer_id IS NOT NULL
+);</code></pre>
+          <table class="mini-table">
+            <tr><th>Method</th><th>NULL-safe?</th><th>Recommendation</th></tr>
+            <tr><td>NOT EXISTS</td><td>Yes</td><td>Preferred</td></tr>
+            <tr><td>NOT IN</td><td>No, unless NULLs removed</td><td>Use carefully</td></tr>
+            <tr><td>LEFT JOIN ... IS NULL</td><td>Yes</td><td>Valid alternative</td></tr>
+          </table>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>result_df = customers_df.join(
+    orders_df.select("customer_id").distinct(),
+    on="customer_id",
+    how="left_anti"
+)</code></pre>
+          <div class="note">In PySpark, <code>left_anti</code> is the direct equivalent of SQL anti-join logic.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q12" data-search="customers total january order amount greater than 10000 group by having sql pyspark">
+      <div class="question-title"><span class="question-number">12</span><h2>Find Customers Whose January Order Total Is Greater Than 10,000</h2></div>
+      <div class="compare-grid">
+        <article class="panel sql-panel">
+          <div class="panel-head sql-head">PostgreSQL</div>
+<pre><code>SELECT
+    c.customer_id,
+    c.customer_name,
+    SUM(o.amount) AS total_amount
+FROM customers c
+INNER JOIN orders o
+    ON c.customer_id = o.customer_id
+WHERE o.order_date &gt;= DATE '2026-01-01'
+  AND o.order_date &lt;  DATE '2026-02-01'
+GROUP BY
+    c.customer_id,
+    c.customer_name
+HAVING SUM(o.amount) &gt; 10000
+ORDER BY total_amount DESC;</code></pre>
+          <div class="note">
+            Use <code>WHERE</code> to filter individual January orders and
+            <code>HAVING</code> to filter the aggregated customer total.
+          </div>
+        </article>
+        <article class="panel spark-panel">
+          <div class="panel-head spark-head">PySpark</div>
+<pre><code>from pyspark.sql import functions as F
+
+result_df = (
+    customers_df.alias("c")
+    .join(
+        orders_df.alias("o"),
+        F.col("c.customer_id") == F.col("o.customer_id"),
+        "inner"
+    )
+    .filter(
+        (F.col("o.order_date") &gt;=
+         F.lit("2026-01-01").cast("date"))
+        &amp;
+        (F.col("o.order_date") &lt;
+         F.lit("2026-02-01").cast("date"))
+    )
+    .groupBy(
+        F.col("c.customer_id"),
+        F.col("c.customer_name")
+    )
+    .agg(
+        F.sum("o.amount").alias("total_amount")
+    )
+    .filter(F.col("total_amount") &gt; 10000)
+    .orderBy(F.col("total_amount").desc())
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q13" data-search="python string frequency every character first occurrence index dictionary enumerate">
+      <div class="question-title"><span class="question-number">13</span><h2>Character Frequency and First Occurrence Index</h2></div>
+      <div class="compare-grid">
+        <article class="panel python-panel">
+          <div class="panel-head python-head">Python</div>
+<pre><code>def character_details(text: str) -&gt; dict[str, dict[str, int]]:
+    result = {}
+
+    for index, char in enumerate(text):
+        if char not in result:
+            result[char] = {
+                "frequency": 1,
+                "first_index": index
+            }
+        else:
+            result[char]["frequency"] += 1
+
+    return result
+
+
+print(character_details("banana"))</code></pre>
+          <div class="note">
+            Time complexity: <code>O(n)</code>. Space complexity:
+            <code>O(k)</code>, where <code>k</code> is the number of unique characters.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q14" data-search="python palindrome two pointers alphanumeric lower string">
+      <div class="question-title"><span class="question-number">14</span><h2>Check Whether a String Is a Palindrome</h2></div>
+      <div class="compare-grid">
+        <article class="panel python-panel">
+          <div class="panel-head python-head">Python</div>
+<pre><code>def is_palindrome(value: str) -&gt; bool:
+    cleaned = "".join(
+        char.lower()
+        for char in value
+        if char.isalnum()
+    )
+
+    left = 0
+    right = len(cleaned) - 1
+
+    while left &lt; right:
+        if cleaned[left] != cleaned[right]:
+            return False
+
+        left += 1
+        right -= 1
+
+    return True
+
+
+print(is_palindrome("A man, a plan, a canal: Panama"))
+# True</code></pre>
+          <div class="note">
+            The two-pointer comparison is <code>O(n)</code>. Creating
+            <code>cleaned</code> also uses <code>O(n)</code> extra space.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="question-card" id="q15" data-search="python abstract product perishable product abc inheritance super expiry 20 percent discount">
+      <div class="question-title"><span class="question-number">15</span><h2>Abstract Product and PerishableProduct with Expiry Discount</h2></div>
+      <div class="compare-grid">
+        <article class="panel python-panel">
+          <div class="panel-head python-head">Python</div>
+<pre><code>from abc import ABC, abstractmethod
+from datetime import date
+
+
+class Product(ABC):
+    def __init__(self, name: str, price: float) -&gt; None:
+        if price &lt; 0:
+            raise ValueError("Price cannot be negative")
+
+        self.name = name
+        self.price = price
+
+    @abstractmethod
+    def calculate_price(self, today: date | None = None) -&gt; float:
+        pass
+
+
+class PerishableProduct(Product):
+    DISCOUNT_RATE = 0.20
+    EXPIRY_THRESHOLD_DAYS = 3
+
+    def __init__(
+        self,
+        name: str,
+        price: float,
+        expiry_date: date
+    ) -&gt; None:
+        super().__init__(name, price)
+        self.expiry_date = expiry_date
+
+    def calculate_price(self, today: date | None = None) -&gt; float:
+        today = today or date.today()
+        days_remaining = (self.expiry_date - today).days
+
+        if days_remaining &lt; 0:
+            return 0.0
+
+        if days_remaining &lt;= self.EXPIRY_THRESHOLD_DAYS:
+            return self.price * (1 - self.DISCOUNT_RATE)
+
+        return self.price
+
+
+milk = PerishableProduct(
+    name="Milk",
+    price=100.0,
+    expiry_date=date(2026, 7, 16)
+)
+
+print(milk.calculate_price(date(2026, 7, 14)))
+# 80.0</code></pre>
+          <div class="note">
+            <code>Product</code> cannot be instantiated directly because it has an
+            abstract method. <code>super()</code> initializes the shared product fields.
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <a class="top-link" href="#top" aria-label="Back to top">↑</a>
+
+  <footer>
+    SQL vs PySpark Data Engineering Interview Guide
+  </footer>
+
+  <script>
+    const search = document.getElementById("search");
+    const cards = [...document.querySelectorAll(".question-card")];
+    const buttons = [...document.querySelectorAll(".filter-btn")];
+    let activeFilter = "all";
+
+    function applyView() {
+      const query = search.value.trim().toLowerCase();
+
+      cards.forEach(card => {
+        const text = (card.innerText + " " + card.dataset.search).toLowerCase();
+        const matchesSearch = !query || text.includes(query);
+
+        const sql = card.querySelector(".sql-panel");
+        const spark = card.querySelector(".spark-panel");
+        const python = card.querySelector(".python-panel");
+        const grid = card.querySelector(".compare-grid");
+
+        const hasSelectedType =
+          activeFilter === "all" ||
+          (activeFilter === "sql" && sql) ||
+          (activeFilter === "spark" && spark) ||
+          (activeFilter === "python" && python);
+
+        card.classList.toggle(
+          "hidden",
+          !matchesSearch || !hasSelectedType
+        );
+
+        if (sql) {
+          sql.style.display =
+            activeFilter === "all" || activeFilter === "sql" ? "" : "none";
+        }
+
+        if (spark) {
+          spark.style.display =
+            activeFilter === "all" || activeFilter === "spark" ? "" : "none";
+        }
+
+        if (python) {
+          python.style.display =
+            activeFilter === "all" || activeFilter === "python" ? "" : "none";
+        }
+
+        const visiblePanels = [sql, spark, python].filter(
+          panel => panel && panel.style.display !== "none"
+        ).length;
+
+        grid.style.gridTemplateColumns =
+          visiblePanels > 1 ? "" : "1fr";
+      });
+    }
+
+    search.addEventListener("input", applyView);
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        applyView();
+      });
+    });
+  </script>
+</body>
+</html>
