@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Comprehensive dbt and MetricFlow interview preparation guide with concepts, examples, scenarios, and current Semantic Layer syntax.">
+<title>dbt + MetricFlow Interview Prep</title>
+<style>
+:root{
+  --bg:#f7f8fc;--surface:#ffffff;--surface2:#f0f3fa;--text:#192033;--muted:#5e687d;--border:#dce2ef;
+  --brand:#ff694b;--brand2:#6b5cff;--green:#119c70;--blue:#1769e0;--amber:#b86b00;--red:#c63c4f;
+  --code:#111827;--codeText:#e6edf7;--shadow:0 12px 35px rgba(25,32,51,.08);--radius:18px;
+}
+[data-theme="dark"]{
+  --bg:#0d1220;--surface:#151c2d;--surface2:#1c2539;--text:#eef3ff;--muted:#aeb8cc;--border:#2c3952;
+  --code:#090d16;--codeText:#e6edf7;--shadow:0 14px 40px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+.progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0;z-index:99}
+.hero{background:linear-gradient(135deg,#24213f 0%,#5d2f68 48%,#b74445 100%);color:#fff;padding:54px 20px 46px;position:relative;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(1px);opacity:.18;background:#fff}.hero:before{width:340px;height:340px;right:-80px;top:-180px}.hero:after{width:210px;height:210px;left:-80px;bottom:-130px}
+.hero-inner{max-width:1220px;margin:auto;position:relative}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:rgba(255,255,255,.08);font-size:.83rem;font-weight:700;letter-spacing:.03em}
+h1{font-size:clamp(2.25rem,6vw,5.2rem);line-height:.98;margin:22px 0 18px;letter-spacing:-.055em;max-width:950px}.hero p{max-width:850px;font-size:1.08rem;color:#f1eefa;margin:0}.stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.stat{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.17);font-weight:700;font-size:.9rem}
+.toolbar-wrap{max-width:1220px;margin:-22px auto 0;padding:0 20px;position:relative;z-index:5}.toolbar{background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:15px;display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:12px;align-items:center;position:sticky;top:12px}
+.search{width:100%;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:12px;padding:13px 15px;font-size:1rem;outline:none}.search:focus{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(107,92,255,.14)}
+.filters{display:flex;gap:7px;flex-wrap:wrap}.filter,.tool-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 12px;font-weight:750;cursor:pointer}.filter.active{background:var(--text);color:var(--surface);border-color:var(--text)}.tool-btn{border-radius:11px}.result-count{font-size:.84rem;color:var(--muted);font-weight:700;white-space:nowrap}
+.layout{max-width:1220px;margin:26px auto;padding:0 20px 70px}.toc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:26px}.toc h2{margin-top:0}.toc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.toc a{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-weight:700;font-size:.9rem}.toc a:hover{border-color:var(--brand);text-decoration:none;transform:translateY(-1px)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:22px 0;padding:28px;box-shadow:var(--shadow);scroll-margin-top:95px}.section[data-cat="core"]{border-top:5px solid var(--brand)}.section[data-cat="build"]{border-top:5px solid var(--blue)}.section[data-cat="quality"]{border-top:5px solid var(--green)}.section[data-cat="governance"]{border-top:5px solid var(--amber)}.section[data-cat="metricflow"]{border-top:5px solid var(--brand2)}.section[data-cat="interview"]{border-top:5px solid var(--red)}
+.section-title{display:flex;gap:14px;align-items:flex-start;margin-bottom:17px}.num{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;background:var(--surface2);font-weight:900}.section h2{font-size:clamp(1.55rem,3vw,2.25rem);margin:0;letter-spacing:-.03em;line-height:1.15}.section h3{margin:25px 0 9px;font-size:1.2rem}.lead{font-size:1.02rem;color:var(--muted);margin-top:5px}.grid2,.grid3{display:grid;gap:14px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px}.card h3,.card h4{margin:0 0 8px}.card p:last-child{margin-bottom:0}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.76rem;font-weight:850;background:rgba(107,92,255,.12);color:var(--brand2);margin-bottom:7px}.callout{border-left:5px solid var(--brand2);background:var(--surface2);padding:14px 16px;border-radius:0 12px 12px 0;margin:16px 0}.callout.warn{border-color:var(--amber)}.callout.good{border-color:var(--green)}.callout strong{display:block;margin-bottom:3px}
+ul.tight,ol.tight{padding-left:1.2rem;margin:.55rem 0}ul.tight li,ol.tight li{margin:.32rem 0}.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0}.flow span{padding:9px 11px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-weight:750}.flow b{color:var(--brand)}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:13px;margin:14px 0}table{width:100%;border-collapse:collapse;min-width:700px;background:var(--surface)}th{background:var(--surface2);text-align:left;font-size:.84rem;text-transform:uppercase;letter-spacing:.04em}th,td{padding:12px 13px;border-bottom:1px solid var(--border);vertical-align:top}tr:last-child td{border-bottom:0}
+.code-card{background:var(--code);border-radius:14px;overflow:hidden;margin:14px 0;border:1px solid #263146}.code-head{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#1c2535;color:#bdc8d9;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.copy-btn{border:1px solid #435069;background:#283348;color:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font-weight:700}pre{margin:0;padding:17px;overflow:auto;color:var(--codeText);font-size:.88rem;line-height:1.58;tab-size:2}
+.qa{border:1px solid var(--border);border-radius:12px;margin:9px 0;background:var(--surface)}.qa summary{cursor:pointer;font-weight:820;padding:13px 16px;list-style:none}.qa summary::-webkit-details-marker{display:none}.qa summary:after{content:"+";float:right;color:var(--brand2);font-size:1.25rem}.qa[open] summary:after{content:"−"}.answer{padding:0 16px 15px;color:var(--muted)}
+.kbd{font-family:monospace;padding:2px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;font-size:.88em}.hidden{display:none!important}.highlight{background:#fff2a8;color:#2b2500;border-radius:3px}.footer{max-width:1220px;margin:0 auto 45px;padding:0 20px;color:var(--muted);text-align:center}.top-btn{position:fixed;right:18px;bottom:18px;width:44px;height:44px;border:0;border-radius:50%;background:var(--text);color:var(--surface);box-shadow:var(--shadow);cursor:pointer;font-size:1.1rem;display:none;z-index:20}.top-btn.show{display:block}.source-list li{margin:.45rem 0}.checklist label{display:flex;gap:9px;align-items:flex-start;margin:7px 0}.checklist input{margin-top:6px}
+@media(max-width:980px){.toc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.result-count{white-space:normal}}
+@media(max-width:680px){.hero{padding:40px 16px 38px}.toolbar-wrap,.layout{padding-left:12px;padding-right:12px}.toolbar{position:static}.filters{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.filter{white-space:nowrap}.toc-grid,.grid2,.grid3{grid-template-columns:1fr}.section{padding:20px 16px}.section-title{gap:10px}.num{width:36px;height:36px;flex-basis:36px}.toc{padding:17px}h1{font-size:2.5rem}.stats{gap:7px}.stat{font-size:.78rem;padding:8px 10px}pre{font-size:.78rem}.top-btn{right:12px;bottom:12px}.hero p{font-size:1rem}}
+@media print{.toolbar-wrap,.top-btn,.progress,.copy-btn{display:none!important}.hero{background:#fff;color:#000;padding:25px 0}.hero p{color:#333}.layout{max-width:none}.section,.toc{box-shadow:none;break-inside:avoid}.qa{break-inside:avoid}.qa .answer{display:block}.qa summary:after{display:none}body{background:white;color:black}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <span class="eyebrow">Interview Prep • Updated 23 July 2026</span>
+    <h1>dbt + MetricFlow<br>Complete Interview Guide</h1>
+    <p>From dbt fundamentals to production architecture, incremental correctness, CI/CD, governance, Mesh, artifacts, and the latest Semantic Layer YAML specification.</p>
+    <div class="stats"><span class="stat">Core → Advanced</span><span class="stat">Latest + Legacy MetricFlow</span><span class="stat">SQL/YAML Examples</span><span class="stat">Scenario Answers</span><span class="stat">Mobile Friendly</span></div>
+  </div>
+</header>
+<div class="toolbar-wrap">
+  <div class="toolbar">
+    <input id="search" class="search" type="search" placeholder="Search: incremental, contracts, MetricFlow, state..." aria-label="Search guide">
+    <div class="filters" aria-label="Topic filters">
+      <button class="filter active" data-filter="all">All</button>
+      <button class="filter" data-filter="core">Core</button>
+      <button class="filter" data-filter="build">Build</button>
+      <button class="filter" data-filter="quality">Quality</button>
+      <button class="filter" data-filter="governance">Governance</button>
+      <button class="filter" data-filter="metricflow">MetricFlow</button>
+      <button class="filter" data-filter="interview">Interview</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end"><span id="count" class="result-count"></span><button id="theme" class="tool-btn" title="Toggle theme">◐</button><button id="expand" class="tool-btn" title="Expand Q&A">＋</button></div>
+  </div>
+</div>
+<main class="layout">
+<section class="toc searchable">
+<h2>Fast Index</h2>
+<div class="toc-grid">
+<a href="#mental-model">1. Mental model</a><a href="#project">2. Project anatomy</a><a href="#dag">3. DAG and refs</a><a href="#modeling">4. Modeling layers</a>
+<a href="#materializations">5. Materializations</a><a href="#incremental">6. Incremental deep dive</a><a href="#sources">7. Sources, seeds, snapshots</a><a href="#testing">8. Testing</a>
+<a href="#jinja">9. Jinja and macros</a><a href="#commands">10. Commands</a><a href="#selection">11. Selection and state</a><a href="#cicd">12. CI/CD</a>
+<a href="#governance">13. Governance</a><a href="#mesh">14. dbt Mesh</a><a href="#performance">15. Performance</a><a href="#artifacts">16. Artifacts</a>
+<a href="#python-udf">17. Python and UDFs</a><a href="#metricflow-foundation">18. MetricFlow foundation</a><a href="#metricflow-latest">19. Latest YAML spec</a><a href="#metricflow-types">20. Metric types</a>
+<a href="#metricflow-joins">21. Joins and grain</a><a href="#metricflow-ops">22. Commands and saved queries</a><a href="#trusted-layer">23. Trusted metric layer</a><a href="#scenarios">24. Scenarios</a>
+<a href="#rapid-fire">25. Rapid-fire Q&A</a><a href="#exercise">26. Design exercise</a><a href="#cheatsheet">27. Last-minute sheet</a><a href="#sources-official">28. Official sources</a>
+</div>
+</section>
+
+<section class="section searchable" id="mental-model" data-cat="core"><div class="section-title"><div class="num">1</div><div><h2>dbt Mental Model</h2><div class="lead">Transformation as version-controlled software executed inside your data platform.</div></div></div>
+<div class="flow"><span>Raw data</span><b>→</b><span>Sources</span><b>→</b><span>Staging</span><b>→</b><span>Intermediate</span><b>→</b><span>Marts</span><b>→</b><span>Semantic Layer / BI / AI</span></div>
+<div class="grid3">
+<div class="card"><span class="pill">Compile</span><h3>SQL + Jinja</h3><p>dbt parses the project, resolves dependencies, renders templates, and produces warehouse-specific SQL.</p></div>
+<div class="card"><span class="pill">Execute</span><h3>Pushdown ELT</h3><p>Compute happens in Snowflake, Databricks, BigQuery, Redshift, Postgres, or another adapter-supported platform.</p></div>
+<div class="card"><span class="pill">Govern</span><h3>Metadata graph</h3><p>Models, tests, owners, contracts, versions, exposures, and metrics become one lineage-aware graph.</p></div>
+</div>
+<h3>What dbt does and does not do</h3>
+<div class="grid2"><div class="card"><h4>dbt does</h4><ul class="tight"><li>Transform, test, document, and organize analytical data.</li><li>Compile dependencies through <code>ref()</code> and <code>source()</code>.</li><li>Apply repeatable development, CI, deployment, and governance practices.</li><li>Define governed metrics through the Semantic Layer and MetricFlow.</li></ul></div><div class="card"><h4>dbt usually does not</h4><ul class="tight"><li>Extract from operational systems or move raw data between platforms.</li><li>Replace a general workflow orchestrator for all non-dbt tasks.</li><li>Automatically guarantee good modeling, grain, or metric definitions.</li><li>Fix poor warehouse design or inefficient SQL without engineering decisions.</li></ul></div></div>
+<div class="callout good"><strong>Interview answer</strong>“dbt brings software-engineering practices to analytics transformations: modular code, dependency management, tests, documentation, CI/CD, lineage, and governed metrics—all executed where the data already lives.”</div>
+</section>
+
+<section class="section searchable" id="project" data-cat="core"><div class="section-title"><div class="num">2</div><div><h2>Project Anatomy and Configuration</h2><div class="lead">Know what belongs in the repository, what belongs in credentials, and how configs cascade.</div></div></div>
+<div class="grid2"><div class="card"><h3>Common repository structure</h3><ul class="tight"><li><code>dbt_project.yml</code> — project paths and defaults</li><li><code>models/</code> — SQL/Python models and YAML properties</li><li><code>macros/</code> — reusable Jinja</li><li><code>tests/</code> — singular data tests</li><li><code>seeds/</code>, <code>snapshots/</code>, <code>analyses/</code></li><li><code>packages.yml</code> or <code>dependencies.yml</code></li><li><code>selectors.yml</code> — named selection definitions</li></ul></div><div class="card"><h3>Outside or environment-specific</h3><ul class="tight"><li><code>profiles.yml</code> for local Core credentials and targets</li><li>dbt platform environment connections and deployment jobs</li><li>Secrets through environment variables or secret managers</li><li><code>target/</code>, <code>logs/</code>, <code>dbt_packages/</code> generated locally</li></ul></div></div>
+<div class="code-card searchable"><div class="code-head"><span>dbt_project.yml</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">name: commerce_analytics
+version: 1.0.0
+config-version: 2
+profile: commerce_analytics
+
+model-paths: [&quot;models&quot;]
+test-paths: [&quot;tests&quot;]
+seed-paths: [&quot;seeds&quot;]
+macro-paths: [&quot;macros&quot;]
+snapshot-paths: [&quot;snapshots&quot;]
+
+target-path: target
+clean-targets: [target, dbt_packages]
+
+models:
+  commerce_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: [staging]
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+      +schema: analytics
+      +contract:
+        enforced: true</code></pre></div>
+<h3>Configuration precedence</h3><div class="callout"><strong>Most specific normally wins</strong>Project defaults → directory-level config → resource YAML config → model-level <code>config()</code> call. Command flags can override runtime behavior such as <code>--full-refresh</code>.</div>
+<div class="grid3"><div class="card"><h4><code>var()</code></h4><p>Project/runtime variables for non-secret behavior. Keep stable business logic out of ad-hoc CLI variables.</p></div><div class="card"><h4><code>env_var()</code></h4><p>Environment-specific values and secrets. Never commit credentials into the repository.</p></div><div class="card"><h4><code>target</code></h4><p>Runtime context such as target name, schema, database, and adapter type.</p></div></div>
+</section>
+
+<section class="section searchable" id="dag" data-cat="core"><div class="section-title"><div class="num">3</div><div><h2>DAG, Dependencies, ref(), and source()</h2><div class="lead">The DAG is dbt's execution and lineage backbone.</div></div></div>
+<div class="code-card searchable"><div class="code-head"><span>models/marts/fct_orders.sql</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">with orders as (
+    select *
+    from {{ source(&#x27;raw_commerce&#x27;, &#x27;orders&#x27;) }}
+),
+customers as (
+    select *
+    from {{ ref(&#x27;stg_customers&#x27;) }}
+)
+select
+    o.order_id,
+    o.customer_id,
+    c.customer_segment,
+    o.ordered_at,
+    o.order_total
+from orders o
+left join customers c using (customer_id)</code></pre></div>
+<div class="grid2"><div class="card"><h3><code>ref()</code></h3><ul class="tight"><li>Creates dependency and lineage.</li><li>Resolves environment/database/schema naming.</li><li>Supports versioned refs.</li><li>Enables selection, defer, and impact analysis.</li></ul></div><div class="card"><h3><code>source()</code></h3><ul class="tight"><li>Declares an external/raw dependency.</li><li>Centralizes physical relation mapping.</li><li>Enables source tests and freshness.</li><li>Separates ingestion ownership from transformation ownership.</li></ul></div></div>
+<h3>Graph selection mental model</h3>
+<div class="flow"><span><code>model</code></span><span><code>+model</code> ancestors</span><span><code>model+</code> descendants</span><span><code>+model+</code> both</span><span><code>1+model+2</code> bounded depth</span></div>
+<div class="callout warn"><strong>Common interview trap</strong>Hard-coding <code>database.schema.table</code> may run successfully, but it bypasses dependency metadata, environment resolution, state/defer behavior, and lineage.</div>
+</section>
+
+<section class="section searchable" id="modeling" data-cat="build"><div class="section-title"><div class="num">4</div><div><h2>Modeling Layers and Naming</h2><div class="lead">Separate source cleanup, reusable transformations, and business-facing models.</div></div></div>
+<div class="grid3"><div class="card"><span class="pill">Staging</span><h3><code>stg_*</code></h3><p>One source-aligned model per raw object. Rename, cast, standardize, deduplicate, and expose a clean source interface.</p></div><div class="card"><span class="pill">Intermediate</span><h3><code>int_*</code></h3><p>Reusable joins, pivots, event preparation, and business transformations that are not yet consumer-facing.</p></div><div class="card"><span class="pill">Marts</span><h3><code>fct_*</code>, <code>dim_*</code></h3><p>Stable, documented, tested data products aligned to clear grain and business processes.</p></div></div>
+<h3>Grain-first modeling</h3><ol class="tight"><li>State the grain in one sentence: “one row per order,” “one row per customer per day.”</li><li>Identify primary/business keys and expected uniqueness.</li><li>Aggregate lower-grain children before joining to avoid fan-out.</li><li>Choose additive, semi-additive, and non-additive measures deliberately.</li><li>Document filters, currency, timezone, status, cancellation, and late-data rules.</li></ol>
+<div class="callout good"><strong>Strong design principle</strong>A model should have one clear purpose, one declared grain, explicit columns, deterministic logic, and a test strategy tied to business risk.</div>
+</section>
+
+<section class="section searchable" id="materializations" data-cat="build"><div class="section-title"><div class="num">5</div><div><h2>Materializations</h2><div class="lead">Choose based on cost, freshness, debugging, reuse, and platform behavior—not habit.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Materialization</th><th>Behavior</th><th>Strength</th><th>Risk</th><th>Best use</th></tr></thead><tbody><tr><td>view</td><td>Stores only SQL definition</td><td>Low storage; always current</td><td>Repeated compute; nested views</td><td>Staging and lightweight models</td></tr><tr><td>table</td><td>Rebuilds physical table</td><td>Fast reads; stable interface</td><td>Full rebuild cost and storage</td><td>Marts and reused heavy logic</td></tr><tr><td>incremental</td><td>Updates only a subset</td><td>Lower runtime and cost at scale</td><td>Complex correctness and backfills</td><td>Large facts/events</td></tr><tr><td>ephemeral</td><td>Inlined as downstream CTE</td><td>No warehouse clutter</td><td>Harder debugging; SQL expansion</td><td>Small reusable transformations</td></tr><tr><td>materialized view</td><td>Warehouse-managed refresh</td><td>Freshness with managed compute</td><td>Adapter/platform limitations</td><td>Supported near-real-time aggregates</td></tr><tr><td>custom</td><td>Macro-defined behavior</td><td>Specialized optimization</td><td>Maintenance and portability burden</td><td>Niche platform patterns</td></tr></tbody></table></div>
+<div class="code-card searchable"><div class="code-head"><span>Model-level config</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{{ config(
+    materialized=&#x27;table&#x27;,
+    schema=&#x27;analytics&#x27;,
+    alias=&#x27;customer_360&#x27;,
+    tags=[&#x27;gold&#x27;, &#x27;executive&#x27;],
+    persist_docs={&#x27;relation&#x27;: true, &#x27;columns&#x27;: true}
+) }}
+
+select ...</code></pre></div>
+<h3>Decision framework</h3><div class="grid2"><div class="card"><h4>Prefer physical materialization when</h4><p>The model is expensive, reused, latency-sensitive, contract-governed, or a stable interface.</p></div><div class="card"><h4>Prefer logical/inlined materialization when</h4><p>The logic is lightweight, changes frequently, is used by few consumers, or does not justify storage.</p></div></div>
+</section>
+
+<section class="section searchable" id="incremental" data-cat="build"><div class="section-title"><div class="num">6</div><div><h2>Incremental Models Deep Dive</h2><div class="lead">The most important advanced dbt interview topic: performance is easy; correctness is hard.</div></div></div>
+<h3>Core pattern</h3>
+<div class="code-card searchable"><div class="code-head"><span>Incremental merge with lookback and deduplication</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{{ config(
+    materialized=&#x27;incremental&#x27;,
+    incremental_strategy=&#x27;merge&#x27;,
+    unique_key=&#x27;order_id&#x27;,
+    on_schema_change=&#x27;sync_all_columns&#x27;
+) }}
+
+with source_rows as (
+    select *
+    from {{ ref(&#x27;stg_orders&#x27;) }}
+
+    {% if is_incremental() %}
+      -- Example uses warehouse-specific timestamp arithmetic.
+      where updated_at &gt;= (
+        select dateadd(day, -3, max(updated_at)) from {{ this }}
+      )
+    {% endif %}
+),
+deduplicated as (
+    select *
+    from source_rows
+    qualify row_number() over (
+      partition by order_id
+      order by updated_at desc, ingestion_sequence desc
+    ) = 1
+)
+select * from deduplicated</code></pre></div>
+<div class="grid3"><div class="card"><h3>Watermark</h3><p>The event/update timestamp or sequence used to reduce the source scan.</p></div><div class="card"><h3>Lookback</h3><p>Reprocess recent periods to catch late or corrected records.</p></div><div class="card"><h3>Unique key</h3><p>Stable key used to update/replace matching target rows.</p></div></div>
+<h3>Strategies</h3>
+<div class="table-wrap"><table><thead><tr><th>Strategy</th><th>Behavior</th><th>Use</th><th>Risk</th></tr></thead><tbody>
+<tr><td><code>append</code></td><td>Insert incoming rows only</td><td>Immutable events with guaranteed no duplicates</td><td>Corrections and retries create duplicates</td></tr>
+<tr><td><code>merge</code></td><td>Match by key, update and insert</td><td>Mutable records and CDC-like feeds</td><td>Key duplication, expensive target scan</td></tr>
+<tr><td><code>delete+insert</code></td><td>Delete matching keys, then insert</td><td>Adapters/workloads where merge is unsuitable</td><td>Transactional and performance considerations</td></tr>
+<tr><td><code>insert_overwrite</code></td><td>Replace partitions</td><td>Partitioned facts and batch corrections</td><td>Wrong partition predicate overwrites data</td></tr>
+<tr><td><code>microbatch</code></td><td>Process time windows as batches</td><td>Very large event streams</td><td>Requires event-time discipline and batch planning</td></tr>
+</tbody></table></div>
+<h3>Microbatch example</h3>
+<div class="code-card searchable"><div class="code-head"><span>Time-based microbatch configuration</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{{ config(
+    materialized=&#x27;incremental&#x27;,
+    incremental_strategy=&#x27;microbatch&#x27;,
+    event_time=&#x27;event_ts&#x27;,
+    begin=&#x27;2024-01-01&#x27;,
+    batch_size=&#x27;day&#x27;,
+    lookback=2
+) }}
+
+select
+    event_id,
+    user_id,
+    event_ts,
+    event_type
+from {{ ref(&#x27;stg_events&#x27;) }}</code></pre></div>
+<h3>Correctness checklist</h3><div class="checklist">
+<label><input type="checkbox">Stable and tested <code>unique_key</code></label><label><input type="checkbox">Incoming rows deduplicated before merge</label><label><input type="checkbox">Late-arriving lookback sized from observed data</label><label><input type="checkbox">Delete/correction semantics defined</label><label><input type="checkbox">Schema-change policy deliberate</label><label><input type="checkbox">Backfill and full-refresh procedure tested</label><label><input type="checkbox">Source and target reconciliation monitored</label><label><input type="checkbox">Idempotent reruns produce the same result</label></div>
+<div class="callout warn"><strong>High-value interview statement</strong>An incremental model is not correct merely because it runs faster. You must prove that retries, late data, updates, deletes, schema changes, and backfills converge to the intended target state.</div>
+</section>
+
+<section class="section searchable" id="sources" data-cat="build"><div class="section-title"><div class="num">7</div><div><h2>Sources, Seeds, Snapshots, and Freshness</h2><div class="lead">External inputs, small reference data, history capture, and recency SLAs.</div></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Source declaration and freshness</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">version: 2
+
+sources:
+  - name: raw_commerce
+    database: &quot;{{ env_var(&#x27;RAW_DATABASE&#x27;) }}&quot;
+    schema: commerce
+    loader: fivetran
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: {count: 2, period: hour}
+      error_after: {count: 6, period: hour}
+    tables:
+      - name: orders
+        description: Raw order feed
+        columns:
+          - name: order_id
+            data_tests: [not_null]
+          - name: status
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [placed, shipped, completed, cancelled]</code></pre></div>
+<div class="grid3"><div class="card"><h3>Sources</h3><p>Declared external relations with lineage, tests, metadata, and freshness.</p></div><div class="card"><h3>Seeds</h3><p>Small, static CSV mappings such as country codes or manual categories.</p></div><div class="card"><h3>Snapshots</h3><p>Historical versions of mutable source records, typically SCD Type II.</p></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Timestamp snapshot</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{% snapshot snap_customers %}
+
+{{ config(
+    target_schema=&#x27;snapshots&#x27;,
+    unique_key=&#x27;customer_id&#x27;,
+    strategy=&#x27;timestamp&#x27;,
+    updated_at=&#x27;updated_at&#x27;,
+    hard_deletes=&#x27;new_record&#x27;
+) }}
+
+select * from {{ source(&#x27;crm&#x27;, &#x27;customers&#x27;) }}
+
+{% endsnapshot %}</code></pre></div>
+<div class="callout"><strong>Freshness is not quality</strong>A fresh table can still be incomplete, duplicated, or logically wrong. Pair recency checks with volume, schema, distribution, relationship, and reconciliation tests.</div>
+</section>
+
+<section class="section searchable" id="testing" data-cat="quality"><div class="section-title"><div class="num">8</div><div><h2>Testing, Contracts, and Data Quality</h2><div class="lead">Tests should encode risks, not merely inflate coverage numbers.</div></div></div>
+<h3>Generic data tests and contract</h3>
+<div class="code-card searchable"><div class="code-head"><span>Properties YAML</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: bigint
+        data_tests: [not_null, unique]
+      - name: customer_id
+        data_type: bigint
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref(&#x27;dim_customers&#x27;)
+                field: customer_id
+      - name: order_status
+        data_type: varchar
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [placed, shipped, completed, cancelled]
+              config:
+                severity: warn
+                warn_if: &quot;&gt; 0&quot;
+                error_if: &quot;&gt; 100&quot;</code></pre></div>
+<h3>Singular data test</h3>
+<div class="code-card searchable"><div class="code-head"><span>Singular test</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">-- tests/assert_order_total_non_negative.sql
+-- Return failing rows.
+select *
+from {{ ref(&#x27;fct_orders&#x27;) }}
+where order_total &lt; 0
+  and order_status &lt;&gt; &#x27;refund&#x27;</code></pre></div>
+<h3>Unit test</h3>
+<div class="code-card searchable"><div class="code-head"><span>Controlled model logic test</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">unit_tests:
+  - name: order_total_excludes_cancelled_items
+    model: int_order_totals
+    given:
+      - input: ref(&#x27;stg_order_items&#x27;)
+        rows:
+          - {order_id: 1, item_amount: 100, item_status: shipped}
+          - {order_id: 1, item_amount: 25, item_status: cancelled}
+    expect:
+      rows:
+        - {order_id: 1, order_total: 100}</code></pre></div>
+<div class="grid3"><div class="card"><h3>Data tests</h3><p>Validate built data and business assertions. Failures are rows returned by a query.</p></div><div class="card"><h3>Unit tests</h3><p>Validate model logic with fixtures before materialization during <code>dbt build</code>.</p></div><div class="card"><h3>Contracts</h3><p>Enforce output columns and types as an interface guarantee.</p></div></div>
+<h3>Quality layers</h3><ol class="tight"><li><b>Schema:</b> not-null, unique, accepted values, types.</li><li><b>Relationships:</b> orphan keys and referential integrity.</li><li><b>Business rules:</b> balances, status transitions, date ordering.</li><li><b>Reconciliation:</b> source-to-target counts, sums, and control totals.</li><li><b>Statistical:</b> volume, distribution, drift, anomalies.</li><li><b>Operational:</b> freshness, runtime, failures, retries, SLA.</li></ol>
+</section>
+
+<section class="section searchable" id="jinja" data-cat="build"><div class="section-title"><div class="num">9</div><div><h2>Jinja, Macros, Hooks, and Dispatch</h2><div class="lead">Use abstraction to remove repetition—not to hide the data model.</div></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Reusable macro</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{% macro cents_to_currency(column_name, scale=2) %}
+    round({{ column_name }} / 100.0, {{ scale }})
+{% endmacro %}
+
+select
+    payment_id,
+    {{ cents_to_currency(&#x27;amount_cents&#x27;) }} as amount
+from {{ ref(&#x27;stg_payments&#x27;) }}</code></pre></div>
+<div class="code-card searchable"><div class="code-head"><span>Parse-safe run_query pattern</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-sql">{% macro get_payment_methods() %}
+  {% set sql %}
+    select distinct payment_method
+    from {{ ref(&#x27;stg_payments&#x27;) }}
+    order by 1
+  {% endset %}
+
+  {% if execute %}
+    {% set result = run_query(sql) %}
+    {{ return(result.columns[0].values()) }}
+  {% else %}
+    {{ return([]) }}
+  {% endif %}
+{% endmacro %}</code></pre></div>
+<div class="grid2"><div class="card"><h3>Good macro uses</h3><ul class="tight"><li>Cross-database functions and repeated SQL patterns</li><li>Reusable generic tests</li><li>Metadata-driven column generation</li><li>Audit operations and controlled maintenance</li><li>Adapter dispatch for portability</li></ul></div><div class="card"><h3>Macro smells</h3><ul class="tight"><li>Business logic impossible to read in compiled SQL</li><li>Warehouse queries during parse without <code>execute</code></li><li>Dynamic dependencies hidden from the parser</li><li>Excessive loops generating hundreds of columns</li><li>Hooks duplicating native grants/config functionality</li></ul></div></div>
+<h3>Important Jinja objects/functions</h3><div class="flow"><span><code>ref</code></span><span><code>source</code></span><span><code>this</code></span><span><code>target</code></span><span><code>var</code></span><span><code>env_var</code></span><span><code>config</code></span><span><code>run_query</code></span><span><code>adapter</code></span><span><code>graph</code></span><span><code>flags</code></span><span><code>execute</code></span></div>
+</section>
+
+<section class="section searchable" id="commands" data-cat="core"><div class="section-title"><div class="num">10</div><div><h2>Commands You Must Know</h2><div class="lead">Explain intent and DAG behavior, not just command names.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Interview meaning</th></tr></thead><tbody><tr><td>dbt debug</td><td>Validate project/profile configuration and connectivity.</td></tr><tr><td>dbt deps</td><td>Install declared packages and refresh the lock-resolved dependency set.</td></tr><tr><td>dbt parse</td><td>Parse the project and write manifest/semantic metadata without running models.</td></tr><tr><td>dbt compile</td><td>Render Jinja and create compiled SQL.</td></tr><tr><td>dbt run</td><td>Execute selected models.</td></tr><tr><td>dbt test</td><td>Execute selected data and unit tests, depending on selector/version behavior.</td></tr><tr><td>dbt build</td><td>Run models, tests, seeds, snapshots, and supported functions in DAG order.</td></tr><tr><td>dbt seed</td><td>Load version-controlled CSV seed files.</td></tr><tr><td>dbt snapshot</td><td>Capture historical row versions.</td></tr><tr><td>dbt source freshness / dbt freshness</td><td>Evaluate source recency against configured thresholds; command availability varies by version.</td></tr><tr><td>dbt docs generate</td><td>Create catalog and documentation artifacts.</td></tr><tr><td>dbt docs serve</td><td>Serve generated docs locally in supported Core workflows.</td></tr><tr><td>dbt ls</td><td>List resources matching selection syntax.</td></tr><tr><td>dbt show</td><td>Compile and preview query/model results without creating the model relation.</td></tr><tr><td>dbt clone</td><td>Clone relations from a state environment where adapter support exists.</td></tr><tr><td>dbt retry</td><td>Retry failed/skipped nodes from a previous invocation where supported.</td></tr><tr><td>dbt run-operation</td><td>Invoke a macro as an operation.</td></tr><tr><td>dbt clean</td><td>Remove configured clean targets such as target and dbt_packages.</td></tr><tr><td>dbt sl validate</td><td>Validate Semantic Layer configuration in connected dbt workflows.</td></tr><tr><td>dbt sl query</td><td>Query metrics or saved queries through the Semantic Layer CLI.</td></tr><tr><td>mf validate-configs</td><td>Validate local MetricFlow semantic configuration.</td></tr><tr><td>mf query</td><td>Query metrics using local open-source MetricFlow.</td></tr></tbody></table></div>
+<div class="callout good"><strong>dbt build behavior</strong>It executes resources in DAG order. Unit tests run before a SQL model is materialized; data tests run after. Failing upstream tests can block and skip downstream resources.</div>
+</section>
+
+<section class="section searchable" id="selection" data-cat="build"><div class="section-title"><div class="num">11</div><div><h2>Node Selection, State, Defer, and Slim CI</h2><div class="lead">Build the smallest safe graph.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Selector</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>path:models/marts</code></td><td>Resources under a path.</td></tr><tr><td><code>tag:finance</code></td><td>Resources tagged finance.</td></tr><tr><td><code>config.materialized:incremental</code></td><td>Incremental models.</td></tr><tr><td><code>resource_type:model</code></td><td>Only models.</td></tr><tr><td><code>test_type:unit</code></td><td>Unit tests.</td></tr><tr><td><code>source:raw_commerce+</code></td><td>A source and descendants.</td></tr><tr><td><code>state:modified+</code></td><td>Changed nodes and descendants.</td></tr><tr><td><code>result:error+</code></td><td>Prior errors and descendants where result selection applies.</td></tr>
+</tbody></table></div>
+<div class="code-card searchable"><div class="code-head"><span>Changed graph with production deferral</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-bash"># Typical Slim CI pattern
+# Download/copy the production manifest into ./state first.
+
+dbt build   --select &quot;state:modified+&quot;   --state ./state   --defer   --favor-state   --target ci</code></pre></div>
+<div class="grid3"><div class="card"><h3>State</h3><p>Compare current parsed resources with a prior manifest.</p></div><div class="card"><h3>Defer</h3><p>Resolve unbuilt upstream refs to state-environment relations.</p></div><div class="card"><h3>Clone</h3><p>Create environment relations using platform-efficient cloning where supported.</p></div></div>
+<div class="callout warn"><strong>CI risk</strong><code>state:modified</code> tells you what code metadata changed. It does not automatically detect every upstream data change or guarantee that a deferred production relation matches your branch's assumptions.</div>
+</section>
+
+<section class="section searchable" id="cicd" data-cat="build"><div class="section-title"><div class="num">12</div><div><h2>CI/CD and Environment Strategy</h2><div class="lead">Separate fast developer feedback from production confidence.</div></div></div>
+<div class="grid3"><div class="card"><span class="pill">Development</span><h3>Isolated schemas</h3><p>Per-developer targets, small selections, defer/clone, sample or limited data, fast lint/parse/unit tests.</p></div><div class="card"><span class="pill">Pull Request</span><h3>Slim CI</h3><p>Parse, static validation, build changed graph, unit/data tests, contract checks, documentation and lineage impact.</p></div><div class="card"><span class="pill">Production</span><h3>Scheduled/triggered jobs</h3><p>Freshness gates, controlled builds, retries, notifications, artifacts, observability, and rollback/backfill runbooks.</p></div></div>
+<h3>Recommended pipeline</h3><ol class="tight"><li>Format/lint SQL and YAML.</li><li>Run <code>dbt deps</code> with locked versions.</li><li>Run <code>dbt parse</code> and deprecation checks.</li><li>Run unit tests for changed models.</li><li>Build changed nodes with state/defer.</li><li>Run critical data and reconciliation tests.</li><li>Review changed public contracts, versions, exposures, and metrics.</li><li>Persist manifest/run results for deployment and observability.</li></ol>
+<div class="callout"><strong>Deployment answer</strong>Promote code, not development tables. Production should rebuild or safely clone/materialize resources under production credentials and governance controls.</div>
+</section>
+
+<section class="section searchable" id="governance" data-cat="governance"><div class="section-title"><div class="num">13</div><div><h2>Documentation and Governance</h2><div class="lead">Trust requires ownership, interface control, discoverability, and change management.</div></div></div>
+<div class="grid3"><div class="card"><h3>Contracts</h3><p>Enforce model output shape and types.</p></div><div class="card"><h3>Versions</h3><p>Run old and new interfaces during breaking migrations.</p></div><div class="card"><h3>Access</h3><p>Private, protected, and public boundaries.</p></div><div class="card"><h3>Groups and owners</h3><p>Assign domain accountability.</p></div><div class="card"><h3>Exposures</h3><p>Track downstream dashboards and applications.</p></div><div class="card"><h3>Tags and meta</h3><p>Operational classification and custom metadata.</p></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Governed versioned public model</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">groups:
+  - name: finance
+    owner:
+      name: Finance Analytics
+      email: finance-analytics@example.com
+
+models:
+  - name: monthly_revenue
+    group: finance
+    access: public
+    latest_version: 2
+    versions:
+      - v: 2
+        config:
+          contract: {enforced: true}
+      - v: 1
+        deprecation_date: 2026-12-31
+    columns:
+      - name: month
+        data_type: date
+      - name: revenue
+        data_type: numeric</code></pre></div>
+<h3>Breaking versus non-breaking changes</h3><div class="grid2"><div class="card"><h4>Potentially breaking</h4><ul class="tight"><li>Remove/rename a column</li><li>Change grain or key semantics</li><li>Change type/precision incompatibly</li><li>Change metric business definition</li><li>Tighten filters or history unexpectedly</li></ul></div><div class="card"><h4>Usually safer</h4><ul class="tight"><li>Add a nullable column</li><li>Improve documentation</li><li>Add tests without blocking historical anomalies</li><li>Optimize SQL with identical output</li><li>Add a new model/metric version</li></ul></div></div>
+</section>
+
+<section class="section searchable" id="mesh" data-cat="governance"><div class="section-title"><div class="num">14</div><div><h2>dbt Mesh</h2><div class="lead">Scale ownership across domains while preserving governed interfaces.</div></div></div>
+<div class="flow"><span>Domain project A</span><b>→ public model contract →</b><span>Domain project B</span><b>→ semantic products →</b><span>Enterprise consumers</span></div>
+<div class="grid2"><div class="card"><h3>Why Mesh</h3><ul class="tight"><li>Independent teams and release cycles</li><li>Clear ownership boundaries</li><li>Smaller project parse/build scope</li><li>Governed reusable data products</li></ul></div><div class="card"><h3>What prevents chaos</h3><ul class="tight"><li>Public access only for supported interfaces</li><li>Contracts and versions</li><li>Service-level expectations</li><li>Cross-project dependency review</li><li>Shared naming and semantic standards</li></ul></div></div>
+<div class="callout warn"><strong>Current Semantic Layer nuance</strong>The latest embedded Semantic Layer YAML specification does not yet support cross-project refs; legacy top-level semantic models remain relevant for some dbt Mesh use cases.</div>
+</section>
+
+<section class="section searchable" id="performance" data-cat="build"><div class="section-title"><div class="num">15</div><div><h2>Performance and Cost Optimization</h2><div class="lead">Optimize warehouse work, graph scope, and developer feedback loops.</div></div></div>
+<div class="grid3"><div class="card"><h3>SQL</h3><ul class="tight"><li>Filter early and prune columns</li><li>Aggregate before grain-expanding joins</li><li>Avoid repeated expensive CTE/view chains</li><li>Use explain/query profile</li></ul></div><div class="card"><h3>Materialization</h3><ul class="tight"><li>Incremental large facts</li><li>Physicalize reused intermediates</li><li>Use partitions/clustering/optimization</li><li>Choose merge predicates carefully</li></ul></div><div class="card"><h3>Execution</h3><ul class="tight"><li>Right-size threads and warehouse</li><li>Use selectors and state</li><li>Run independent models concurrently</li><li>Separate heavy backfills</li></ul></div></div>
+<h3>Slow model investigation</h3><ol class="tight"><li>Measure model execution and upstream timing from artifacts.</li><li>Inspect compiled SQL and query profile.</li><li>Check bytes/partitions scanned and join cardinality.</li><li>Determine whether repeated logic should be materialized.</li><li>Verify incremental filters reduce the source and target scans.</li><li>Re-test correctness after optimization.</li></ol>
+<div class="callout good"><strong>Best answer</strong>“I optimize the costliest query path, not the prettiest dbt file. Compiled SQL and warehouse query profiles are the source of truth.”</div>
+</section>
+
+<section class="section searchable" id="artifacts" data-cat="governance"><div class="section-title"><div class="num">16</div><div><h2>Artifacts, Observability, and Debugging</h2><div class="lead">Artifacts turn dbt runs into machine-readable operational data.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Artifact</th><th>Use</th></tr></thead><tbody><tr><td>manifest.json</td><td>Resources, configs, dependencies, compiled metadata; basis for state comparison.</td></tr><tr><td>run_results.json</td><td>Per-node status, execution timing, failures, and adapter responses for an invocation.</td></tr><tr><td>catalog.json</td><td>Warehouse metadata such as columns and types used by generated documentation.</td></tr><tr><td>sources.json</td><td>Source freshness execution results.</td></tr><tr><td>semantic_manifest.json</td><td>Parsed semantic models, metrics, and semantic graph metadata used by MetricFlow.</td></tr></tbody></table></div>
+<h3>Operational metrics</h3><div class="flow"><span>success rate</span><span>runtime p50/p95</span><span>queue time</span><span>test failure rate</span><span>freshness SLA</span><span>rows/bytes processed</span><span>model criticality</span><span>downstream blast radius</span></div>
+<h3>Debugging order</h3><ol class="tight"><li>Read the first meaningful error, not only the final summary.</li><li>Identify parse, compile, database, permission, or data-test failure.</li><li>Inspect <code>target/compiled</code> or <code>target/run</code> SQL.</li><li>Run the narrowest selection with verbose/debug logs.</li><li>Check environment target, credentials, quoting, and relation existence.</li><li>Compare current manifest/config with the successful deployment state.</li></ol>
+</section>
+
+<section class="section searchable" id="python-udf" data-cat="build"><div class="section-title"><div class="num">17</div><div><h2>Python Models and User-Defined Functions</h2><div class="lead">Know the boundary between SQL transformations, Python execution, macros, and warehouse UDFs.</div></div></div>
+<div class="grid3"><div class="card"><h3>Python model</h3><p>Returns a dataframe using a supported adapter/runtime. Useful for logic awkward in SQL, but less portable and often harder to review.</p></div><div class="card"><h3>Macro</h3><p>Generates SQL at compile time. It is not a warehouse function and cannot be directly called by arbitrary external queries.</p></div><div class="card"><h3>UDF resource</h3><p>A function registered in the data platform and reusable by dbt and external tools. Supported as a first-class resource in newer dbt versions/adapters.</p></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Conceptual Python model</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-python">def model(dbt, session):
+    dbt.config(materialized=&quot;table&quot;)
+    orders = dbt.ref(&quot;stg_orders&quot;)
+
+    # API differs by supported dataframe runtime/adapter.
+    return orders.filter(orders[&quot;order_total&quot;] &gt;= 0)</code></pre></div>
+<div class="callout warn"><strong>Interview balance</strong>Prefer SQL for transparent set-based transformations. Use Python when libraries, complex procedural logic, or supported ML/dataframe operations provide a clear advantage.</div>
+</section>
+
+<section class="section searchable" id="metricflow-foundation" data-cat="metricflow"><div class="section-title"><div class="num">18</div><div><h2>MetricFlow and the Semantic Layer</h2><div class="lead">Central metric definitions, valid dimensions, automatic joins, and generated SQL.</div></div></div>
+<div class="flow"><span>dbt models</span><b>→</b><span>semantic annotations</span><b>→</b><span>semantic graph</span><b>→</b><span>MetricFlow query plan</span><b>→</b><span>warehouse SQL</span><b>→</b><span>BI / API / AI</span></div>
+<div class="grid3"><div class="card"><h3>Semantic models</h3><p>Connect physical dbt models to business entities, dimensions, time, and simple metrics.</p></div><div class="card"><h3>Metrics</h3><p>Govern quantitative definitions and composition.</p></div><div class="card"><h3>Query engine</h3><p>Find valid dimensions and join paths, generate optimized platform SQL, and return metric datasets.</p></div></div>
+<h3>Why it matters</h3><ul class="tight"><li>One definition of revenue instead of one per dashboard.</li><li>Metric logic is version-controlled, reviewed, documented, and lineage-aware.</li><li>Consumers request metrics and dimensions rather than writing joins.</li><li>Entity semantics help prevent invalid fan-out and chasm joins.</li><li>Saved queries provide governed, reusable consumption patterns.</li></ul>
+<div class="callout good"><strong>Interview answer</strong>MetricFlow is not just a metric registry. It builds a semantic graph and generates SQL for valid metric-and-dimension combinations, including automatic join planning and advanced metric types.</div>
+</section>
+
+<section class="section searchable" id="metricflow-latest" data-cat="metricflow"><div class="section-title"><div class="num">19</div><div><h2>Latest Semantic Layer YAML Specification</h2><div class="lead">Supported in dbt platform Latest, Fusion, and dbt Core v1.12 as of July 2026.</div></div></div>
+<div class="callout"><strong>Major migration changes</strong>Semantic configuration is embedded under <code>models</code>; entities and dimensions attach to columns; simple metrics replace measures; <code>type_params</code> is deprecated and its properties move to direct metric keys.</div>
+<div class="code-card searchable"><div class="code-head"><span>Current embedded model + metrics syntax</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order
+
+    semantic_model:
+      enabled: true
+      name: orders
+
+    agg_time_dimension: ordered_at
+
+    columns:
+      - name: order_id
+        entity:
+          name: order
+          type: primary
+
+      - name: customer_id
+        entity:
+          name: customer
+          type: foreign
+
+      - name: ordered_at
+        granularity: day
+        dimension:
+          type: time
+
+      - name: order_status
+        dimension:
+          type: categorical
+
+      - name: country
+        dimension:
+          type: categorical
+
+    metrics:
+      - name: revenue
+        label: Revenue
+        type: simple
+        agg: sum
+        expr: order_total
+        fill_nulls_with: 0
+
+      - name: orders
+        label: Orders
+        type: simple
+        agg: count_distinct
+        expr: order_id
+
+metrics:
+  - name: average_order_value
+    label: Average order value
+    type: ratio
+    numerator: revenue
+    denominator: orders
+
+  - name: revenue_30d
+    type: cumulative
+    input_metric: revenue
+    window: 30d
+    period_agg: sum
+
+  - name: revenue_growth_7d
+    type: derived
+    expr: current_revenue - prior_revenue
+    input_metrics:
+      - name: revenue
+        alias: current_revenue
+      - name: revenue
+        alias: prior_revenue
+        offset_window: 7 days</code></pre></div>
+<h3>Legacy pattern you will still see</h3>
+<div class="code-card searchable"><div class="code-head"><span>Legacy top-level semantic model and measure</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">semantic_models:
+  - name: orders
+    model: ref(&#x27;fct_orders&#x27;)
+    defaults:
+      agg_time_dimension: ordered_at
+    entities:
+      - name: order
+        type: primary
+        expr: order_id
+    dimensions:
+      - name: ordered_at
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: revenue
+        agg: sum
+        expr: order_total
+
+metrics:
+  - name: revenue
+    type: simple
+    type_params:
+      measure: revenue</code></pre></div>
+<div class="grid2"><div class="card"><h3>Lead with latest spec</h3><p>It is simpler and aligns semantic annotations directly with physical model columns.</p></div><div class="card"><h3>Recognize legacy spec</h3><p>It remains important in existing projects, package compatibility, and some cross-project Semantic Layer patterns.</p></div></div>
+</section>
+
+<section class="section searchable" id="metricflow-types" data-cat="metricflow"><div class="section-title"><div class="num">20</div><div><h2>Metric Types</h2><div class="lead">Choose the semantic abstraction that matches the business calculation.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Metric type</th><th>Meaning</th><th>Examples</th></tr></thead><tbody><tr><td>Simple</td><td>Direct aggregation over an expression</td><td>Revenue, orders, active users</td></tr><tr><td>Ratio</td><td>Numerator divided by denominator</td><td>Conversion rate, average order frequency</td></tr><tr><td>Derived</td><td>Expression over input metrics</td><td>Gross profit, growth, variance</td></tr><tr><td>Cumulative</td><td>Accumulation over all time/window/grain-to-date</td><td>MTD revenue, 7-day active users</td></tr><tr><td>Conversion</td><td>Base event followed by conversion event for an entity</td><td>Signup-to-paid conversion</td></tr></tbody></table></div>
+<h3>Examples</h3>
+<div class="code-card searchable"><div class="code-head"><span>Metric type patterns</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml"># Simple metric inside a model
+metrics:
+  - name: customers
+    type: simple
+    agg: count_distinct
+    expr: customer_id
+
+# Ratio metric at top level
+metrics:
+  - name: conversion_rate
+    type: ratio
+    numerator: completed_orders
+    denominator: sessions
+
+# Derived metric with offset
+  - name: revenue_growth_rate_7d
+    type: derived
+    expr: (current_revenue - prior_revenue) / nullif(prior_revenue, 0)
+    input_metrics:
+      - {name: revenue, alias: current_revenue}
+      - {name: revenue, alias: prior_revenue, offset_window: 7 days}
+
+# Cumulative metric
+  - name: revenue_mtd
+    type: cumulative
+    input_metric: revenue
+    grain_to_date: month
+    period_agg: sum
+
+# Conversion metric
+  - name: signup_to_paid
+    type: conversion
+    entity: user
+    calculation: conversion_rate
+    base_metric: signups
+    conversion_metric: paid_signups
+    window: 30 days</code></pre></div>
+<div class="callout warn"><strong>Metric design rule</strong>Do not encode an ambiguous business definition merely because the YAML validates. Document eligibility, grain, time basis, filters, currency, status, late updates, and ownership.</div>
+</section>
+
+<section class="section searchable" id="metricflow-joins" data-cat="metricflow"><div class="section-title"><div class="num">21</div><div><h2>Entities, Join Logic, Grain, and Time</h2><div class="lead">Most semantic-layer errors are really grain and cardinality errors.</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>Entity type</th><th>Meaning</th><th>Typical example</th></tr></thead><tbody><tr><td>Primary</td><td>One row per entity at the semantic model grain</td><td>order in one-row-per-order fact</td></tr><tr><td>Unique</td><td>Unique in this model but not necessarily complete across the platform</td><td>active-customer subset</td></tr><tr><td>Foreign</td><td>May repeat and points to another entity</td><td>customer_id on orders</td></tr><tr><td>Natural</td><td>Real-world identifying key, possibly composed</td><td>salesperson + department assignment</td></tr></tbody></table></div>
+<h3>Safe semantic graph</h3><div class="flow"><span>orders (primary order, foreign customer)</span><b>→</b><span>customers (primary customer)</span><b>→</b><span>region dimension</span></div>
+<h3>Fan-out example</h3><div class="callout warn"><strong>Wrong grain</strong>Joining one-row-per-order revenue directly to one-row-per-item data duplicates order revenue. Aggregate item data to order grain first or model a separate item metric at item grain.</div>
+<div class="grid2"><div class="card"><h3>Time dimension</h3><p>Declare native granularity and default <code>agg_time_dimension</code>. Be explicit about event time versus processing time.</p></div><div class="card"><h3>Time spine</h3><p>Provides continuous periods for cumulative metrics, filling missing values, and consistent time-grain alignment.</p></div></div>
+<h3>SCD Type II dimensions</h3><p>MetricFlow can support time-aware joins to SCD Type II dimensions when the semantic model is configured correctly. The business question must specify whether attributes are evaluated “as of event time” or using the latest dimension state.</p>
+</section>
+
+<section class="section searchable" id="metricflow-ops" data-cat="metricflow"><div class="section-title"><div class="num">22</div><div><h2>MetricFlow Commands, Saved Queries, and Exports</h2><div class="lead">Parse, validate, discover, query, and operationalize metrics.</div></div></div>
+<div class="code-card searchable"><div class="code-head"><span>Semantic Layer CLI flow</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-bash"># Refresh project and semantic artifacts
+dbt parse
+
+# Connected dbt platform / dbt CLI workflow
+dbt sl validate
+dbt sl list metrics
+dbt sl list dimensions --metrics revenue
+dbt sl query --metrics revenue,orders --group-by metric_time__month,country
+
+# Local open-source MetricFlow workflow
+mf validate-configs
+mf list metrics
+mf query --metrics revenue --group-by metric_time__month</code></pre></div>
+<div class="code-card searchable"><div class="code-head"><span>Saved query and export pattern</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml">saved_queries:
+  - name: executive_revenue_monthly
+    description: Certified monthly executive revenue dataset
+    query_params:
+      metrics: [revenue, orders, average_order_value]
+      group_by:
+        - TimeDimension(&#x27;metric_time&#x27;, &#x27;month&#x27;)
+        - Dimension(&#x27;customer__region&#x27;)
+    exports:
+      - name: executive_revenue_table
+        config:
+          export_as: table
+          schema: semantic_exports
+          alias: executive_revenue_monthly</code></pre></div>
+<div class="grid3"><div class="card"><h3>Discovery</h3><p>List metrics, dimensions, entities, dimension values, and saved queries.</p></div><div class="card"><h3>Validation</h3><p>Check semantic definitions and data-platform compatibility before consumption.</p></div><div class="card"><h3>Exports</h3><p>Materialize governed saved-query outputs for consumers that need physical tables/views.</p></div></div>
+<div class="callout"><strong>Important</strong>After semantic YAML changes, run <code>dbt parse</code> so <code>semantic_manifest.json</code> reflects the new definitions before validating or querying.</div>
+</section>
+
+<section class="section searchable" id="trusted-layer" data-cat="metricflow"><div class="section-title"><div class="num">23</div><div><h2>Building a Trusted Layer for Humans and AI Agents</h2><div class="lead">A semantic layer is trusted only when the underlying data product is governed and observable.</div></div></div>
+<div class="grid3"><div class="card"><span class="pill">Truth</span><h3>Definition</h3><p>Metric formula, grain, filters, time basis, currency, exclusions, owner, and certification status.</p></div><div class="card"><span class="pill">Safety</span><h3>Join semantics</h3><p>Entities, cardinality, fan-out controls, dimensional reachability, and valid query combinations.</p></div><div class="card"><span class="pill">Reliability</span><h3>Operations</h3><p>Freshness, tests, reconciliation, incidents, SLAs, artifacts, and usage monitoring.</p></div></div>
+<h3>Implementation sequence</h3><ol class="tight"><li>Choose a high-value domain and identify canonical business processes.</li><li>Build grain-correct facts/dimensions with stable keys.</li><li>Enforce contracts, data tests, and source-to-finance reconciliations.</li><li>Assign groups, owners, access, and versioning policy.</li><li>Define semantic entities, dimensions, time, and simple metrics.</li><li>Compose ratios, derived, cumulative, and conversion metrics.</li><li>Validate allowed dimensions and generated SQL.</li><li>Publish saved queries for executive and AI consumption.</li><li>Monitor freshness, quality, latency, cost, and metric usage.</li></ol>
+<h3>AI agent guardrails</h3><ul class="tight"><li>Allow queries only against certified metrics and dimensions.</li><li>Return metric definition, filters, grain, and freshness with every answer.</li><li>Limit expensive dimensions/time ranges and enforce row-level policies.</li><li>Log prompts, resolved semantic queries, generated SQL, runtime, and feedback.</li><li>Use deterministic metric APIs instead of asking an LLM to invent SQL joins.</li></ul>
+</section>
+
+<section class="section searchable" id="scenarios" data-cat="interview"><div class="section-title"><div class="num">24</div><div><h2>Scenario-Based Interview Questions</h2><div class="lead">Answer with diagnosis, correctness, trade-offs, and prevention.</div></div></div>
+<details class="qa searchable"><summary>A daily incremental model misses records that arrive two days late. What do you change?</summary><div class="answer">Use a lookback window on the source filter, merge by a stable unique key, keep the predicate on the source scan, and add a reconciliation test comparing recent source and target counts or sums.</div></details><details class="qa searchable"><summary>A merge model suddenly creates duplicate customer rows.</summary><div class="answer">Verify the incoming dataset has one row per unique_key, deduplicate with row_number before the merge, test key uniqueness in staging, and confirm the business key has not changed semantics.</div></details><details class="qa searchable"><summary>CI builds every model and costs too much.</summary><div class="answer">Persist the production manifest, select state:modified plus required descendants, defer unchanged parents to production, exclude nonessential heavy models, and use schema-only or sampled validation where appropriate.</div></details><details class="qa searchable"><summary>A downstream dashboard broke after a column rename.</summary><div class="answer">Introduce a new model version or compatibility alias, enforce contracts, mark the old version with a deprecation date, notify exposure owners, and migrate consumers before removal.</div></details><details class="qa searchable"><summary>Two teams calculate revenue differently.</summary><div class="answer">Agree on grain, inclusion/exclusion rules, time basis, currency handling, refunds, and late data; implement one governed metric in the semantic layer; reconcile it to finance controls; publish ownership and certification.</div></details><details class="qa searchable"><summary>MetricFlow refuses a requested dimension.</summary><div class="answer">Check whether the dimension is reachable through valid entity paths, whether entity names/types align, and whether the requested join would create fan-out or chasm behavior. Remodel the grain instead of forcing an unsafe join.</div></details><details class="qa searchable"><summary>Revenue doubles after joining orders to order items.</summary><div class="answer">The join changed grain. Aggregate items to order grain before joining, or define semantic models/entities so MetricFlow avoids fan-out. Add reconciliation tests on totals before and after the join.</div></details><details class="qa searchable"><summary>A source freshness check is green but data is wrong.</summary><div class="answer">Freshness measures recency, not completeness or correctness. Add volume, null, distribution, accepted-value, and reconciliation checks plus ingestion metadata monitoring.</div></details><details class="qa searchable"><summary>A macro works in run but fails during parse.</summary><div class="answer">It likely accesses query results during parse. Wrap runtime-only logic in if execute and provide a parse-safe default branch.</div></details><details class="qa searchable"><summary>An ephemeral chain produces unreadable compiled SQL.</summary><div class="answer">Materialize stable intermediate boundaries as views or tables, reduce abstraction depth, and reserve ephemeral models for small reusable transformations.</div></details><details class="qa searchable"><summary>A full refresh takes six hours.</summary><div class="answer">Confirm whether it is truly required; use incremental or microbatch processing, partition pruning, staged rebuilds, warehouse scaling, and controlled backfill windows. Validate results before swapping.</div></details><details class="qa searchable"><summary>A contract blocks a harmless numeric change.</summary><div class="answer">Treat it as an interface change. Check adapter type aliasing and precision behavior, update the contract deliberately, test downstream compatibility, and version the model if the change is breaking.</div></details>
+</section>
+
+<section class="section searchable" id="rapid-fire" data-cat="interview"><div class="section-title"><div class="num">25</div><div><h2>Rapid-Fire Interview Q&A</h2><div class="lead">Use the search box to filter this bank by concept.</div></div></div>
+<details class="qa searchable"><summary>What problem does dbt solve?</summary><div class="answer">dbt transforms data already loaded in a warehouse or lakehouse. It adds modular SQL/Python models, dependency management, testing, documentation, lineage, reusable macros, environments, and software-engineering workflows around transformations.</div></details><details class="qa searchable"><summary>Is dbt an ETL tool?</summary><div class="answer">Primarily it is the T in ELT. Extraction and loading are usually handled by ingestion tools, while dbt compiles and executes transformations inside the data platform.</div></details><details class="qa searchable"><summary>What is a dbt model?</summary><div class="answer">A select statement, or supported Python model, that dbt materializes as a relation or inlines as an ephemeral CTE. Its filename is the default model name.</div></details><details class="qa searchable"><summary>What does ref() do?</summary><div class="answer">It resolves the correct database relation, creates a DAG dependency, supports environment-aware naming, and enables lineage and selection. Hard-coded relation names lose these benefits.</div></details><details class="qa searchable"><summary>What does source() do?</summary><div class="answer">It references declared raw inputs, creates source lineage, centralizes database/schema naming, and enables source tests and freshness checks.</div></details><details class="qa searchable"><summary>dbt run versus dbt build?</summary><div class="answer">dbt run executes models. dbt build executes selected models, tests, seeds, snapshots, and supported functions in DAG order; failing upstream tests can skip downstream nodes.</div></details><details class="qa searchable"><summary>compile versus run?</summary><div class="answer">compile renders Jinja and writes compiled SQL without materializing models. run compiles and executes model SQL in the target platform.</div></details><details class="qa searchable"><summary>Why use staging models?</summary><div class="answer">They isolate source-specific cleanup: renaming, casting, basic standardization, deduplication, and source-aligned tests. Business logic should normally live downstream.</div></details><details class="qa searchable"><summary>What is an ephemeral model?</summary><div class="answer">A model inlined as a CTE into downstream compiled SQL. It creates no warehouse relation, which can reduce clutter but make debugging and deeply nested SQL harder.</div></details><details class="qa searchable"><summary>When should a model be a table?</summary><div class="answer">When queries are expensive, reused often, require predictable performance, or form a stable interface for downstream consumers.</div></details><details class="qa searchable"><summary>When should a model be a view?</summary><div class="answer">For lightweight logic, low storage overhead, rapid iteration, and when warehouse optimization can efficiently execute the underlying query.</div></details><details class="qa searchable"><summary>What is an incremental model?</summary><div class="answer">A model that processes only new or changed records after the initial build. Correctness depends on a reliable filter, merge strategy, key, late-data handling, and idempotent logic.</div></details><details class="qa searchable"><summary>What does is_incremental() check?</summary><div class="answer">It is true when the target relation exists, the model is configured incremental, and the run is not a full refresh. Use it to conditionally restrict source rows.</div></details><details class="qa searchable"><summary>Why is unique_key important?</summary><div class="answer">For update-capable strategies such as merge, it identifies matching target rows. A non-unique or unstable key can create duplicates, merge errors, or incorrect updates.</div></details><details class="qa searchable"><summary>How do you handle late-arriving data?</summary><div class="answer">Reprocess a lookback window, merge by a stable key, and monitor lateness. The lookback increases cost slightly but protects correctness when timestamps arrive late.</div></details><details class="qa searchable"><summary>What is microbatch incremental processing?</summary><div class="answer">Time-based incremental execution split into batches using an event-time column. It improves manageability and retry behavior for very large event datasets.</div></details><details class="qa searchable"><summary>What is on_schema_change?</summary><div class="answer">It controls how incremental models react when source/model columns change, such as ignoring changes, failing, appending new columns, or synchronizing columns where supported.</div></details><details class="qa searchable"><summary>Snapshot versus incremental model?</summary><div class="answer">A snapshot preserves historical row versions, usually for SCD Type II behavior. An incremental model efficiently builds the current or transformed dataset and does not automatically retain history.</div></details><details class="qa searchable"><summary>Timestamp versus check snapshot strategy?</summary><div class="answer">Timestamp tracks changes using a reliable updated-at column and is generally preferred. Check compares selected columns and is useful when no trustworthy update timestamp exists.</div></details><details class="qa searchable"><summary>Data test versus unit test?</summary><div class="answer">A data test queries built data and returns failing rows. A unit test supplies controlled input fixtures and validates a model&#x27;s SQL logic before materializing that model in dbt build.</div></details><details class="qa searchable"><summary>What are the four common generic tests?</summary><div class="answer">unique, not_null, accepted_values, and relationships. They cover basic key, completeness, domain, and referential-integrity expectations.</div></details><details class="qa searchable"><summary>Test versus contract?</summary><div class="answer">Tests validate data values after or around execution. Contracts enforce the declared output shape and data types during model creation, making the model interface explicit.</div></details><details class="qa searchable"><summary>How do warning thresholds work?</summary><div class="answer">Configure severity plus warn_if/error_if expressions. This allows soft monitoring for small failures and hard blocking when a threshold is exceeded.</div></details><details class="qa searchable"><summary>What is store_failures?</summary><div class="answer">It persists failing rows to an audit relation so engineers can inspect, trend, and remediate bad records.</div></details><details class="qa searchable"><summary>What is a macro?</summary><div class="answer">A reusable Jinja function that generates SQL or orchestrates metadata operations. Macros reduce duplication but should be used carefully to avoid hiding business logic.</div></details><details class="qa searchable"><summary>Why use adapter.dispatch?</summary><div class="answer">It lets a macro provide adapter-specific implementations behind one public interface, enabling portable packages and warehouse-optimized SQL.</div></details><details class="qa searchable"><summary>What is run_query()?</summary><div class="answer">A Jinja function that executes SQL during compilation/execution context and returns a result object. Guard result-dependent logic with execute to avoid parse-time errors.</div></details><details class="qa searchable"><summary>Why use if execute?</summary><div class="answer">Parsing builds the manifest without necessarily querying the warehouse. if execute prevents code from accessing runtime query results during parse-only phases.</div></details><details class="qa searchable"><summary>What are pre-hooks and post-hooks?</summary><div class="answer">SQL statements run before or after a resource. Typical uses include grants, audit logging, and maintenance; native configs are preferred when available.</div></details><details class="qa searchable"><summary>What is a model contract?</summary><div class="answer">An enforced declaration of model columns and types. It helps protect downstream users from unreviewed breaking schema changes.</div></details><details class="qa searchable"><summary>What are model versions?</summary><div class="answer">Named versions of a model interface that let producers introduce breaking changes while keeping older consumers operational during migration.</div></details><details class="qa searchable"><summary>What are model access levels?</summary><div class="answer">Private restricts references to the same group, protected allows references within the project, and public is intended as a cross-project interface where supported.</div></details><details class="qa searchable"><summary>What are groups?</summary><div class="answer">Ownership boundaries for dbt resources. Groups support governance, access control, and clearer accountability in large projects.</div></details><details class="qa searchable"><summary>What is an exposure?</summary><div class="answer">Metadata describing a downstream dashboard, application, notebook, ML workflow, or other consumer. It extends lineage beyond dbt models.</div></details><details class="qa searchable"><summary>What is dbt Mesh?</summary><div class="answer">A multi-project operating model using governed public interfaces, ownership, contracts, versions, and cross-project dependencies to scale domain-oriented development.</div></details><details class="qa searchable"><summary>What is state:modified?</summary><div class="answer">A selector that compares the current project to a prior manifest and selects changed resources. Subselectors can distinguish body, configs, dependencies, macros, and other changes.</div></details><details class="qa searchable"><summary>What is defer?</summary><div class="answer">It resolves unbuilt references to relations represented in a supplied state manifest, commonly production, so developers can test changed models without rebuilding every upstream dependency.</div></details><details class="qa searchable"><summary>What is Slim CI?</summary><div class="answer">A CI pattern that builds changed nodes and relevant descendants while deferring unchanged upstream relations to a production-like state.</div></details><details class="qa searchable"><summary>Why use --favor-state?</summary><div class="answer">It prefers deferred state relations even when a relation exists in the current target, reducing accidental use of stale or partial developer objects.</div></details><details class="qa searchable"><summary>What are dbt artifacts?</summary><div class="answer">Machine-readable JSON outputs such as manifest, run_results, catalog, sources freshness results, and semantic_manifest. They power lineage, observability, impact analysis, and custom tooling.</div></details><details class="qa searchable"><summary>manifest.json versus run_results.json?</summary><div class="answer">manifest describes project resources, configs, dependencies, and compiled metadata. run_results records execution status, timing, adapter responses, and failures for a specific invocation.</div></details><details class="qa searchable"><summary>How do you optimize a slow dbt project?</summary><div class="answer">Measure first; reduce full scans, use appropriate materializations, filter early, prune columns, optimize incremental predicates, control threads, improve warehouse physical design, and use state-aware selection.</div></details><details class="qa searchable"><summary>How do you debug a model failure?</summary><div class="answer">Read the first database error, inspect target/compiled SQL, run the smallest failing selection, verify credentials and relation names, check upstream tests/freshness, and compare environment-specific configs.</div></details><details class="qa searchable"><summary>Why avoid SELECT * in marts?</summary><div class="answer">It creates accidental interface changes, scans unnecessary columns, weakens contracts and documentation, and makes downstream breakage harder to detect.</div></details><details class="qa searchable"><summary>What is a seed?</summary><div class="answer">A version-controlled CSV loaded by dbt, suitable for small static mappings and reference data—not large or frequently changing datasets.</div></details><details class="qa searchable"><summary>What is source freshness?</summary><div class="answer">A check that compares the newest load timestamp or warehouse metadata with configured warn/error service levels.</div></details><details class="qa searchable"><summary>How do packages work?</summary><div class="answer">packages.yml or dependencies.yml declares reusable dbt packages. dbt deps resolves them, and a lock file can pin the installed dependency graph.</div></details><details class="qa searchable"><summary>What is MetricFlow?</summary><div class="answer">A SQL query-generation engine that uses semantic models and metric definitions to create consistent metric queries across dimensions and valid join paths.</div></details><details class="qa searchable"><summary>What is the dbt Semantic Layer?</summary><div class="answer">A governed serving layer where metrics are centrally defined in a dbt project and queried by BI, notebooks, APIs, and applications without reimplementing metric logic.</div></details><details class="qa searchable"><summary>What is a semantic model?</summary><div class="answer">The semantic annotation of a dbt model: entities, dimensions, time behavior, and simple metrics. MetricFlow uses these definitions to build a semantic graph.</div></details><details class="qa searchable"><summary>Entity versus dimension?</summary><div class="answer">An entity identifies a business object and provides join semantics. A dimension is an attribute used to group or filter metric results.</div></details><details class="qa searchable"><summary>Primary, unique, foreign, and natural entities?</summary><div class="answer">Primary identifies the row grain; unique is unique within a subset; foreign can repeat and joins outward; natural represents a real-world identifying key, including composite expressions where supported.</div></details><details class="qa searchable"><summary>What is agg_time_dimension?</summary><div class="answer">The default time dimension used to aggregate metrics from a semantic model. Individual metrics can override it.</div></details><details class="qa searchable"><summary>What are simple metrics in the latest spec?</summary><div class="answer">Aggregations defined directly inside the model&#x27;s metrics block using keys such as agg and expr. They replace legacy measures.</div></details><details class="qa searchable"><summary>What are derived metrics?</summary><div class="answer">Metrics calculated from one or more input metrics using an expression, including period offsets for growth and retention calculations.</div></details><details class="qa searchable"><summary>What are ratio metrics?</summary><div class="answer">A numerator metric divided by a denominator metric, with optional filtering and null-handling behavior.</div></details><details class="qa searchable"><summary>What are cumulative metrics?</summary><div class="answer">Metrics accumulated over all time, a sliding window, or grain-to-date period using an input metric and time spine.</div></details><details class="qa searchable"><summary>What are conversion metrics?</summary><div class="answer">Metrics that relate a base event to a later conversion event for the same entity within a configured window and optional constant properties.</div></details><details class="qa searchable"><summary>How does MetricFlow choose joins?</summary><div class="answer">It builds a graph from entity definitions, selects valid paths, commonly uses left joins from facts to dimensions and full outer joins across multiple facts, and blocks paths likely to create fan-out or chasm errors.</div></details><details class="qa searchable"><summary>What is a time spine?</summary><div class="answer">A continuous date/timestamp relation used to fill missing periods, align grains, and compute cumulative or null-filled metrics consistently.</div></details><details class="qa searchable"><summary>What is a saved query?</summary><div class="answer">A reusable, governed metric query definition containing metrics, group-bys, filters, ordering, limits, and optional exports.</div></details><details class="qa searchable"><summary>How do you validate MetricFlow configs?</summary><div class="answer">Run dbt parse to refresh semantic_manifest.json, then use dbt sl validate in connected platform workflows or mf validate-configs for local open-source MetricFlow workflows.</div></details><details class="qa searchable"><summary>How do you query a metric from the CLI?</summary><div class="answer">Use dbt sl query --metrics &lt;name&gt; --group-by &lt;dimension&gt; in dbt platform-connected workflows, or mf query with equivalent options in local MetricFlow.</div></details><details class="qa searchable"><summary>What changed in the 2026 Semantic Layer YAML spec?</summary><div class="answer">Semantic definitions move under models, entities/dimensions attach to columns, simple metrics replace measures, and type-specific properties move out of the deprecated type_params wrapper.</div></details><details class="qa searchable"><summary>Should you memorize legacy MetricFlow YAML?</summary><div class="answer">Know how to recognize it because many production projects still use it, but lead with the latest supported spec and explain the migration differences.</div></details><details class="qa searchable"><summary>How would you build a trusted executive metric layer?</summary><div class="answer">Define certified grain-aligned marts, enforce contracts and tests, assign owners, document metric semantics, model entities and dimensions, prevent fan-out joins, validate with reconciliation tests, expose saved queries, and monitor freshness and usage.</div></details>
+</section>
+
+<section class="section searchable" id="exercise" data-cat="interview"><div class="section-title"><div class="num">26</div><div><h2>End-to-End Design Exercise</h2><div class="lead">Design an executive subscription scorecard with governed metrics.</div></div></div>
+<h3>Prompt</h3><p>You receive raw customers, subscriptions, invoices, payments, and product events. Build trusted metrics for monthly recurring revenue, new MRR, expansion, contraction, churned MRR, logo churn, active customers, and net revenue retention.</p>
+<h3>Strong solution outline</h3><ol class="tight"><li><b>Sources:</b> declare raw tables, freshness, ingestion metadata, and primary-key tests.</li><li><b>Staging:</b> normalize timestamps/currency/status; deduplicate CDC records.</li><li><b>Intermediate:</b> create subscription state intervals and invoice/payment reconciliation.</li><li><b>Marts:</b> one row per customer-subscription-day or month for movement logic; separate current customer dimension.</li><li><b>Incremental:</b> microbatch or partition overwrite by event/billing date with a late-data lookback.</li><li><b>Quality:</b> movement sums reconcile beginning MRR to ending MRR; paid invoice totals reconcile finance controls.</li><li><b>Governance:</b> finance owner, public contracted models, versions for definition changes, executive dashboard exposure.</li><li><b>Semantic Layer:</b> customer/subscription entities, plan/region dimensions, month time dimension, simple MRR movement metrics, ratio/derived NRR and churn metrics.</li><li><b>Operations:</b> saved executive query, freshness gate, anomaly monitoring, artifact-based alerting.</li></ol>
+<div class="code-card searchable"><div class="code-head"><span>Subscription metric composition</span><button class="copy-btn" type="button">Copy</button></div><pre><code class="language-yaml"># Conceptual advanced metrics
+metrics:
+  - name: gross_mrr_churn_rate
+    type: ratio
+    numerator: churned_mrr
+    denominator: beginning_mrr
+
+  - name: net_revenue_retention
+    type: derived
+    expr: (beginning_mrr + expansion_mrr - contraction_mrr - churned_mrr) / nullif(beginning_mrr, 0)
+    input_metrics:
+      - beginning_mrr
+      - expansion_mrr
+      - contraction_mrr
+      - churned_mrr</code></pre></div>
+<h3>Questions the interviewer may ask next</h3><div class="grid2"><div class="card"><ul class="tight"><li>How do you represent reactivation?</li><li>How do FX rates affect MRR?</li><li>What is the effective churn date?</li><li>How do annual prepayments affect MRR?</li></ul></div><div class="card"><ul class="tight"><li>How do you backfill corrected invoices?</li><li>How do you prevent customer-item fan-out?</li><li>How do you certify the metric against finance?</li><li>How do AI agents explain the answer?</li></ul></div></div>
+</section>
+
+<section class="section searchable" id="cheatsheet" data-cat="interview"><div class="section-title"><div class="num">27</div><div><h2>Last-Minute Cheat Sheet</h2><div class="lead">What to say in the final 15 minutes before an interview.</div></div></div>
+<div class="grid2"><div class="card"><h3>dbt in 10 points</h3><ol class="tight"><li>ELT transformation in the data platform.</li><li><code>ref</code>/<code>source</code> build the DAG.</li><li>State the grain before writing SQL.</li><li>Materialization is a cost/freshness trade-off.</li><li>Incremental correctness requires idempotency and late-data strategy.</li><li>Tests validate data; contracts protect interfaces.</li><li>Versions manage breaking changes.</li><li>State + defer enable Slim CI.</li><li>Artifacts enable observability and lineage.</li><li>Compiled SQL and query profiles drive optimization.</li></ol></div><div class="card"><h3>MetricFlow in 10 points</h3><ol class="tight"><li>Central metric definitions in code.</li><li>Semantic models map business meaning to dbt models.</li><li>Entities define identity and join paths.</li><li>Dimensions group and filter.</li><li>Simple metrics are direct aggregations.</li><li>Ratio/derived/cumulative/conversion compose metrics.</li><li>Grain and cardinality prevent fan-out.</li><li>Time spine supports complete time analysis.</li><li>Saved queries operationalize trusted datasets.</li><li>Latest spec embeds semantics under models and removes measures/type_params.</li></ol></div></div>
+<h3>Five phrases that signal seniority</h3><ul class="tight"><li>“I would first make the grain and update semantics explicit.”</li><li>“I optimize only after inspecting compiled SQL and the warehouse query profile.”</li><li>“Freshness is not the same as completeness or correctness.”</li><li>“A passing pipeline is not enough; retries and backfills must converge.”</li><li>“The semantic layer should expose governed definitions and safe join paths, not merely renamed SQL columns.”</li></ul>
+</section>
+
+<section class="section searchable" id="sources-official" data-cat="core"><div class="section-title"><div class="num">28</div><div><h2>Official Sources and Version Note</h2><div class="lead">Use current documentation because dbt and MetricFlow syntax evolves.</div></div></div>
+<div class="callout warn"><strong>Version awareness — 23 July 2026</strong>dbt Core v2.0 is alpha, Fusion is available in preview/local tools and dbt platform environments, and many organizations still run dbt Core 1.x. Interview answers should distinguish stable project concepts from runtime/version-specific features.</div>
+<ul class="source-list">
+<li><a href="https://docs.getdbt.com/docs/introduction" target="_blank" rel="noreferrer">dbt introduction</a></li>
+<li><a href="https://docs.getdbt.com/reference/commands/build" target="_blank" rel="noreferrer">dbt build command</a></li>
+<li><a href="https://docs.getdbt.com/docs/dbt-versions/core-upgrade/upgrading-to-v2" target="_blank" rel="noreferrer">dbt Core v2 / Fusion upgrade context</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/about-metricflow" target="_blank" rel="noreferrer">About MetricFlow</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/latest-metrics-spec" target="_blank" rel="noreferrer">Latest Semantic Layer YAML spec</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/semantic-models" target="_blank" rel="noreferrer">Semantic models</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/metrics-overview" target="_blank" rel="noreferrer">Metric types</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/join-logic" target="_blank" rel="noreferrer">MetricFlow joins</a></li>
+<li><a href="https://docs.getdbt.com/docs/build/metricflow-commands" target="_blank" rel="noreferrer">MetricFlow commands</a></li>
+</ul>
+<p class="lead">Examples in this guide are interview-oriented and may require adapter-specific syntax or feature availability checks for your exact dbt runtime and warehouse.</p>
+</section>
+</main>
+<footer class="footer">dbt + MetricFlow Interview Prep • Self-contained HTML • Print-friendly</footer>
+<button id="topBtn" class="top-btn" title="Back to top" aria-label="Back to top">↑</button>
+<script>
+const search=document.getElementById('search');
+const filters=[...document.querySelectorAll('.filter')];
+const sections=[...document.querySelectorAll('.section')];
+const count=document.getElementById('count');
+let active='all';
+function apply(){
+  const q=search.value.trim().toLowerCase();let visible=0;
+  sections.forEach(s=>{
+    const cat=s.dataset.cat;const catOk=active==='all'||cat===active;
+    const text=s.innerText.toLowerCase();const textOk=!q||text.includes(q);
+    s.classList.toggle('hidden',!(catOk&&textOk));if(catOk&&textOk)visible++;
+    s.querySelectorAll('.qa').forEach(d=>{if(q&&d.innerText.toLowerCase().includes(q))d.open=true;});
+  });
+  count.textContent=`${visible} sections`;
+}
+filters.forEach(b=>b.addEventListener('click',()=>{filters.forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter;apply();}));
+search.addEventListener('input',apply);apply();
+document.querySelectorAll('.copy-btn').forEach(btn=>btn.addEventListener('click',async()=>{const txt=btn.closest('.code-card').querySelector('code').innerText;try{await navigator.clipboard.writeText(txt);btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1200)}catch(e){btn.textContent='Select text'}}));
+const theme=document.getElementById('theme');theme.addEventListener('click',()=>{const root=document.documentElement;const dark=root.dataset.theme==='dark';root.dataset.theme=dark?'light':'dark';localStorage.setItem('dbt-theme',root.dataset.theme)});document.documentElement.dataset.theme=localStorage.getItem('dbt-theme')||'light';
+let expanded=false;document.getElementById('expand').addEventListener('click',e=>{expanded=!expanded;document.querySelectorAll('.qa').forEach(d=>d.open=expanded);e.currentTarget.textContent=expanded?'−':'＋';});
+const topBtn=document.getElementById('topBtn');topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+addEventListener('scroll',()=>{const h=document.documentElement;const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;document.getElementById('progress').style.width=pct+'%';topBtn.classList.toggle('show',h.scrollTop>700)});
+</script>
+</body></html>

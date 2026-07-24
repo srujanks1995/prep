@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Smartsheet Senior BI Engineer master interview cheat sheet covering metric governance, semantic layers, SaaS KPIs, product analytics, AI agents, Snowflake, Databricks, dbt and MetricFlow.">
+<title>Smartsheet Senior BI Engineer — Master Interview Cheat Sheet</title>
+<style>
+:root {
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --text: #172033;
+  --muted: #64748b;
+  --line: #dbe3ef;
+  --brand: #2457d6;
+  --brand-2: #6d28d9;
+  --shadow: 0 14px 40px rgba(20, 36, 68, 0.09);
+  --radius: 18px;
+  --header-height: 72px;
+}
+[data-theme="dark"] {
+  --bg: #0e1421;
+  --surface: #151d2c;
+  --surface-soft: #101827;
+  --text: #e8eef9;
+  --muted: #9caac1;
+  --line: #29364d;
+  --brand: #79a1ff;
+  --brand-2: #b69cff;
+  --shadow: 0 18px 45px rgba(0,0,0,.28);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(36,87,214,.12), transparent 28rem),
+    radial-gradient(circle at 100% 10%, rgba(109,40,217,.10), transparent 24rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+button, input { font: inherit; }
+a { color: inherit; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: var(--header-height);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px clamp(16px, 3vw, 36px);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 900;
+  letter-spacing: -.04em;
+  background: linear-gradient(135deg, #2457d6, #6d28d9);
+  box-shadow: 0 8px 22px rgba(36,87,214,.28);
+}
+.brand-copy { min-width: 0; }
+.brand-copy strong {
+  display: block;
+  font-size: .98rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-copy span { display: block; color: var(--muted); font-size: .78rem; }
+.toolbar { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.mobile-menu { display: none; }
+
+.hero {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: clamp(34px, 6vw, 78px) clamp(18px, 4vw, 54px) 26px;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.hero h1 {
+  max-width: 950px;
+  margin: 18px 0 12px;
+  font-size: clamp(2.1rem, 5vw, 4.7rem);
+  line-height: 1.03;
+  letter-spacing: -.055em;
+}
+.hero p {
+  max-width: 850px;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+.stat {
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .88rem;
+}
+.stat b { color: var(--text); }
+
+.framework-grid {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 54px) 30px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.framework-card {
+  min-height: 145px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, var(--surface), var(--surface-soft));
+  box-shadow: 0 8px 26px rgba(20,36,68,.05);
+}
+.framework-card strong {
+  display: block;
+  color: var(--brand);
+  font-size: 1.3rem;
+  letter-spacing: .06em;
+}
+.framework-card span {
+  display: block;
+  margin-top: 6px;
+  font-weight: 800;
+}
+.framework-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.controls-wrap {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 54px) 22px;
+}
+.controls {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-soft);
+}
+.search-box input {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+}
+.result-count {
+  align-self: center;
+  color: var(--muted);
+  font-size: .84rem;
+  white-space: nowrap;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-top: 12px;
+  scrollbar-width: none;
+}
+.filters::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+.filter-chip.active {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #2457d6, #6d28d9);
+}
+
+.layout {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 54px) 80px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+}
+.sidebar {
+  position: sticky;
+  top: 92px;
+  max-height: calc(100vh - 112px);
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.sidebar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: .78rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+.toc { display: grid; gap: 4px; padding-top: 8px; }
+.toc-link {
+  display: grid;
+  grid-template-columns: 35px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 9px;
+  border-radius: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .84rem;
+  line-height: 1.35;
+}
+.toc-link:hover, .toc-link.active {
+  color: var(--text);
+  background: var(--surface-soft);
+}
+.toc-number {
+  width: 30px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  color: white;
+  font-size: .7rem;
+  font-weight: 900;
+  background: #64748b;
+}
+.toc-link.cat-governance .toc-number { background: #0f9f7f; }
+.toc-link.cat-kpi .toc-number { background: #d97706; }
+.toc-link.cat-product .toc-number { background: #db2777; }
+.toc-link.cat-platform .toc-number { background: #6d28d9; }
+.toc-link.cat-foundations .toc-number { background: #2563eb; }
+.toc-link.cat-interview .toc-number { background: #475569; }
+
+.content { min-width: 0; display: grid; gap: 18px; }
+.section-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 3.5vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.section-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #64748b;
+}
+.section-card.cat-governance::before { background: #0f9f7f; }
+.section-card.cat-kpi::before { background: #d97706; }
+.section-card.cat-product::before { background: #db2777; }
+.section-card.cat-platform::before { background: #6d28d9; }
+.section-card.cat-foundations::before { background: #2563eb; }
+.section-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.number-badge, .category-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+.number-badge {
+  color: var(--text);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+.category-badge {
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+.section-link {
+  margin-left: auto;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+}
+.section-title {
+  margin: 0 0 18px;
+  font-size: clamp(1.45rem, 2.5vw, 2.15rem);
+  line-height: 1.15;
+  letter-spacing: -.035em;
+}
+.subsection-title {
+  margin: 28px 0 10px;
+  padding-top: 8px;
+  font-size: 1.12rem;
+  color: var(--text);
+}
+.section-card p { margin: 10px 0; }
+.section-card ul, .section-card ol { padding-left: 1.35rem; }
+.section-card strong { color: var(--text); }
+
+.answer-card {
+  margin: 16px 0;
+  padding: 17px 18px;
+  border: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+  border-left: 4px solid var(--brand);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  color: var(--text);
+}
+.answer-card p { margin: 0; }
+.code-panel {
+  position: relative;
+  overflow-x: auto;
+  margin: 14px 0 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #0d1525;
+  color: #e5edf9;
+  box-shadow: inset 0 1px rgba(255,255,255,.04);
+}
+.code-panel code {
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: .88rem;
+  line-height: 1.62;
+  white-space: pre;
+}
+.section-card code:not(pre code) {
+  padding: .15em .4em;
+  border-radius: 6px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  font-size: .88em;
+}
+.section-card hr { display: none; }
+
+.empty-state {
+  display: none;
+  padding: 50px 20px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  color: var(--muted);
+}
+.scroll-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 60;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  color: white;
+  background: linear-gradient(135deg, #2457d6, #6d28d9);
+  box-shadow: 0 12px 28px rgba(36,87,214,.28);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(15px);
+  pointer-events: none;
+  transition: .2s ease;
+}
+.scroll-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+.drawer-backdrop { display: none; }
+
+@media (max-width: 1100px) {
+  .framework-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .framework-card:last-child { grid-column: 1 / -1; }
+  .layout { grid-template-columns: 250px minmax(0, 1fr); }
+}
+@media (max-width: 800px) {
+  :root { --header-height: 64px; }
+  .brand-copy span { display: none; }
+  .mobile-menu { display: inline-grid; place-items: center; }
+  .framework-grid { grid-template-columns: 1fr; }
+  .framework-card:last-child { grid-column: auto; }
+  .layout { display: block; padding-inline: 14px; }
+  .hero, .controls-wrap, .framework-grid { padding-inline: 14px; }
+  .sidebar {
+    position: fixed;
+    inset: var(--header-height) auto 0 0;
+    z-index: 80;
+    width: min(86vw, 340px);
+    max-height: none;
+    border-radius: 0 18px 18px 0;
+    transform: translateX(-105%);
+    transition: transform .22s ease;
+  }
+  body.drawer-open .sidebar { transform: translateX(0); }
+  .drawer-backdrop {
+    position: fixed;
+    inset: var(--header-height) 0 0;
+    z-index: 70;
+    background: rgba(3,8,18,.52);
+  }
+  body.drawer-open .drawer-backdrop { display: block; }
+  .content { gap: 14px; }
+  .section-card { padding: 20px 18px; border-radius: 16px; }
+  .search-row { grid-template-columns: 1fr; }
+  .result-count { padding-left: 4px; }
+  .toolbar .print-btn { display: none; }
+}
+@media (max-width: 480px) {
+  .topbar { padding-inline: 10px; gap: 8px; }
+  .brand-mark { width: 38px; height: 38px; }
+  .brand-copy strong { font-size: .86rem; max-width: 180px; }
+  .hero h1 { font-size: 2.25rem; }
+  .section-title { font-size: 1.4rem; }
+  .code-panel { margin-inline: -4px; padding: 15px; }
+  .code-panel code { font-size: .78rem; }
+}
+
+@media print {
+  :root { --bg: #fff; --surface: #fff; --text: #111; --muted: #555; --line: #ddd; }
+  body { background: #fff; }
+  .topbar, .controls-wrap, .sidebar, .scroll-top, .drawer-backdrop { display: none !important; }
+  .hero { padding: 24px 0 14px; }
+  .framework-grid { grid-template-columns: repeat(5, 1fr); padding: 0 0 18px; }
+  .framework-card { min-height: 0; box-shadow: none; break-inside: avoid; }
+  .layout { display: block; padding: 0; }
+  .section-card { box-shadow: none; break-inside: avoid; margin-bottom: 12px; }
+  .code-panel { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open section index">☰</button>
+  <div class="brand">
+    <div class="brand-mark">BI</div>
+    <div class="brand-copy">
+      <strong>Smartsheet Senior BI Engineer</strong>
+      <span>Master interview cheat sheet</span>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="icon-btn print-btn" id="printBtn" aria-label="Print cheat sheet">⎙</button>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">◐</button>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow">Interview Preparation · Trusted Data · AI Analytics</span>
+  <h1>Smartsheet Senior BI Engineer — Master Interview Cheat Sheet</h1>
+  <p>A focused study guide for executive reporting, metric governance, semantic layers, product analytics, SaaS KPIs, Snowflake, Databricks, dbt, MetricFlow and AI agents.</p>
+  <div class="hero-stats">
+    <span class="stat"><b>20</b> study sections</span>
+    <span class="stat"><b>5</b> memory frameworks</span>
+    <span class="stat"><b>1026</b> source lines</span>
+    <span class="stat">Mobile & print friendly</span>
+  </div>
+</section>
+
+<section class="framework-grid" aria-label="Frameworks to memorise">
+  <div class="framework-card">
+          <strong>DOCTOR</strong>
+          <span>Metric governance</span>
+          <small>Definition · Ownership · Certification · Technical implementation · Observability · Retirement</small>
+        </div>
+<div class="framework-card">
+          <strong>TRUST</strong>
+          <span>Data catalogue &amp; quality</span>
+          <small>Terms · Roles · Usage · Standards · Timeliness</small>
+        </div>
+<div class="framework-card">
+          <strong>SCALE</strong>
+          <span>Semantic layer</span>
+          <small>Standardise · Create · Apply controls · Layer · Expose</small>
+        </div>
+<div class="framework-card">
+          <strong>DRIVE</strong>
+          <span>KPI design</span>
+          <small>Define · Refine · Implement · View · Explain</small>
+        </div>
+<div class="framework-card">
+          <strong>TRACE</strong>
+          <span>Event analytics</span>
+          <small>Taxonomy · Reliability · Analytics pipeline · Customer behaviour · Evaluation</small>
+        </div>
+</section>
+
+<section class="controls-wrap">
+  <div class="controls">
+    <div class="search-row">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="Search metrics, governance, churn, MCP, dbt..." autocomplete="off">
+      </label>
+      <div class="result-count" id="resultCount">20 of 20 sections</div>
+    </div>
+    <div class="filters" aria-label="Filter sections">
+      <button class="filter-chip active" data-filter="All">All</button>
+<button class="filter-chip" data-filter="Interview">Interview</button>
+<button class="filter-chip" data-filter="Foundations">Foundations</button>
+<button class="filter-chip" data-filter="Governance">Governance</button>
+<button class="filter-chip" data-filter="KPI">KPI</button>
+<button class="filter-chip" data-filter="Product Analytics">Product Analytics</button>
+<button class="filter-chip" data-filter="AI &amp; Platform">AI &amp; Platform</button>
+    </div>
+  </div>
+</section>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <span>Section index</span>
+      <span>20</span>
+    </div>
+    <nav class="toc" id="toc">
+      <a class="toc-link cat-interview" href="#tell-me-about-yourself" data-category="Interview">
+          <span class="toc-number">01</span>
+          <span>Tell me about yourself</span>
+        </a>
+<a class="toc-link cat-foundations" href="#what-this-role-is-about" data-category="Foundations">
+          <span class="toc-number">02</span>
+          <span>What this role is about</span>
+        </a>
+<a class="toc-link cat-foundations" href="#end-to-end-architecture" data-category="Foundations">
+          <span class="toc-number">03</span>
+          <span>End-to-end architecture</span>
+        </a>
+<a class="toc-link cat-governance" href="#metric-governance-doctor" data-category="Governance">
+          <span class="toc-number">04</span>
+          <span>Metric governance — DOCTOR</span>
+        </a>
+<a class="toc-link cat-governance" href="#data-catalogues-and-data-quality-trust" data-category="Governance">
+          <span class="toc-number">05</span>
+          <span>Data catalogues and data quality — TRUST</span>
+        </a>
+<a class="toc-link cat-governance" href="#semantic-layers-and-canonical-metrics-scale" data-category="Governance">
+          <span class="toc-number">06</span>
+          <span>Semantic layers and canonical metrics — SCALE</span>
+        </a>
+<a class="toc-link cat-kpi" href="#numerator-and-denominator" data-category="KPI">
+          <span class="toc-number">07</span>
+          <span>Numerator and denominator</span>
+        </a>
+<a class="toc-link cat-kpi" href="#kpi-design-and-insight-generation-drive" data-category="KPI">
+          <span class="toc-number">08</span>
+          <span>KPI design and insight generation — DRIVE</span>
+        </a>
+<a class="toc-link cat-kpi" href="#kpi-hierarchy" data-category="KPI">
+          <span class="toc-number">09</span>
+          <span>KPI hierarchy</span>
+        </a>
+<a class="toc-link cat-kpi" href="#important-saas-kpis" data-category="KPI">
+          <span class="toc-number">10</span>
+          <span>Important SaaS KPIs</span>
+        </a>
+<a class="toc-link cat-product" href="#event-taxonomy-and-instrumentation-trace" data-category="Product Analytics">
+          <span class="toc-number">11</span>
+          <span>Event taxonomy and instrumentation — TRACE</span>
+        </a>
+<a class="toc-link cat-kpi" href="#kpi-anomaly-detection" data-category="KPI">
+          <span class="toc-number">15</span>
+          <span>KPI anomaly detection</span>
+        </a>
+<a class="toc-link cat-platform" href="#ai-agents-and-mcp" data-category="AI &amp; Platform">
+          <span class="toc-number">16</span>
+          <span>AI agents and MCP</span>
+        </a>
+<a class="toc-link cat-platform" href="#snowflake-talking-points" data-category="AI &amp; Platform">
+          <span class="toc-number">17</span>
+          <span>Snowflake talking points</span>
+        </a>
+<a class="toc-link cat-platform" href="#databricks-talking-points" data-category="AI &amp; Platform">
+          <span class="toc-number">18</span>
+          <span>Databricks talking points</span>
+        </a>
+<a class="toc-link cat-platform" href="#dbt-and-metricflow-talking-points" data-category="AI &amp; Platform">
+          <span class="toc-number">19</span>
+          <span>dbt and MetricFlow talking points</span>
+        </a>
+<a class="toc-link cat-interview" href="#handling-conflicting-metric-definitions" data-category="Interview">
+          <span class="toc-number">20</span>
+          <span>Handling conflicting metric definitions</span>
+        </a>
+<a class="toc-link cat-interview" href="#designing-a-new-kpi" data-category="Interview">
+          <span class="toc-number">21</span>
+          <span>Designing a new KPI</span>
+        </a>
+<a class="toc-link cat-interview" href="#high-value-interview-phrases" data-category="Interview">
+          <span class="toc-number">27</span>
+          <span>High-value interview phrases</span>
+        </a>
+<a class="toc-link cat-interview" href="#final-frameworks-to-memorise" data-category="Interview">
+          <span class="toc-number">28</span>
+          <span>Final frameworks to memorise</span>
+        </a>
+    </nav>
+  </aside>
+
+  <main class="content" id="content">
+    <article class="section-card cat-interview" data-category="Interview" data-search="1. tell me about yourself  i am a senior data and ai engineer with more than eight years of experience building enterprise data platforms, analytics solutions and ai-powered applications. at rtx, i lead data and ai initiatives involving snowflake governance, executive reporting, data-quality standardisation and mcp-based ai solutions. at walmart, i built monitoring and automation platforms supporting more than 26,000 data pipelines, improving sla performance from approximately 95% to 98%. my strength is connecting data engineering, governance, business metrics and ai so that leaders and end users can make decisions using trusted data. this smartsheet role is a strong match because it combines semantic layers, executive reporting, metric governance, self-service analytics and ai agents.   " data-section-number="1" id="card-tell-me-about-yourself"><div class="section-meta"><span class="number-badge">01</span><span class="category-badge">Interview</span><a aria-label="Link to 1. Tell me about yourself" class="section-link" href="#tell-me-about-yourself">⌁</a></div><h2 class="section-title" id="tell-me-about-yourself">1. Tell me about yourself</h2>
+<blockquote class="answer-card">
+<p>I am a Senior Data and AI Engineer with more than eight years of experience building enterprise data platforms, analytics solutions and AI-powered applications. At RTX, I lead data and AI initiatives involving Snowflake governance, executive reporting, data-quality standardisation and MCP-based AI solutions. At Walmart, I built monitoring and automation platforms supporting more than 26,000 data pipelines, improving SLA performance from approximately 95% to 98%. My strength is connecting data engineering, governance, business metrics and AI so that leaders and end users can make decisions using trusted data. This Smartsheet role is a strong match because it combines semantic layers, executive reporting, metric governance, self-service analytics and AI agents.</p>
+</blockquote>
+
+</article><article class="section-card cat-foundations" data-category="Foundations" data-search="2. what this role is about  this role is about creating a trusted enterprise data layer that supports executive scorecards, self-service dashboards and ai agents. the key objective is to define business metrics once, govern them centrally and make them reusable across tableau, amplitude, snowflake, databricks and ai tools.  the three pillars are:  1. executive reporting
+2. metric governance and standardisation
+3. self-service and ai-powered analytics   " data-section-number="2" id="card-what-this-role-is-about"><div class="section-meta"><span class="number-badge">02</span><span class="category-badge">Foundations</span><a aria-label="Link to 2. What this role is about" class="section-link" href="#what-this-role-is-about">⌁</a></div><h2 class="section-title" id="what-this-role-is-about">2. What this role is about</h2>
+<blockquote class="answer-card">
+<p>This role is about creating a trusted enterprise data layer that supports executive scorecards, self-service dashboards and AI agents. The key objective is to define business metrics once, govern them centrally and make them reusable across Tableau, Amplitude, Snowflake, Databricks and AI tools.</p>
+</blockquote>
+<p>The three pillars are:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">1. Executive reporting
+2. Metric governance and standardisation
+3. Self-service and AI-powered analytics
+</code></pre>
+
+</article><article class="section-card cat-foundations" data-category="Foundations" data-search="3. end-to-end architecture  operational systems
+product events
+crm, finance and customer success data
+                ↓
+snowflake / databricks raw layer
+                ↓
+dbt staging models
+                ↓
+canonical facts and dimensions
+                ↓
+dbt semantic layer / metricflow
+                ↓
+certified metrics
+                ↓
+tableau | amplitude | executive scorecards | apis | ai agents  core principle:  business logic should be defined once in the governed metric layer rather than recreated independently in every dashboard.   " data-section-number="3" id="card-end-to-end-architecture"><div class="section-meta"><span class="number-badge">03</span><span class="category-badge">Foundations</span><a aria-label="Link to 3. End-to-end architecture" class="section-link" href="#end-to-end-architecture">⌁</a></div><h2 class="section-title" id="end-to-end-architecture">3. End-to-end architecture</h2>
+<pre class="code-panel"><code class="language-text plain-diagram">Operational systems
+Product events
+CRM, Finance and Customer Success data
+                ↓
+Snowflake / Databricks raw layer
+                ↓
+dbt staging models
+                ↓
+Canonical facts and dimensions
+                ↓
+dbt Semantic Layer / MetricFlow
+                ↓
+Certified metrics
+                ↓
+Tableau | Amplitude | Executive scorecards | APIs | AI agents
+</code></pre>
+<p>Core principle:</p>
+<blockquote class="answer-card">
+<p>Business logic should be defined once in the governed metric layer rather than recreated independently in every dashboard.</p>
+</blockquote>
+
+</article><article class="section-card cat-governance" data-category="Governance" data-search="4. metric governance — doctor  use doctor :  d — definition
+o — ownership
+c — certification
+t — technical implementation
+o — observability
+r — retirement and change control  definition  every metric must include:  business meaning
+formula
+numerator
+denominator
+grain
+time window
+inclusion rules
+exclusion rules
+approved dimensions
+authoritative source
+refresh frequency
+known limitations  ownership  business owner:
+defines and approves what the metric means
+
+technical owner:
+implements and maintains the metric
+
+data steward:
+maintains documentation, lineage and quality
+
+executive sponsor:
+resolves major cross-functional disagreements  strong statement:  business teams own what a metric means, while data teams own how it is implemented reliably.  certification  a certified metric must have:  approved business definition
+named owner
+clear grain
+authoritative data source
+automated quality tests
+lineage
+reconciliation
+refresh sla
+version history
+stakeholder approval  technical implementation  source data
+    ↓
+dbt models
+    ↓
+canonical facts and dimensions
+    ↓
+metricflow semantic models
+    ↓
+certified metrics  observability  monitor:  freshness
+completeness
+uniqueness
+validity
+referential integrity
+volume anomalies
+distribution changes
+reconciliation variance
+query failures
+dashboard usage  retirement and change control  for every metric change, document:  why it is changing
+old definition
+new definition
+historical impact
+affected dashboards
+effective date
+backfill decision
+approvers
+migration plan  never silently change a tier 1 executive metric.   " data-section-number="4" id="card-metric-governance-doctor"><div class="section-meta"><span class="number-badge">04</span><span class="category-badge">Governance</span><a aria-label="Link to 4. Metric governance — DOCTOR" class="section-link" href="#metric-governance-doctor">⌁</a></div><h2 class="section-title" id="metric-governance-doctor">4. Metric governance — DOCTOR</h2>
+<p>Use <strong>DOCTOR</strong>:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">D — Definition
+O — Ownership
+C — Certification
+T — Technical implementation
+O — Observability
+R — Retirement and change control
+</code></pre>
+<h3 class="subsection-title">Definition</h3>
+<p>Every metric must include:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Business meaning
+Formula
+Numerator
+Denominator
+Grain
+Time window
+Inclusion rules
+Exclusion rules
+Approved dimensions
+Authoritative source
+Refresh frequency
+Known limitations
+</code></pre>
+<h3 class="subsection-title">Ownership</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Business owner:
+Defines and approves what the metric means
+
+Technical owner:
+Implements and maintains the metric
+
+Data steward:
+Maintains documentation, lineage and quality
+
+Executive sponsor:
+Resolves major cross-functional disagreements
+</code></pre>
+<p>Strong statement:</p>
+<blockquote class="answer-card">
+<p>Business teams own what a metric means, while data teams own how it is implemented reliably.</p>
+</blockquote>
+<h3 class="subsection-title">Certification</h3>
+<p>A certified metric must have:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Approved business definition
+Named owner
+Clear grain
+Authoritative data source
+Automated quality tests
+Lineage
+Reconciliation
+Refresh SLA
+Version history
+Stakeholder approval
+</code></pre>
+<h3 class="subsection-title">Technical implementation</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Source data
+    ↓
+dbt models
+    ↓
+Canonical facts and dimensions
+    ↓
+MetricFlow semantic models
+    ↓
+Certified metrics
+</code></pre>
+<h3 class="subsection-title">Observability</h3>
+<p>Monitor:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Freshness
+Completeness
+Uniqueness
+Validity
+Referential integrity
+Volume anomalies
+Distribution changes
+Reconciliation variance
+Query failures
+Dashboard usage
+</code></pre>
+<h3 class="subsection-title">Retirement and change control</h3>
+<p>For every metric change, document:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Why it is changing
+Old definition
+New definition
+Historical impact
+Affected dashboards
+Effective date
+Backfill decision
+Approvers
+Migration plan
+</code></pre>
+<p>Never silently change a Tier 1 executive metric.</p>
+
+</article><article class="section-card cat-governance" data-category="Governance" data-search="5. data catalogues and data quality — trust  use trust :  t — terms and definitions
+r — roles and ownership
+u — usage, access and lineage
+s — standards and quality checks
+t — timeliness and trust status  data catalogue  a data catalogue answers:  what data exists?
+what does it mean?
+where does it come from?
+who owns it?
+who uses it?
+is it certified?
+does it contain sensitive data?  catalogue assets can include:  snowflake tables
+databricks tables
+dbt models
+metrics
+amplitude events
+tableau dashboards
+apis
+data pipelines  data-quality tooling  quality tooling answers:  can this data currently be trusted?  important checks:  completeness — required values are present
+uniqueness — business keys are unique
+validity — values follow accepted rules
+consistency — systems agree
+accuracy — values reconcile with authoritative sources
+freshness — data arrives on time
+referential integrity — relationships are valid  strong statement:  the catalogue explains the data, while quality tooling validates the data. the catalogue should display the latest quality and freshness status.   " data-section-number="5" id="card-data-catalogues-and-data-quality-trust"><div class="section-meta"><span class="number-badge">05</span><span class="category-badge">Governance</span><a aria-label="Link to 5. Data catalogues and data quality — TRUST" class="section-link" href="#data-catalogues-and-data-quality-trust">⌁</a></div><h2 class="section-title" id="data-catalogues-and-data-quality-trust">5. Data catalogues and data quality — TRUST</h2>
+<p>Use <strong>TRUST</strong>:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">T — Terms and definitions
+R — Roles and ownership
+U — Usage, access and lineage
+S — Standards and quality checks
+T — Timeliness and trust status
+</code></pre>
+<h3 class="subsection-title">Data catalogue</h3>
+<p>A data catalogue answers:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">What data exists?
+What does it mean?
+Where does it come from?
+Who owns it?
+Who uses it?
+Is it certified?
+Does it contain sensitive data?
+</code></pre>
+<p>Catalogue assets can include:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Snowflake tables
+Databricks tables
+dbt models
+Metrics
+Amplitude events
+Tableau dashboards
+APIs
+Data pipelines
+</code></pre>
+<h3 class="subsection-title">Data-quality tooling</h3>
+<p>Quality tooling answers:</p>
+<blockquote class="answer-card">
+<p>Can this data currently be trusted?</p>
+</blockquote>
+<p>Important checks:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Completeness — required values are present
+Uniqueness — business keys are unique
+Validity — values follow accepted rules
+Consistency — systems agree
+Accuracy — values reconcile with authoritative sources
+Freshness — data arrives on time
+Referential integrity — relationships are valid
+</code></pre>
+<p>Strong statement:</p>
+<blockquote class="answer-card">
+<p>The catalogue explains the data, while quality tooling validates the data. The catalogue should display the latest quality and freshness status.</p>
+</blockquote>
+
+</article><article class="section-card cat-governance" data-category="Governance" data-search="6. semantic layers and canonical metrics — scale  use scale :  s — standardise business definitions
+c — create governed data models
+a — apply ownership and quality controls
+l — layer metrics for reuse
+e — expose metrics to downstream consumers  semantic layer  a semantic layer provides a business-friendly interface over physical warehouse tables.  it translates technical data into concepts such as:  customer
+account
+subscription
+active user
+revenue
+churn
+retention
+feature adoption  governed model  a governed model has:  clear grain
+documented meaning
+named owner
+authoritative source
+automated tests
+lineage
+access controls
+certification
+versioning  example:  model: fct_account_monthly_usage
+
+grain:
+one row per account per month
+
+measures:
+active_users
+sheets_created
+automations_created
+collaborators_invited
+
+dimensions:
+region
+customer_segment
+plan_type
+account_status  canonical metric  a canonical metric is the approved enterprise definition of a kpi.  example:  metric:
+monthly active account
+
+definition:
+a paid account with at least one meaningful product activity
+during the calendar month
+
+exclusions:
+internal, test and trial accounts
+
+source:
+fct_account_activity
+
+owner:
+product analytics
+
+status:
+certified  strong statement:  the semantic layer owns metric logic. dashboards and ai agents consume approved metrics instead of rebuilding calculations.   " data-section-number="6" id="card-semantic-layers-and-canonical-metrics-scale"><div class="section-meta"><span class="number-badge">06</span><span class="category-badge">Governance</span><a aria-label="Link to 6. Semantic layers and canonical metrics — SCALE" class="section-link" href="#semantic-layers-and-canonical-metrics-scale">⌁</a></div><h2 class="section-title" id="semantic-layers-and-canonical-metrics-scale">6. Semantic layers and canonical metrics — SCALE</h2>
+<p>Use <strong>SCALE</strong>:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">S — Standardise business definitions
+C — Create governed data models
+A — Apply ownership and quality controls
+L — Layer metrics for reuse
+E — Expose metrics to downstream consumers
+</code></pre>
+<h3 class="subsection-title">Semantic layer</h3>
+<p>A semantic layer provides a business-friendly interface over physical warehouse tables.</p>
+<p>It translates technical data into concepts such as:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Customer
+Account
+Subscription
+Active user
+Revenue
+Churn
+Retention
+Feature adoption
+</code></pre>
+<h3 class="subsection-title">Governed model</h3>
+<p>A governed model has:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Clear grain
+Documented meaning
+Named owner
+Authoritative source
+Automated tests
+Lineage
+Access controls
+Certification
+Versioning
+</code></pre>
+<p>Example:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Model: fct_account_monthly_usage
+
+Grain:
+One row per account per month
+
+Measures:
+active_users
+sheets_created
+automations_created
+collaborators_invited
+
+Dimensions:
+region
+customer_segment
+plan_type
+account_status
+</code></pre>
+<h3 class="subsection-title">Canonical metric</h3>
+<p>A canonical metric is the approved enterprise definition of a KPI.</p>
+<p>Example:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Metric:
+Monthly active account
+
+Definition:
+A paid account with at least one meaningful product activity
+during the calendar month
+
+Exclusions:
+Internal, test and trial accounts
+
+Source:
+fct_account_activity
+
+Owner:
+Product Analytics
+
+Status:
+Certified
+</code></pre>
+<p>Strong statement:</p>
+<blockquote class="answer-card">
+<p>The semantic layer owns metric logic. Dashboards and AI agents consume approved metrics instead of rebuilding calculations.</p>
+</blockquote>
+
+</article><article class="section-card cat-kpi" data-category="KPI" data-search="7. numerator and denominator  metric = numerator ÷ denominator  the numerator is the outcome being measured.  the denominator is the eligible population or comparison base.  example:  activation rate =
+activated new accounts
+──────────────────────
+eligible new accounts  always clarify:  who is eligible?
+what time period applies?
+which exclusions apply?
+is the denominator fixed or changing?  for count metrics such as active customers, there may be no denominator.   " data-section-number="7" id="card-numerator-and-denominator"><div class="section-meta"><span class="number-badge">07</span><span class="category-badge">KPI</span><a aria-label="Link to 7. Numerator and denominator" class="section-link" href="#numerator-and-denominator">⌁</a></div><h2 class="section-title" id="numerator-and-denominator">7. Numerator and denominator</h2>
+<pre class="code-panel"><code class="language-text plain-diagram">Metric = Numerator ÷ Denominator
+</code></pre>
+<p>The <strong>numerator</strong> is the outcome being measured.</p>
+<p>The <strong>denominator</strong> is the eligible population or comparison base.</p>
+<p>Example:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Activation rate =
+Activated new accounts
+──────────────────────
+Eligible new accounts
+</code></pre>
+<p>Always clarify:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Who is eligible?
+What time period applies?
+Which exclusions apply?
+Is the denominator fixed or changing?
+</code></pre>
+<p>For count metrics such as active customers, there may be no denominator.</p>
+
+</article><article class="section-card cat-kpi" data-category="KPI" data-search="8. kpi design and insight generation — drive  use drive :  d — define the business objective
+r — refine the metric definition
+i — implement and validate
+v — view trends and drivers
+e — explain and recommend action  define  start with the decision, not the available data.  weak:  track clicks  strong:  measure whether new customers reach first value within seven days  refine  document:  numerator
+denominator
+grain
+time window
+inclusions
+exclusions
+target
+owner
+data source
+refresh sla  implement  trusted source
+    ↓
+governed dbt model
+    ↓
+certified metric
+    ↓
+dashboard or ai agent  view trends and drivers  analyse:  target versus actual
+month-over-month movement
+year-over-year movement
+customer segments
+cohorts
+funnels
+geography
+plan type
+feature usage
+anomalies  explain and recommend  a useful insight explains:  what changed
+how much it changed
+where it changed
+why it likely changed
+business impact
+recommended action  weak insight:  activation declined by 9%.  strong insight:  activation declined from 60% to 51%. approximately 70% of the decline came from small-business customers using mobile onboarding. the drop began after a product release and was concentrated at the collaborator-invite step. i would prioritise fixing that workflow and track recovery daily.   " data-section-number="8" id="card-kpi-design-and-insight-generation-drive"><div class="section-meta"><span class="number-badge">08</span><span class="category-badge">KPI</span><a aria-label="Link to 8. KPI design and insight generation — DRIVE" class="section-link" href="#kpi-design-and-insight-generation-drive">⌁</a></div><h2 class="section-title" id="kpi-design-and-insight-generation-drive">8. KPI design and insight generation — DRIVE</h2>
+<p>Use <strong>DRIVE</strong>:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">D — Define the business objective
+R — Refine the metric definition
+I — Implement and validate
+V — View trends and drivers
+E — Explain and recommend action
+</code></pre>
+<h3 class="subsection-title">Define</h3>
+<p>Start with the decision, not the available data.</p>
+<p>Weak:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Track clicks
+</code></pre>
+<p>Strong:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Measure whether new customers reach first value within seven days
+</code></pre>
+<h3 class="subsection-title">Refine</h3>
+<p>Document:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Numerator
+Denominator
+Grain
+Time window
+Inclusions
+Exclusions
+Target
+Owner
+Data source
+Refresh SLA
+</code></pre>
+<h3 class="subsection-title">Implement</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Trusted source
+    ↓
+Governed dbt model
+    ↓
+Certified metric
+    ↓
+Dashboard or AI agent
+</code></pre>
+<h3 class="subsection-title">View trends and drivers</h3>
+<p>Analyse:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Target versus actual
+Month-over-month movement
+Year-over-year movement
+Customer segments
+Cohorts
+Funnels
+Geography
+Plan type
+Feature usage
+Anomalies
+</code></pre>
+<h3 class="subsection-title">Explain and recommend</h3>
+<p>A useful insight explains:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">What changed
+How much it changed
+Where it changed
+Why it likely changed
+Business impact
+Recommended action
+</code></pre>
+<p>Weak insight:</p>
+<blockquote class="answer-card">
+<p>Activation declined by 9%.</p>
+</blockquote>
+<p>Strong insight:</p>
+<blockquote class="answer-card">
+<p>Activation declined from 60% to 51%. Approximately 70% of the decline came from small-business customers using mobile onboarding. The drop began after a product release and was concentrated at the collaborator-invite step. I would prioritise fixing that workflow and track recovery daily.</p>
+</blockquote>
+
+</article><article class="section-card cat-kpi" data-category="KPI" data-search="9. kpi hierarchy  north-star metric
+        ↑
+outcome metrics
+        ↑
+driver metrics
+        ↑
+operational inputs  north-star metric  represents sustained customer value.  example:  weekly active collaborative workspaces  outcome metrics  arr
+nrr
+revenue
+renewal rate
+churn
+customer retention  driver metrics  activation rate
+feature adoption
+seat utilisation
+collaboration rate
+time to first value  guardrail metrics  error rate
+latency
+support tickets
+customer complaints
+opt-out rate   " data-section-number="9" id="card-kpi-hierarchy"><div class="section-meta"><span class="number-badge">09</span><span class="category-badge">KPI</span><a aria-label="Link to 9. KPI hierarchy" class="section-link" href="#kpi-hierarchy">⌁</a></div><h2 class="section-title" id="kpi-hierarchy">9. KPI hierarchy</h2>
+<pre class="code-panel"><code class="language-text plain-diagram">North-star metric
+        ↑
+Outcome metrics
+        ↑
+Driver metrics
+        ↑
+Operational inputs
+</code></pre>
+<h3 class="subsection-title">North-star metric</h3>
+<p>Represents sustained customer value.</p>
+<p>Example:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Weekly active collaborative workspaces
+</code></pre>
+<h3 class="subsection-title">Outcome metrics</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">ARR
+NRR
+Revenue
+Renewal rate
+Churn
+Customer retention
+</code></pre>
+<h3 class="subsection-title">Driver metrics</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Activation rate
+Feature adoption
+Seat utilisation
+Collaboration rate
+Time to first value
+</code></pre>
+<h3 class="subsection-title">Guardrail metrics</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Error rate
+Latency
+Support tickets
+Customer complaints
+Opt-out rate
+</code></pre>
+
+</article><article class="section-card cat-kpi" data-category="KPI" data-search="10. important saas kpis  monthly recurring revenue  mrr = monthly recurring subscription revenue  annual recurring revenue  arr = mrr × 12  logo churn  customers lost during the period
+────────────────────────────────
+customers at the beginning  revenue churn  churned recurring revenue
+─────────────────────────
+opening recurring revenue  gross revenue retention  opening mrr − contraction − churn
+────────────────────────────────
+opening mrr  grr excludes expansion.  net revenue retention  opening mrr + expansion − contraction − churn
+─────────────────────────────────────────────
+opening mrr  activation rate  new accounts completing activation
+──────────────────────────────────
+eligible new accounts  feature adoption rate  active accounts using the feature
+─────────────────────────────────
+eligible active accounts  retention rate  users returning in a later period
+─────────────────────────────────
+users in the original cohort  funnel conversion  users completing the final step
+───────────────────────────────
+users entering the funnel   " data-section-number="10" id="card-important-saas-kpis"><div class="section-meta"><span class="number-badge">10</span><span class="category-badge">KPI</span><a aria-label="Link to 10. Important SaaS KPIs" class="section-link" href="#important-saas-kpis">⌁</a></div><h2 class="section-title" id="important-saas-kpis">10. Important SaaS KPIs</h2>
+<h3 class="subsection-title">Monthly Recurring Revenue</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">MRR = Monthly recurring subscription revenue
+</code></pre>
+<h3 class="subsection-title">Annual Recurring Revenue</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">ARR = MRR × 12
+</code></pre>
+<h3 class="subsection-title">Logo churn</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Customers lost during the period
+────────────────────────────────
+Customers at the beginning
+</code></pre>
+<h3 class="subsection-title">Revenue churn</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Churned recurring revenue
+─────────────────────────
+Opening recurring revenue
+</code></pre>
+<h3 class="subsection-title">Gross Revenue Retention</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Opening MRR − Contraction − Churn
+────────────────────────────────
+Opening MRR
+</code></pre>
+<p>GRR excludes expansion.</p>
+<h3 class="subsection-title">Net Revenue Retention</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Opening MRR + Expansion − Contraction − Churn
+─────────────────────────────────────────────
+Opening MRR
+</code></pre>
+<h3 class="subsection-title">Activation rate</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">New accounts completing activation
+──────────────────────────────────
+Eligible new accounts
+</code></pre>
+<h3 class="subsection-title">Feature adoption rate</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Active accounts using the feature
+─────────────────────────────────
+Eligible active accounts
+</code></pre>
+<h3 class="subsection-title">Retention rate</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Users returning in a later period
+─────────────────────────────────
+Users in the original cohort
+</code></pre>
+<h3 class="subsection-title">Funnel conversion</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Users completing the final step
+───────────────────────────────
+Users entering the funnel
+</code></pre>
+
+</article><article class="section-card cat-product" data-category="Product Analytics" data-search="11. event taxonomy and instrumentation — trace  use trace :  t — taxonomy
+r — reliable instrumentation
+a — analytics pipeline
+c — customer behaviour
+e — evaluation and governance  taxonomy  use consistent naming:  object_action  examples:  sheet_created
+sheet_shared
+comment_added
+automation_created
+dashboard_viewed  avoid inconsistent versions such as:  createsheet
+new_sheet
+sheet-create  each event should include:  event_name
+event_id
+event_timestamp
+received_timestamp
+event_version
+user_id
+account_id
+session_id
+platform
+event_properties
+user_properties
+account_properties  reliable instrumentation  events should be emitted only after the intended action succeeds.  example:  automation_created should fire after the automation is successfully saved, not when the user opens the creation screen.  analytics pipeline  web / mobile / backend
+        ↓
+segment
+        ↓
+kafka or event processing
+        ↓
+snowflake / databricks
+        ↓
+dbt behavioural models
+        ↓
+amplitude / tableau / ai  handle:  duplicate events
+late events
+out-of-order events
+schema changes
+identity resolution
+bots
+internal users
+backfills
+missing properties  customer behaviour  convert events into:  funnels
+activation
+retention
+feature adoption
+stickiness
+journeys
+cohorts  evaluation and governance  every event should have:  definition
+trigger condition
+owner
+required properties
+version
+pii classification
+quality status
+consumers
+deprecation status     " data-section-number="11" id="card-event-taxonomy-and-instrumentation-trace"><div class="section-meta"><span class="number-badge">11</span><span class="category-badge">Product Analytics</span><a aria-label="Link to 11. Event taxonomy and instrumentation — TRACE" class="section-link" href="#event-taxonomy-and-instrumentation-trace">⌁</a></div><h2 class="section-title" id="event-taxonomy-and-instrumentation-trace">11. Event taxonomy and instrumentation — TRACE</h2>
+<p>Use <strong>TRACE</strong>:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">T — Taxonomy
+R — Reliable instrumentation
+A — Analytics pipeline
+C — Customer behaviour
+E — Evaluation and governance
+</code></pre>
+<h3 class="subsection-title">Taxonomy</h3>
+<p>Use consistent naming:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">object_action
+</code></pre>
+<p>Examples:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">sheet_created
+sheet_shared
+comment_added
+automation_created
+dashboard_viewed
+</code></pre>
+<p>Avoid inconsistent versions such as:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">CreateSheet
+new_sheet
+sheet-create
+</code></pre>
+<p>Each event should include:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">event_name
+event_id
+event_timestamp
+received_timestamp
+event_version
+user_id
+account_id
+session_id
+platform
+event_properties
+user_properties
+account_properties
+</code></pre>
+<h3 class="subsection-title">Reliable instrumentation</h3>
+<p>Events should be emitted only after the intended action succeeds.</p>
+<p>Example:</p>
+<blockquote class="answer-card">
+<p><code>automation_created</code> should fire after the automation is successfully saved, not when the user opens the creation screen.</p>
+</blockquote>
+<h3 class="subsection-title">Analytics pipeline</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Web / Mobile / Backend
+        ↓
+Segment
+        ↓
+Kafka or event processing
+        ↓
+Snowflake / Databricks
+        ↓
+dbt behavioural models
+        ↓
+Amplitude / Tableau / AI
+</code></pre>
+<p>Handle:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Duplicate events
+Late events
+Out-of-order events
+Schema changes
+Identity resolution
+Bots
+Internal users
+Backfills
+Missing properties
+</code></pre>
+<h3 class="subsection-title">Customer behaviour</h3>
+<p>Convert events into:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Funnels
+Activation
+Retention
+Feature adoption
+Stickiness
+Journeys
+Cohorts
+</code></pre>
+<h3 class="subsection-title">Evaluation and governance</h3>
+<p>Every event should have:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Definition
+Trigger condition
+Owner
+Required properties
+Version
+PII classification
+Quality status
+Consumers
+Deprecation status
+</code></pre>
+
+
+</article><article class="section-card cat-kpi" data-category="KPI" data-search="15. kpi anomaly detection  possible methods:  static thresholds
+percentage change
+moving-average deviation
+z-score
+interquartile range
+seasonal baseline
+forecast confidence interval
+change-point detection  use simple rules when the business has clear thresholds.  use statistical methods when the metric has seasonality or natural variation.  an alert should contain:  affected metric
+magnitude of anomaly
+affected segment
+likely driver
+data-quality status
+owner
+recommended investigation  always verify that the anomaly is not caused by a pipeline or instrumentation problem.   " data-section-number="15" id="card-kpi-anomaly-detection"><div class="section-meta"><span class="number-badge">15</span><span class="category-badge">KPI</span><a aria-label="Link to 15. KPI anomaly detection" class="section-link" href="#kpi-anomaly-detection">⌁</a></div><h2 class="section-title" id="kpi-anomaly-detection">15. KPI anomaly detection</h2>
+<p>Possible methods:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Static thresholds
+Percentage change
+Moving-average deviation
+Z-score
+Interquartile range
+Seasonal baseline
+Forecast confidence interval
+Change-point detection
+</code></pre>
+<p>Use simple rules when the business has clear thresholds.</p>
+<p>Use statistical methods when the metric has seasonality or natural variation.</p>
+<p>An alert should contain:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Affected metric
+Magnitude of anomaly
+Affected segment
+Likely driver
+Data-quality status
+Owner
+Recommended investigation
+</code></pre>
+<p>Always verify that the anomaly is not caused by a pipeline or instrumentation problem.</p>
+
+</article><article class="section-card cat-platform" data-category="AI &amp; Platform" data-search="16. ai agents and mcp  architecture:  claude / ai client
+        ↓
+mcp client
+        ↓
+authenticated mcp server
+        ↓
+semantic layer
+        ↓
+approved metrics and dimensions
+        ↓
+snowflake / databricks  core principle:  the llm should not invent business logic. it should interpret intent and query approved metrics through the semantic layer.  controls:  read-only access
+identity propagation
+rbac
+row-level security
+column masking
+certified metrics only
+approved dimensions and filters
+query timeout
+cost limits
+sql validation
+audit logging
+prompt-injection protection
+result-size limits  the agent should return:  answer
+metric definition
+applied filters
+reporting period
+data freshness
+source lineage  evaluation metrics:  sql execution success
+result accuracy
+correct metric selection
+correct filters
+correct date range
+correct join path
+refusal accuracy
+hallucination rate
+latency
+cost per question   " data-section-number="16" id="card-ai-agents-and-mcp"><div class="section-meta"><span class="number-badge">16</span><span class="category-badge">AI &amp; Platform</span><a aria-label="Link to 16. AI agents and MCP" class="section-link" href="#ai-agents-and-mcp">⌁</a></div><h2 class="section-title" id="ai-agents-and-mcp">16. AI agents and MCP</h2>
+<p>Architecture:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Claude / AI client
+        ↓
+MCP client
+        ↓
+Authenticated MCP server
+        ↓
+Semantic layer
+        ↓
+Approved metrics and dimensions
+        ↓
+Snowflake / Databricks
+</code></pre>
+<p>Core principle:</p>
+<blockquote class="answer-card">
+<p>The LLM should not invent business logic. It should interpret intent and query approved metrics through the semantic layer.</p>
+</blockquote>
+<p>Controls:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Read-only access
+Identity propagation
+RBAC
+Row-level security
+Column masking
+Certified metrics only
+Approved dimensions and filters
+Query timeout
+Cost limits
+SQL validation
+Audit logging
+Prompt-injection protection
+Result-size limits
+</code></pre>
+<p>The agent should return:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Answer
+Metric definition
+Applied filters
+Reporting period
+Data freshness
+Source lineage
+</code></pre>
+<p>Evaluation metrics:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">SQL execution success
+Result accuracy
+Correct metric selection
+Correct filters
+Correct date range
+Correct join path
+Refusal accuracy
+Hallucination rate
+Latency
+Cost per question
+</code></pre>
+
+</article><article class="section-card cat-platform" data-category="AI &amp; Platform" data-search="17. snowflake talking points  be ready to discuss:  virtual warehouses
+workload isolation
+auto-suspend and auto-resume
+query profiles
+micro-partition pruning
+clustering
+caching
+rbac
+masking policies
+row-access policies
+secure views
+streams and tasks
+dynamic tables
+resource monitors
+cost attribution  strong answer:  i separate workloads by business criticality, monitor warehouse utilisation and queueing, use auto-suspend, optimise pruning and clustering only where justified, and implement rbac based on job functions rather than individual users.   " data-section-number="17" id="card-snowflake-talking-points"><div class="section-meta"><span class="number-badge">17</span><span class="category-badge">AI &amp; Platform</span><a aria-label="Link to 17. Snowflake talking points" class="section-link" href="#snowflake-talking-points">⌁</a></div><h2 class="section-title" id="snowflake-talking-points">17. Snowflake talking points</h2>
+<p>Be ready to discuss:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Virtual warehouses
+Workload isolation
+Auto-suspend and auto-resume
+Query profiles
+Micro-partition pruning
+Clustering
+Caching
+RBAC
+Masking policies
+Row-access policies
+Secure views
+Streams and tasks
+Dynamic tables
+Resource monitors
+Cost attribution
+</code></pre>
+<p>Strong answer:</p>
+<blockquote class="answer-card">
+<p>I separate workloads by business criticality, monitor warehouse utilisation and queueing, use auto-suspend, optimise pruning and clustering only where justified, and implement RBAC based on job functions rather than individual users.</p>
+</blockquote>
+
+</article><article class="section-card cat-platform" data-category="AI &amp; Platform" data-search="18. databricks talking points  prepare:  bronze, silver and gold architecture
+delta lake acid
+schema enforcement
+schema evolution
+merge
+change data feed
+deletion vectors
+optimize
+clustering
+unity catalog
+batch and streaming pipelines  snowflake and databricks can coexist:  databricks:
+complex processing, streaming, machine learning and lakehouse workloads
+
+snowflake:
+enterprise warehouse, governed bi and high-concurrency analytics  the correct answer depends on organisational architecture and workload requirements.   " data-section-number="18" id="card-databricks-talking-points"><div class="section-meta"><span class="number-badge">18</span><span class="category-badge">AI &amp; Platform</span><a aria-label="Link to 18. Databricks talking points" class="section-link" href="#databricks-talking-points">⌁</a></div><h2 class="section-title" id="databricks-talking-points">18. Databricks talking points</h2>
+<p>Prepare:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Bronze, Silver and Gold architecture
+Delta Lake ACID
+Schema enforcement
+Schema evolution
+MERGE
+Change Data Feed
+Deletion vectors
+OPTIMIZE
+Clustering
+Unity Catalog
+Batch and streaming pipelines
+</code></pre>
+<p>Snowflake and Databricks can coexist:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Databricks:
+Complex processing, streaming, machine learning and lakehouse workloads
+
+Snowflake:
+Enterprise warehouse, governed BI and high-concurrency analytics
+</code></pre>
+<p>The correct answer depends on organisational architecture and workload requirements.</p>
+
+</article><article class="section-card cat-platform" data-category="AI &amp; Platform" data-search="19. dbt and metricflow talking points  dbt  modular sql transformations
+ref-based dependencies
+testing
+documentation
+lineage
+incremental models
+snapshots
+contracts
+ci/cd
+environment promotion  recommended model structure:  stg_     source-aligned cleaning
+int_     reusable intermediate logic
+fct_     business processes
+dim_     business dimensions
+mart_    consumer-oriented outputs  metricflow  know:  semantic models
+entities
+measures or simple metrics
+dimensions
+time dimensions
+ratio metrics
+derived metrics
+cumulative metrics
+join paths
+time spines
+saved queries  strong statement:  dbt creates trusted physical models, while metricflow provides governed business metrics over those models.   " data-section-number="19" id="card-dbt-and-metricflow-talking-points"><div class="section-meta"><span class="number-badge">19</span><span class="category-badge">AI &amp; Platform</span><a aria-label="Link to 19. dbt and MetricFlow talking points" class="section-link" href="#dbt-and-metricflow-talking-points">⌁</a></div><h2 class="section-title" id="dbt-and-metricflow-talking-points">19. dbt and MetricFlow talking points</h2>
+<h3 class="subsection-title">dbt</h3>
+<pre class="code-panel"><code class="language-text plain-diagram">Modular SQL transformations
+ref-based dependencies
+Testing
+Documentation
+Lineage
+Incremental models
+Snapshots
+Contracts
+CI/CD
+Environment promotion
+</code></pre>
+<p>Recommended model structure:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">stg_     Source-aligned cleaning
+int_     Reusable intermediate logic
+fct_     Business processes
+dim_     Business dimensions
+mart_    Consumer-oriented outputs
+</code></pre>
+<h3 class="subsection-title">MetricFlow</h3>
+<p>Know:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">Semantic models
+Entities
+Measures or simple metrics
+Dimensions
+Time dimensions
+Ratio metrics
+Derived metrics
+Cumulative metrics
+Join paths
+Time spines
+Saved queries
+</code></pre>
+<p>Strong statement:</p>
+<blockquote class="answer-card">
+<p>dbt creates trusted physical models, while MetricFlow provides governed business metrics over those models.</p>
+</blockquote>
+
+</article><article class="section-card cat-interview" data-category="Interview" data-search="20. handling conflicting metric definitions  question:  finance, product and customer success define active customers differently. what would you do?  answer:  i would first understand the business question each team is answering. if the concepts are genuinely different, i would not force one metric. i would create clearly named metrics such as active paid customer, monthly active product account and customer-success-managed account. each would have a precise definition, owner, grain, exclusions and authoritative source. if the teams are trying to answer the same question, i would facilitate agreement, reconcile the data and certify one enterprise definition.   " data-section-number="20" id="card-handling-conflicting-metric-definitions"><div class="section-meta"><span class="number-badge">20</span><span class="category-badge">Interview</span><a aria-label="Link to 20. Handling conflicting metric definitions" class="section-link" href="#handling-conflicting-metric-definitions">⌁</a></div><h2 class="section-title" id="handling-conflicting-metric-definitions">20. Handling conflicting metric definitions</h2>
+<p>Question:</p>
+<blockquote class="answer-card">
+<p>Finance, Product and Customer Success define active customers differently. What would you do?</p>
+</blockquote>
+<p>Answer:</p>
+<blockquote class="answer-card">
+<p>I would first understand the business question each team is answering. If the concepts are genuinely different, I would not force one metric. I would create clearly named metrics such as active paid customer, monthly active product account and customer-success-managed account. Each would have a precise definition, owner, grain, exclusions and authoritative source. If the teams are trying to answer the same question, I would facilitate agreement, reconcile the data and certify one enterprise definition.</p>
+</blockquote>
+
+</article><article class="section-card cat-interview" data-category="Interview" data-search="21. designing a new kpi  use this sequence:  1. identify the decision it supports
+2. define the business outcome
+3. specify numerator and denominator
+4. define grain and time window
+5. set inclusion and exclusion rules
+6. identify authoritative sources
+7. select approved dimensions
+8. build the governed model
+9. add quality tests
+10. reconcile and validate
+11. assign ownership
+12. certify and publish
+13. monitor usage and quality     " data-section-number="21" id="card-designing-a-new-kpi"><div class="section-meta"><span class="number-badge">21</span><span class="category-badge">Interview</span><a aria-label="Link to 21. Designing a new KPI" class="section-link" href="#designing-a-new-kpi">⌁</a></div><h2 class="section-title" id="designing-a-new-kpi">21. Designing a new KPI</h2>
+<p>Use this sequence:</p>
+<pre class="code-panel"><code class="language-text plain-diagram">1. Identify the decision it supports
+2. Define the business outcome
+3. Specify numerator and denominator
+4. Define grain and time window
+5. Set inclusion and exclusion rules
+6. Identify authoritative sources
+7. Select approved dimensions
+8. Build the governed model
+9. Add quality tests
+10. Reconcile and validate
+11. Assign ownership
+12. Certify and publish
+13. Monitor usage and quality
+</code></pre>
+
+
+</article><article class="section-card cat-interview" data-category="Interview" data-search="27. high-value interview phrases  define once and consume everywhere.  business teams own meaning; data teams own reliable implementation.  the semantic layer owns metric logic, while the ai agent interprets intent.  governance should create trust without becoming a delivery bottleneck.  self-service means controlled and reusable access, not unrestricted raw-data access.  a kpi should support a decision, not merely produce a number.  a metric is not certified until its definition, ownership, quality and reconciliation are complete.  before investigating a business anomaly, i first confirm that it is not a data-quality or instrumentation issue.  governance does not always mean forcing one definition. sometimes it means clearly distinguishing metrics that answer different questions.  executive reporting should explain what changed, why it changed and what action is required.   " data-section-number="27" id="card-high-value-interview-phrases"><div class="section-meta"><span class="number-badge">27</span><span class="category-badge">Interview</span><a aria-label="Link to 27. High-value interview phrases" class="section-link" href="#high-value-interview-phrases">⌁</a></div><h2 class="section-title" id="high-value-interview-phrases">27. High-value interview phrases</h2>
+<blockquote class="answer-card">
+<p>Define once and consume everywhere.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Business teams own meaning; data teams own reliable implementation.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>The semantic layer owns metric logic, while the AI agent interprets intent.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Governance should create trust without becoming a delivery bottleneck.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Self-service means controlled and reusable access, not unrestricted raw-data access.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>A KPI should support a decision, not merely produce a number.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>A metric is not certified until its definition, ownership, quality and reconciliation are complete.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Before investigating a business anomaly, I first confirm that it is not a data-quality or instrumentation issue.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Governance does not always mean forcing one definition. Sometimes it means clearly distinguishing metrics that answer different questions.</p>
+</blockquote>
+<blockquote class="answer-card">
+<p>Executive reporting should explain what changed, why it changed and what action is required.</p>
+</blockquote>
+
+</article><article class="section-card cat-interview" data-category="Interview" data-search="28. final frameworks to memorise  metric governance:
+doctor
+
+data catalogue and quality:
+trust
+
+semantic layer:
+scale
+
+kpi design and insight:
+drive
+
+event taxonomy and instrumentation:
+trace
+
+amplitude visualisations:
+first  one-line summary  i build trusted data foundations by standardising business definitions, implementing governed models, validating quality, exposing reusable metrics and enabling both human and ai consumers to make reliable decisions. " data-section-number="28" id="card-final-frameworks-to-memorise"><div class="section-meta"><span class="number-badge">28</span><span class="category-badge">Interview</span><a aria-label="Link to 28. Final frameworks to memorise" class="section-link" href="#final-frameworks-to-memorise">⌁</a></div><h2 class="section-title" id="final-frameworks-to-memorise">28. Final frameworks to memorise</h2>
+<pre class="code-panel"><code class="language-text plain-diagram">Metric governance:
+DOCTOR
+
+Data catalogue and quality:
+TRUST
+
+Semantic layer:
+SCALE
+
+KPI design and insight:
+DRIVE
+
+Event taxonomy and instrumentation:
+TRACE
+
+Amplitude visualisations:
+FIRST
+</code></pre>
+<h3 class="subsection-title">One-line summary</h3>
+<blockquote class="answer-card">
+<p>I build trusted data foundations by standardising business definitions, implementing governed models, validating quality, exposing reusable metrics and enabling both human and AI consumers to make reliable decisions.</p>
+</blockquote>
+</article>
+    <div class="empty-state" id="emptyState">
+      <h2>No matching sections</h2>
+      <p>Try a broader search term or select “All”.</p>
+    </div>
+  </main>
+</div>
+
+<button class="scroll-top" id="scrollTop" aria-label="Back to top">↑</button>
+
+<script>
+(() => {
+  const body = document.body;
+  const sections = [...document.querySelectorAll('.section-card')];
+  const tocLinks = [...document.querySelectorAll('.toc-link')];
+  const chips = [...document.querySelectorAll('.filter-chip')];
+  const searchInput = document.getElementById('searchInput');
+  const resultCount = document.getElementById('resultCount');
+  const emptyState = document.getElementById('emptyState');
+  const menuBtn = document.getElementById('menuBtn');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const themeBtn = document.getElementById('themeBtn');
+  const scrollTopBtn = document.getElementById('scrollTop');
+  let activeFilter = 'All';
+
+  const savedTheme = localStorage.getItem('smartsheet-cheat-theme');
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+  function applyFilters() {
+    const q = searchInput.value.trim().toLowerCase();
+    let visible = 0;
+    sections.forEach(section => {
+      const categoryMatch = activeFilter === 'All' || section.dataset.category === activeFilter;
+      const textMatch = !q || section.dataset.search.includes(q);
+      const show = categoryMatch && textMatch;
+      section.hidden = !show;
+      if (show) visible++;
+    });
+    tocLinks.forEach(link => {
+      const target = document.getElementById('card-' + link.getAttribute('href').slice(1));
+      link.hidden = target ? target.hidden : false;
+    });
+    resultCount.textContent = `${visible} of ${sections.length} sections`;
+    emptyState.style.display = visible ? 'none' : 'block';
+  }
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+
+  function closeDrawer() { body.classList.remove('drawer-open'); }
+  menuBtn.addEventListener('click', () => body.classList.toggle('drawer-open'));
+  backdrop.addEventListener('click', closeDrawer);
+  tocLinks.forEach(link => link.addEventListener('click', closeDrawer));
+
+  themeBtn.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('smartsheet-cheat-theme', next);
+  });
+
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('show', window.scrollY > 700);
+  });
+  scrollTopBtn.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const heading = entry.target.querySelector('.section-title');
+      if (!heading) return;
+      tocLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + heading.id));
+    });
+  }, { rootMargin: '-15% 0px -72% 0px', threshold: 0 });
+  sections.forEach(section => observer.observe(section));
+
+  document.addEventListener('keydown', event => {
+    if (event.key === '/' && document.activeElement !== searchInput) {
+      event.preventDefault();
+      searchInput.focus();
+    }
+    if (event.key === 'Escape') {
+      closeDrawer();
+      searchInput.blur();
+    }
+  });
+})();
+</script>
+</body>
+</html>
